@@ -142,7 +142,7 @@ plotNormalisedSuccess <- function (res, min.time.span = 5) {
     all.y <- c (all.y, y)
   }
   # add a mean line...
-  all.x <- round (all.x, digits = 2)
+  all.x <- round (all.x, digits = 1)
   uni.all.x <- sort (unique (all.x))
   meaned.y <- rep (NA, length (uni.all.x))
   for (i in 1:length (uni.all.x)) {
