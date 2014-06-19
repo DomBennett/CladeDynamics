@@ -1,21 +1,32 @@
 ## 17/06/2014
 ## D.J. Bennett
 ## The rise and fall of clades: here I use
-##  an equal rates markov model to add species to
-##  a tree. I then record the success of each
-##  clade at set time intervals.
+##  an equal rates markov model to add and remove
+##  species to a tree. I then record the success
+##  of each clade at set time intervals.
 ## N.B. It may crash unexpetedly as
-##  all clades may have gone extinct -- re-run
-## TODO: record tree growth in a video/gif
+##  all clades may have gone extinct; re-run
 
 ## Libraries
 library (ape)
 library (MoreTreeTools)
 library (plyr)
+library (animation)
 source ('functions.R')
 
+## Dirs
+figs.dir <- "figures"
+if (!file.exists (figs.dir)) {
+  dir.create (figs.dir)
+}
+res.dir <- "results"
+if (!file.exists (res.dir)) {
+  dir.create (res.dir)
+}
+
 ## Parameters
-time.steps <- 10000 # how many steps?
+time.steps <- 1000 # how many steps?
+# ~63 mins for 10000 on MacBook Air 1.4Ghrz*2
 interval <- 10 # how often to record?
 birth <- 3 # how many births to deaths?
 death <- 1
@@ -40,6 +51,9 @@ clade.performance <- list ()
 runmodel <- function (iteration) {
   # grow tree using ERMM
   tree <- growTree (interval, birth, death)
+  # write tree to disk
+  write.tree (tree, file = file.path (
+    res.dir, 'ERMM.tre'), append = TRUE)
   # calc 'success' of each node in tree
   current.success <- countChildren (tree)
   # add dataframe to a list
@@ -49,14 +63,29 @@ runmodel <- function (iteration) {
 m_ply (.data = (iteration = 1:iterations), .fun = runmodel,
        .progress = 'time')
 
-## Recording results
+## Saving results
 # convert list of dataframes into single dataframe
 res <- reformat (clade.performance, interval)
-write.csv (x = res, file = 'clades_through_time.csv')
+write.csv (x = res, file = file.path (res.dir, 'clades_through_time.csv'))
 # plot clade successes across time
-pdf ('clade_success.pdf')
+pdf (file.path (figs.dir, 'clade_success.pdf'))
 plotSuccess (res)
 dev.off ()
-pdf ('normalised_clade_success.pdf')
-plotNormalisedSuccess (res)
+pdf (file.path (figs.dir, 'normalised_clade_success.pdf'))
+plotNormalisedSuccess (res, min.time.span = 20)
 dev.off ()
+# Create .gif of trees produced
+# read trees
+trees <- read.tree (file = file.path (res.dir, 'ERMM.tre'))
+time.step <- interval
+par (mar = c (2, 2, 3, 2) + 0.1)
+png (file = "temp_tree_%010d.png")
+for (each in trees) {
+  plot (each, show.tip.label = FALSE)
+  mtext (paste0 ('t = ', time.step), adj = 0.1, line = 0)
+  time.step <- time.step + interval
+}
+dev.off()
+system (paste0 ("convert -delay 40 *.png ",
+                file.path (figs.dir, 'ERMM_tree.gif')))
+file.remove (list.files (pattern = ".png"))
