@@ -151,7 +151,8 @@ plotNormalisedSuccess <- function (res, min.time.span = 5) {
   lines (x = uni.all.x, y = meaned.y, lwd = 2)
 }
 
-growTree <- function (iterations, birth = 0.6, death = 0.4) {
+growTree <- function (iterations, birth = 0.6, death = 0.4,
+                      pe.bias = FALSE) {
   add <- function () {
     # an equal rates markov model:
     # choose a species at random
@@ -164,10 +165,21 @@ growTree <- function (iterations, birth = 0.6, death = 0.4) {
                           1:length (tree$tip.label))
     tree$edge.length[tip.edges] <-
       tree$edge.length[tip.edges] + 1
-    #probs <- tree$edge.length[tip.edges] # weight by branch length?
-    random.edge <- sample (x = tip.edges, size = 1)
+    if (pe.bias) {
+      # weight by 1/branch length
+      probs <- 1/tree$edge.length[tip.edges]
+      probs <- probs/sum (probs)
+      random.edge <- sample (x = tip.edges, size = 1,
+                             prob = probs)
+    } else {
+      random.edge <- sample (x = tip.edges, size = 1)
+    }
+    # check that the smallest branches are being selected
+#     print ('Negative')
+#     print (tree$edge.length[random.edge] -
+#     mean (tree$edge.length[tip.edges]))
     new.node.label <- paste0 ('n', max.node + 1)
-    new.tip.label <- paste0 ('t', length (tree$tip.label) + 1)
+    new.tip.label <- paste0 ('t', max.tip + 1)
     # new node.age is always 1 -- 1 time step ago.
     node.age <- 1
     # add new tip at random edge
@@ -176,9 +188,27 @@ growTree <- function (iterations, birth = 0.6, death = 0.4) {
                      node.age = node.age,
                      node.label = new.node.label)
     max.node <<- max.node + 1
+    max.tip <<- max.tip + 1
   }
   drop <- function () {
-    to.drop <- sample (tree$tip.label, 1)
+    tip.edges <- which (tree$edge[, 2] %in%
+                          1:length (tree$tip.label))
+    if (pe.bias) {
+      # weight by branch length
+      probs <- tree$edge.length[tip.edges]
+      probs <- probs/sum (probs)
+      to.drop <- sample (x = tree$edge[tip.edges,2],
+                         size = 1, prob = probs)
+      to.drop <- tree$tip.label[to.drop]
+    } else {
+      to.drop <- sample (tree$tip.label, 1)
+    }
+    # check pe.bias
+#     random.edge <- tree$edge[ ,2] %in%
+#       which (tree$tip.label == to.drop)
+#     print ('Positive')
+#     print (tree$edge.length[random.edge] -
+#              mean (tree$edge.length[tip.edges]))
     tree <<- drop.tip (tree, to.drop)
   }
   run <- function (iteration) {

@@ -6,12 +6,15 @@
 ##  of each clade at set time intervals.
 ## N.B. It may crash unexpetedly as
 ##  all clades may have gone extinct; re-run
+## TODO: store tree with fossil species, for plotting
+## TODO: I don't think the node allocation is working,
+##  clades are disappearing far two quickly to be the
+##  of chance.
 
 ## Libraries
 library (ape)
 library (MoreTreeTools)
 library (plyr)
-library (animation)
 source ('functions.R')
 
 ## Dirs
@@ -25,16 +28,18 @@ if (!file.exists (res.dir)) {
 }
 
 ## Parameters
-time.steps <- 1000 # how many steps?
+time.steps <- 3000 # how many steps?
 # ~63 mins for 10000 on MacBook Air 1.4Ghrz*2
 interval <- 10 # how often to record?
-birth <- 3 # how many births to deaths?
+birth <- 1.1 # how many births to deaths?
 death <- 1
+pe.bias <- TRUE # Bias by PE?
 
 ## Globals
-# count nodes, necessary for adding new nodes
-# otherwise nodes would not be unique across time steps
+# count nodes and tips, necessary for adding new nodes
+# otherwise would not be unique across time steps
 max.node <- 1
+max.tip <- 2 # starting tree has 2 tips and 1 int node
 
 ## Set-up
 # seed tree of two species
@@ -50,7 +55,7 @@ clade.performance <- list ()
 ## Model
 runmodel <- function (iteration) {
   # grow tree using ERMM
-  tree <- growTree (interval, birth, death)
+  tree <- growTree (interval, birth, death, pe.bias)
   # write tree to disk
   write.tree (tree, file = file.path (
     res.dir, 'ERMM.tre'), append = TRUE)
@@ -60,6 +65,9 @@ runmodel <- function (iteration) {
   clade.performance <<- c (clade.performance,
                           list (current.success))
 }
+if (file.exists (file.path (res.dir, 'ERMM.tre'))) {
+  file.remove (file.path (res.dir, 'ERMM.tre'))
+}
 m_ply (.data = (iteration = 1:iterations), .fun = runmodel,
        .progress = 'time')
 
@@ -67,12 +75,13 @@ m_ply (.data = (iteration = 1:iterations), .fun = runmodel,
 # convert list of dataframes into single dataframe
 res <- reformat (clade.performance, interval)
 write.csv (x = res, file = file.path (res.dir, 'clades_through_time.csv'))
+#res <- read.csv (file = file.path (res.dir, 'clades_through_time.csv'))
 # plot clade successes across time
 pdf (file.path (figs.dir, 'clade_success.pdf'))
 plotSuccess (res)
 dev.off ()
 pdf (file.path (figs.dir, 'normalised_clade_success.pdf'))
-plotNormalisedSuccess (res, min.time.span = 20)
+plotNormalisedSuccess (res, min.time.span = 30)
 dev.off ()
 # Create .gif of trees produced
 # read trees
@@ -86,6 +95,6 @@ for (each in trees) {
   time.step <- time.step + interval
 }
 dev.off()
-system (paste0 ("convert -delay 40 *.png ",
+system (paste0 ("convert -delay 10 *.png ",
                 file.path (figs.dir, 'ERMM_tree.gif')))
 file.remove (list.files (pattern = ".png"))
