@@ -21,24 +21,24 @@ findNonZeros <- function (element) {
   n.pos > 0
 }
 
-findRiseAndFall <- function (element, min.size = 2) {
-  ## Find all clade radiations that rise from and to min.size
-  bool <- element >= min.size
-  # add shifted bools to get a 1,2 or 3 representing the
-  #  position of the number in the sequence
-  n.pos <- bool + c (bool[-1], bool[1]) +
-    c (bool[length (bool)], bool[-length (bool)])
-  # find pos 1s that mark the beginning and end of the radiation
-  # with regexp
-  n.pos.str <- paste (n.pos, collapse = '')
-  start <- regexpr ('123', n.pos.str)
-  end <- regexpr ('321', n.pos.str)
-  if (any (c (start, end) < 0)) {
-    return (NA)
-  }
-  # return radiation index
-  start:(end+2)
-}
+# findRiseAndFall <- function (element, min.size = 2) {
+#   ## Find all clade radiations that rise from and to min.size
+#   bool <- element >= min.size
+#   # add shifted bools to get a 1,2 or 3 representing the
+#   #  position of the number in the sequence
+#   n.pos <- bool + c (bool[-1], bool[1]) +
+#     c (bool[length (bool)], bool[-length (bool)])
+#   # find pos 1s that mark the beginning and end of the radiation
+#   # with regexp
+#   n.pos.str <- paste (n.pos, collapse = '')
+#   start <- regexpr ('123', n.pos.str)
+#   end <- regexpr ('321', n.pos.str)
+#   if (any (c (start, end) < 0)) {
+#     return (NA)
+#   }
+#   # return radiation index
+#   start:(end+2)
+# }
 
 plotSuccess <- function (res, section = 'all',
                          thinning = 'all') {
@@ -83,43 +83,125 @@ plotSuccess <- function (res, section = 'all',
   }
 }
 
+# findRiseAndFall <- function (element, min.size, min.time) {
+#   ## Find a radiation by identifying the peak and local troughs
+#   ## Be selective by choosing only those clades that have a peak
+#   ## above min.size, and read their troughs above min.time
+#   # only extinct clades
+#   if (element[length (element)] != 0) {
+#     return (NA)
+#   }
+#   if (max (element) < min.size) {
+#     return (NA)
+#   }
+#   # find peak (only use first)
+#   peak <- which (element == max (element))[1]
+#   # find elements that increase up to peak and decrease after, set peak as false
+#   bool <- c (element[1:(peak - 1)] <= element[2:peak], FALSE,
+#      element[peak:(length (element) - 1)] >= element[(peak + 1):length (element)])
+#   # identify start and end by finding immediate falses around peak
+#   falses <- which (bool == FALSE)
+#   if (falses[1] == peak) {
+#     # if first of the falses is peak, the first element is the start
+#     start <- 1
+#   } else {
+#     start <- falses[which (falses == peak) - 1] + 1
+#   }
+#   end <- falses[which (falses == peak) + 1] - 1
+#   if (length (start:end) < min.time) {
+#     return (NA)
+#   }
+#   radiation.pos <- start:end
+# }
+
+findRiseAndFall <- function (element, min.size, min.time) {
+  ## Find peak and centre time around it
+  if (element[length (element)] != 0) {
+    return (NA)
+  }
+  if (max (element) < min.size) {
+    return (NA)
+  }
+  # find peak (only use first)
+  peak <- which (element == max (element))
+  
+  # find elements that increase up to peak and decrease after, set peak as false
+  bool <- c (element[1:(peak - 1)] <= element[2:peak], FALSE,
+             element[peak:(length (element) - 1)] >= element[(peak + 1):length (element)])
+  # identify start and end by finding immediate falses around peak
+  falses <- which (bool == FALSE)
+  if (falses[1] == peak) {
+    # if first of the falses is peak, the first element is the start
+    start <- 1
+  } else {
+    start <- falses[which (falses == peak) - 1] + 1
+  }
+  end <- falses[which (falses == peak) + 1] - 1
+  if (length (start:end) < min.time) {
+    return (NA)
+  }
+  radiation.pos <- start:end
+}
+
+normalise <- function (element, min.size, min.time) {
+  ## Return a list of normalised clade success and time
+  ##  centred at its peak
+  if (element[length (element)] != 0 |
+        element[1] != 0) { # only extinct clades
+    return (NA)
+  }
+  if (max (element) < min.size) {
+    return (NA)
+  }
+  if (sum (element != 0) < min.time) {
+    return (NA)
+  }
+  # remove excessive zeros
+  y <- element[findNonZeros (element)]
+  # find peak(s)
+  peak <- which (y == max (y))
+  peak <- round (mean (peak))
+  # centre time around peak
+  x <- seq ((0 - (peak-1)), (length (y) - peak))
+  # normalise
+  x <- x/max (x)
+  y <- y/max (y)
+  list (x = x, y = y)
+}
+
 plotNormalisedSuccess <- function (res, min.time.span = 5, min.size = 2) {
   #   if (is.null (dim (res))) {
   #     stop ('Too few suitable clades -- trying re-running')
   #   }
   n.reps <- ceiling (ncol (res)/3)
   cols <- rep (rainbow (3, alpha = 0.7), n.reps)
-  plot (x = 0, y = 0, type = 'n', xlim = c (0.1,1),
+  plot (x = 0, y = 0, type = 'n', xlim = c (-1,1),
         ylim = c (0, 1), main =
           'Normalised Clade Success Through Time',
         xlab = 'Normalised Time', ylab = 'Normalised Success')
   all.x <- all.y <- c ()
   for (i in 1:ncol (res)) {
-    # only clades that go from 0 to 0
-    # And clades that have minimum time span
-    radiation.pos <- findRiseAndFall (res[ ,i], min.size)
-    if (is.na (radiation.pos[1]) | length (radiation.pos)
-        < min.time.span) {
+    normalised.element <- normalise (res[ ,i], min.size, min.time.span)
+    if (any (is.na (normalised.element))) {
       next
     }
-    # normlise time steps and success
-    normalised.time.steps <- 1/length (radiation.pos)
-    x <- seq (normalised.time.steps,
-              length (radiation.pos)*normalised.time.steps,
-              normalised.time.steps)
-    y <- res[radiation.pos,i]/max (res[radiation.pos,i])
-    lines (x = x, y = y, pch = 19, col = cols[i])
-    all.x <- c (all.x, x)
-    all.y <- c (all.y, y)
+    lines (x = normalised.element$x, y = normalised.element$y,
+           pch = 19, col = cols[i])
+    all.x <- c (all.x, normalised.element$x)
+    all.y <- c (all.y, normalised.element$y)
   }
-  # add a mean line...
-  all.x <- round (all.x, digits = 1)
-  uni.all.x <- sort (unique (all.x))
-  meaned.y <- rep (NA, length (uni.all.x))
-  for (i in 1:length (uni.all.x)) {
-    meaned.y[i] <- mean (all.y[all.x %in% uni.all.x[i]])
+  if (any (is.null (all.x))) {
+    print ('No clades met criteria minimum criteria for normalised plotting.')
+  } else {
+    # add a mean line...
+    all.x <- round (all.x, digits = 1)
+    uni.all.x <- sort (unique (all.x))
+    meaned.y <- rep (NA, length (uni.all.x))
+    for (i in 1:length (uni.all.x)) {
+      meaned.y[i] <- mean (all.y[all.x %in% uni.all.x[i]])
+    }
+    lines (x = uni.all.x, y = meaned.y, lwd = 2)
   }
-  lines (x = uni.all.x, y = meaned.y, lwd = 2)
 }
 
 plotWithNodeLabels <- function (tree) {
