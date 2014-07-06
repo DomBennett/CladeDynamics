@@ -2,6 +2,17 @@
 ## D.J. Bennett
 ## Run 1 and 2
 
-# Make sure res.dir is the same for both!
+## Model Parameters
+seed.n <- 2 # how big should the initial tree be?
+time.steps <- 1000 # how many steps?
+interval <- 10 # how often to record?
+birth <- 1.1 # how many births to deaths per unit of branch length?
+death <- 1
+bias <- 'none' # 'none', 'PE' or 'FP'
+## Analysis Parameters
+min.time.span = 5 # minimum amount of time a clade exists for it to be normalised plotted
+min.size = 5 # minimum maximum size for normalised plotting
+
+## Run
 source ("1_model.R")
 source ("2_analysis.R")
