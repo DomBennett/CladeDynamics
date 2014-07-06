@@ -7,9 +7,16 @@
 library (ape)
 library (MoreTreeTools)
 library (plyr)
-library (picante)
 
 ## Functions
+seedTree <- function (n) {
+  ## Create a seed tree for growing with n tips
+  tree <- rtree (n, br = runif, max = 1/n)
+  # add labels
+  tree$node.label <- paste0 ('n', 1:tree$Nnode)
+  tree
+}
+
 countChildren <- function (tree) {
   # Count the number of extant children for every node
   .count <- function (node.label) {
@@ -87,9 +94,17 @@ growTree <- function (iterations, birth, death,
     } else {
       # Fair proportion uses the proportion of lost branch
       # if the species were lost
-      ## TODO use MTT funcion instead
-      probs <- evol.distinct (tree, type = 'fair.proportion')
-      probs <- probs[extant.tips, 2]
+      # drop extinct species
+      extant.tree <- drop.tip (tree, tip = extinct)
+      # calc fp
+      probs <- calcFairProportion (extant.tree)
+      # reorder to match extant.tips
+      probs <-
+        probs[match (tree$tip.label[extant.tips], probs[ ,1]), 2]
+      ## OR DON"T THROW AWAY THE EXTINCT
+#       probs <- calcFairProportion (
+#         tree, tips = tree$tip.label[extant.tips])
+#       probs <- probs[, 2]
     }
     # inverse probabilities if not adding
     if (!add) {
