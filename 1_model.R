@@ -7,20 +7,17 @@
 ## N.B. It may crash unexpetedly as
 ##  all clades may have gone extinct; re-run
 
-## Parameters
-time.steps <- 200 # how many steps?
-interval <- 10 # how often to record?
-birth <- 1.1 # how many births to deaths per unit of branch length?
-death <- 1
-bias <- 'FP' # 'none', 'PE' or 'FP'
-
 ## Libraries
 source (file.path ('tools', 'model_tools.R'))
 
 ## Dirs
 res.dir <- paste0 ("ts", time.steps, '_int', interval,
                    '_b', round (birth), '_d', round (death),
-                   '_bias', bias, '_date', gsub ('-', '', Sys.Date ()))
+                   '_bias', bias, '_date', '_seed', seed.n,
+                   format(Sys.time(), "%a%b%d%Y"),
+                   '_time', format(Sys.time(), "%H%M%S"))
+write.table (res.dir, file.path ('results', 'run_log.txt'),
+             append = TRUE, row.names = FALSE, col.names = FALSE)
 res.dir <- file.path ('results', res.dir)
 if (!file.exists (res.dir)) {
   dir.create (res.dir)
@@ -29,22 +26,18 @@ if (!file.exists (res.dir)) {
 ## Globals
 # count nodes and tips, necessary for adding new nodes
 # otherwise would not be unique across time steps
-max.node <- 1
-max.tip <- 2 # starting tree has 2 tips and 1 int node
+max.node <- seed.n - 1
+max.tip <- seed.n # starting tree has n tips and n-1 int node
+extinct <- c () # vector of all extinct species
 
 ## Set-up
-# seed tree of two species
-tree <- stree (2)
-# add lengths and labels
-tree$edge.length <- c (1,1)
-tree$node.label <- 'n1'
+tree <- seedTree (seed.n)
 # calc iterations, number of iterations each run of model
 iterations <- time.steps/interval
 # collect output for each interval
 clade.performance <- list ()
 
 ## Model
-extinct <- c () # vector of all extinct species
 runmodel <- function (iteration) {
   # grow tree using ERMM
   tree <- growTree (interval, birth, death, bias)
