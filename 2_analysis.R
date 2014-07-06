@@ -2,14 +2,12 @@
 ## D.J. Bennett
 ## Analysis of modelled rise and fall of clades
 
-## Parameters
-res.dir <- 'ts200_int10_b1_d1_biasFP_date20140705'
-
 ## Dirs
-res.dir <- file.path ('results', res.dir)
-if (!file.exists (res.dir)) {
-  stop (paste0 ('[', res.dir, '] does not exist!'))
-}
+# read in last run folder
+res.dir <- read.delim (file.path ('results', 'run_log.txt'),
+                       header = FALSE, stringsAsFactors = FALSE)[ ,1]
+res.dir <- 'ts1000_int10_b1_d1_biasnone_date_seed2SunJul062014_time183238'
+res.dir <- file.path ('results', res.dir [length (res.dir)])
 
 ## Libraries
 source (file.path ('tools', 'analysis_tools.R'))
@@ -27,7 +25,7 @@ plotSuccess (res)
 dev.off ()
 # plot normalised clade success
 pdf (file.path (res.dir, 'normalised_clade_success.pdf'))
-plotNormalisedSuccess (res, min.time.span = 5, min.size = 1)
+plotNormalisedSuccess (res, min.time.span, min.size)
 dev.off ()
 # Create .gif of trees produced
 plotTreeGrowth (trees, file.path (res.dir, 'ERMM_tree.gif'),
