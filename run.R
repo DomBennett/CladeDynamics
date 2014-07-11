@@ -4,8 +4,8 @@
 
 ## Model Parameters
 seed.n <- 2 # how big should the initial tree be?
-time.steps <- 1000 # how many steps?
-interval <- 10 # how often to record?
+time <- 10 # how many units of branch length should the tree grow by?
+sample <- 0.1 # how often should sampling the success of a tree occur?
 birth <- 1.1 # how many births to deaths per unit of branch length?
 death <- 1
 bias <- 'none' # 'none', 'PE' or 'FP'

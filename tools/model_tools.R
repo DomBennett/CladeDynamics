@@ -74,8 +74,31 @@ reformat <- function (clade.performance, interval) {
   res
 }
 
-growTree <- function (iterations, birth, death,
-                      bias = c ('none', 'PE', 'FP')) {
+calcAddBool <- function (seed.tree, birth, death, max.age, sample.unit = 1) {
+  ## Calculate the adding and dropping of tips for
+  ##  specified maximum tree age and sample trees produced at set
+  ##  units of tree branch growth
+  nspp <- length (tree$tip.label)
+  tree.age <- getAge (tree, node = length (tree$tip.label) + 1)
+  res <- list () # collect a list of addbools for each sampling unit
+  while (tree.age < max.age) {
+    branch.growth <- 0
+    add.bool <- c ()
+    while (branch.growth < sample.unit) {
+      add.bool <- c (add.bool, sample (c (TRUE, FALSE), size = 1,
+                                       prob = c (birth, death)))
+      if (add.bool[length (add.bool)]) {
+        nspp <- nspp + 1
+        branch.growth <- branch.growth + 1/nspp
+      }
+    }
+    tree.age <- tree.age + branch.growth
+    res <- c (res, list (add.bool))
+  }
+  res
+}
+
+growTree <- function (add.bool, bias = c ('none', 'PE', 'FP')) {
   # Grow a tree using an equal rates markov model
   #  with specified births and deaths choose species
   #  to speciate based on bias
@@ -106,8 +129,10 @@ growTree <- function (iterations, birth, death,
 #         tree, tips = tree$tip.label[extant.tips])
 #       probs <- probs[, 2]
     }
-    # inverse probabilities if not adding
-    if (!add) {
+    # inverse probabilities if adding
+    # so that the least evolutionary have the highest chance
+    # of speciating
+    if (add) {
       probs <- 1/probs
     }
     probs <- probs/sum (probs)
@@ -148,10 +173,7 @@ growTree <- function (iterations, birth, death,
     to.drop <- tree$tip.label[to.drop]
     extinct <<- c (extinct, to.drop)
   }
-  run <- function (iteration) {
-    # add or drop based on births to deaths
-    add.bool <- sample (c (TRUE, FALSE), size = 1,
-                        prob = c (birth, death))
+  run <- function (add.bool) {
     # find all extant tips -- their index in tip.label
     extant.tips <- which (!tree$tip.label %in% extinct)
     if (add.bool) {
@@ -164,6 +186,6 @@ growTree <- function (iterations, birth, death,
       print ('Drop species -- but too few species in tree. Skipping.')
     }
   }
-  m_ply (.data = (iteration = 1:iterations), .fun = run)
+  m_ply (.data = (add.bool = add.bool), .fun = run)
   tree
 }

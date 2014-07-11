@@ -11,11 +11,10 @@
 source (file.path ('tools', 'model_tools.R'))
 
 ## Dirs
-res.dir <- paste0 ("ts", time.steps, '_int', interval,
-                   '_b', round (birth), '_d', round (death),
-                   '_bias', bias, '_date', '_seed', seed.n,
-                   format(Sys.time(), "%a%b%d%Y"),
-                   '_time', format(Sys.time(), "%H%M%S"))
+res.dir <- paste0 ("t", time, 's', sample,
+                   'b', round (birth), 'd', round (death),
+                   'sn', seed.n, bias, '_',
+                   format(Sys.time(), "%H%M_%a%b%d%Y"))
 write.table (res.dir, file.path ('results', 'run_log.txt'),
              append = TRUE, row.names = FALSE, col.names = FALSE)
 res.dir <- file.path ('results', res.dir)
@@ -32,15 +31,18 @@ extinct <- c () # vector of all extinct species
 
 ## Set-up
 tree <- seedTree (seed.n)
-# calc iterations, number of iterations each run of model
-iterations <- time.steps/interval
+# calculate the adding and dropping of tips in order to
+# know the number of iterations ahead of running model
+add.bool.list <- calcAddBool (tree, birth, death, max.age = time,
+                             sample.unit = sample)
 # collect output for each interval
 clade.performance <- list ()
 
 ## Model
-runmodel <- function (iteration) {
+runmodel <- function (i) {
+  add.bool <- add.bool.list[[i]]
   # grow tree using ERMM
-  tree <- growTree (interval, birth, death, bias)
+  tree <- growTree (add.bool, bias)
   # write tree to disk
   write.tree (tree, file = file.path (
     res.dir, 'ERMM.tre'), append = TRUE)
@@ -53,10 +55,10 @@ runmodel <- function (iteration) {
 if (file.exists (file.path (res.dir, 'ERMM.tre'))) {
   file.remove (file.path (res.dir, 'ERMM.tre'))
 }
-m_ply (.data = (iteration = 1:iterations), .fun = runmodel,
+m_ply (.data = (i = 1:length (add.bool.list)), .fun = runmodel,
        .progress = 'time')
 # convert list of dataframes into single dataframe
-res <- reformat (clade.performance, interval)
+res <- reformat (clade.performance, sample)
 
 ## Saving results
 write.csv (x = res, file = file.path (res.dir, 'clades_through_time.csv'))
