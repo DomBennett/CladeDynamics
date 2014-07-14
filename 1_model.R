@@ -40,10 +40,11 @@ clade.performance <- list ()
 
 ## Model
 runmodel <- function (i) {
+  # get add bool
   add.bool <- add.bool.list[[i]]
   # grow tree using ERMM
   tree <- growTree (add.bool, bias)
-  # write tree to disk
+  # write last tree to disk
   write.tree (tree, file = file.path (
     res.dir, 'ERMM.tre'), append = TRUE)
   # calc 'success' of each node in tree
@@ -52,13 +53,20 @@ runmodel <- function (i) {
   clade.performance <<- c (clade.performance,
                           list (temp.success))
 }
+# remove any original tree in the folder
 if (file.exists (file.path (res.dir, 'ERMM.tre'))) {
   file.remove (file.path (res.dir, 'ERMM.tre'))
 }
+# write seed tree first
+write.tree (seed.tree, file = file.path (res.dir, 'ERMM.tre'),
+            append = TRUE)
+cat ('Running tree growth model ...')
 m_ply (.data = (i = 1:length (add.bool.list)), .fun = runmodel,
        .progress = 'time')
 # convert list of dataframes into single dataframe
+cat ('Reformatting model output ...')
 res <- reformat (clade.performance, sample)
 
 ## Saving results
+cat ('Saving results ...')
 write.csv (x = res, file = file.path (res.dir, 'clades_through_time.csv'))
