@@ -11,7 +11,9 @@ library (plyr)
 ## Functions
 seedTree <- function (n) {
   ## Create a seed tree for growing with n tips
-  tree <- rtree (n, br = runif, max = 1/n)
+  tree <- stree (n)
+  # add edge lengths
+  tree <- compute.brlen (tree)
   # add labels
   tree$node.label <- paste0 ('n', 1:tree$Nnode)
   tree
