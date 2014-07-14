@@ -228,3 +228,82 @@ plotTreeGrowth <- function (trees, file.dir, time.steps = FALSE,
   system (paste0 ("convert -delay ", delay," *.png ", file.dir))
   file.remove (list.files (pattern = ".png"))
 }
+
+getFates <- function (trees, sample) {
+  ## Determine the fate of every species in all time steps
+  spp <- paste0 ('t', 1:length (trees[[length (trees)]]$tip.label))
+  # create a new list of trees with extinct species dropped
+  extant.trees <- list (trees[[1]]) # first tree is the seed, everything is extant
+  .dropExtinct <- function (i) {
+    tree <- drop.fossil (trees[[i]])
+    extant.trees <<- c (extant.trees, list (tree))
+  }
+  m_ply (.data = data.frame (i = 2:length (trees)), .fun = .dropExtinct)
+  # workout which species were extant and went extinct using new list
+  .eachTree <- function (i) {
+    last.tree <- extant.trees[[i-1]]
+    this.tree <- extant.trees[[i]]
+    extant <- this.tree$tip.label
+    extinct <- last.tree$tip.label[!last.tree$tip.label %in%
+                                     this.tree$tip.label]
+    survived <- last.tree$tip.label[last.tree$tip.label %in%
+                                     this.tree$tip.label]
+    children <- this.tree$tip.label[!this.tree$tip.label %in%
+                                      last.tree$tip.label]
+    # parents are those that survived and have a tip.edge equal or less than
+    #  children lengths
+    parents <- c ()
+    max.child.length <- max (this.tree$edge.length[
+      this.tree$edge[ ,2] %in% which (this.tree$tip.label %in% children)])
+    for (each in survived) {
+      each.length <- this.tree$edge.length[
+        this.tree$edge[ ,2] %in% which (this.tree$tip.label == each)]
+      if (each.length <= max.child.length) {
+        parents <- c (parents, each)
+      }
+    }
+    list (extinct = extinct, extant = extant, survivors = survived,
+          speciators = parents)
+  }
+  species.success <-
+    mlply (.data = data.frame (i = 2:length (trees)), .fun = .eachTree)
+  # create data frame of success
+  res <- matrix (ncol = length (species.success), nrow = length (spp))
+  rownames (res) <- spp
+  .eachRow <- function (i) {
+    res[species.success[[i]]$extinct, i] <<- -1
+    res[species.success[[i]]$survivors, i] <<- 0
+    res[species.success[[i]]$speciators, i] <<- 1
+  }
+  m_ply (.data = data.frame (i = 1:length (species.success)),
+         .fun = .eachRow)
+  res
+}
+
+getEDs <- function (trees) {
+  eds <- list ()
+  .calc <- function (i) {
+    res <- calcFairProportion (trees[[i]])
+    eds <<- c (eds, list (res))
+  }
+  m_ply (.data = data.frame (i = 1:length (trees)),
+         .fun = .calc)
+  eds
+}
+
+plotFateVsED <- function (fates, eds, time.lag = 1) {
+  # find corresponding x and y for each time + lag
+  x <- y <- c ()
+  for (i in (time.lag + 1):(length (trees) - time.lag)) {
+    fate.slice <- fates[!is.na (fates[ ,i]),i]
+    ed.slice <- eds[[i-time.lag]]
+    x <-
+      c (x, na.omit (ed.slice[match (names (fate.slice), ed.slice[ ,1]),2]))
+    y <-
+      c (y, na.omit (fate.slice[match (ed.slice[ ,1], names (fate.slice))]))
+  }
+  # plot
+  plot (x = x, y = y, xlab = 'ED', ylab = 'Species\' Fate',
+        col = rainbow (3, alpha = 0.5)[3], pch = 19,
+        main = paste0 ('Time lag: [', time.lag, ']'))
+}
