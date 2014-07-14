@@ -17,24 +17,29 @@ res <- read.csv (file = file.path (res.dir, 'clades_through_time.csv'))
 time.steps <- res[ ,1]
 res <- res[ ,-1]
 trees <- read.tree (file = file.path (res.dir, 'ERMM.tre'))
+# remove burnin
+burnin.steps <- sum (burnin >= time.steps)
+time.steps <- time.steps[-(1:burnin.steps)]
+res <- res[ ,-(1:burnin.steps)]
+trees <- trees[-(1:burnin.steps)]
 
 ## Generate figures
 # plot clade successes across time
-cat ('Plotting clade success ...')
+cat ('\nPlotting clade success ...')
 pdf (file.path (res.dir, 'clade_success.pdf'))
 plotSuccess (res)
 dev.off ()
 # plot normalised clade success
-cat ('Plotting normalised clade success ...')
+cat ('\nPlotting normalised clade success ...')
 pdf (file.path (res.dir, 'normalised_clade_success.pdf'))
 plotNormalisedSuccess (res, min.time.span, min.size)
 dev.off ()
 # Create .gif of trees produced
-cat ('Plotting tree growth ...')
+cat ('\nPlotting tree growth ...')
 plotTreeGrowth (trees, file.path (res.dir, 'ERMM_tree.gif'),
                 time.steps)
 # plot fate ~ ED
-cat ('Plotting Fate ~ ED ...')
+cat ('\nPlotting Fate ~ ED ...')
 pdf (file.path (res.dir, 'fate_ED.pdf'))
 fates <- getFates (trees)
 eds <- getEDs (trees)

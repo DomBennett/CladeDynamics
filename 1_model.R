@@ -30,11 +30,13 @@ max.tip <- seed.n # starting tree has n tips and n-1 int node
 extinct <- c () # vector of all extinct species
 
 ## Set-up
-tree <- seedTree (seed.n)
+# seed tree age is the same as a sample unit
+tree <- seedTree (seed.n, sample)
 # calculate the adding and dropping of tips in order to
 # know the number of iterations ahead of running model
-add.bool.list <- calcAddBool (tree, birth, death, max.age = time,
-                             sample.unit = sample)
+add.bool.list <- calcAddBool (tree, birth, death,
+                              max.age = time + burnin,
+                              sample.unit = sample)
 # collect output for each interval
 clade.performance <- list ()
 
@@ -58,15 +60,15 @@ if (file.exists (file.path (res.dir, 'ERMM.tre'))) {
   file.remove (file.path (res.dir, 'ERMM.tre'))
 }
 # write seed tree first
-write.tree (seed.tree, file = file.path (res.dir, 'ERMM.tre'),
+write.tree (tree, file = file.path (res.dir, 'ERMM.tre'),
             append = TRUE)
-cat ('Running tree growth model ...')
+cat ('\nRunning tree growth model ...')
 m_ply (.data = (i = 1:length (add.bool.list)), .fun = runmodel,
        .progress = 'time')
 # convert list of dataframes into single dataframe
-cat ('Reformatting model output ...')
+cat ('\nReformatting model output ...')
 res <- reformat (clade.performance, sample)
 
 ## Saving results
-cat ('Saving results ...')
+cat ('\nSaving results ...')
 write.csv (x = res, file = file.path (res.dir, 'clades_through_time.csv'))

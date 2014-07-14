@@ -9,11 +9,14 @@ library (MoreTreeTools)
 library (plyr)
 
 ## Functions
-seedTree <- function (n) {
+seedTree <- function (n, age) {
   ## Create a seed tree for growing with n tips
-  tree <- stree (n)
+  tree <- rtree (n)
   # add edge lengths
   tree <- compute.brlen (tree)
+  tree.age <- getAge (tree, node = length (tree$tip.label) + 1)
+  # re-calculate edge lengths based on requested tree age
+  tree$edge.length <- tree$edge.length/(tree.age/age)
   # add labels
   tree$node.label <- paste0 ('n', 1:tree$Nnode)
   tree
@@ -111,7 +114,7 @@ growTree <- function (add.bool, bias = c ('none', 'PE', 'FP')) {
       return (sample (extant.tips, 1))
     }
     # calculate probs based on bias
-    if (bias == 'PE') {
+    if (bias %in% c ('PE', 'iPE')) {
       # Pendant edge uses all tip edges
       tip.edges <- which (tree$edge[, 2] %in%
                             extant.tips)
@@ -126,16 +129,18 @@ growTree <- function (add.bool, bias = c ('none', 'PE', 'FP')) {
       # reorder to match extant.tips
       probs <-
         probs[match (tree$tip.label[extant.tips], probs[ ,1]), 2]
-      ## OR DON"T THROW AWAY THE EXTINCT
-#       probs <- calcFairProportion (
-#         tree, tips = tree$tip.label[extant.tips])
-#       probs <- probs[, 2]
     }
     # inverse probabilities if adding
     # so that the least evolutionary have the highest chance
-    # of speciating
-    if (add) {
-      probs <- 1/probs
+    # of speciating (or inverse if iPE or iFP)
+    if (bias %in% c ('FP', 'PE')) {
+      if (add) {
+        probs <- 1/probs
+      }
+    } else {
+      if (!add) {
+        probs <- 1/probs
+      }
     }
     probs <- probs/sum (probs)
     # return tip index based on probs
