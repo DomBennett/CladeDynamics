@@ -6,7 +6,7 @@
 # read in last run folder
 res.dir <- read.delim (file.path ('results', 'run_log.txt'),
                        header = FALSE, stringsAsFactors = FALSE)[ ,1]
-res.dir <- 'ts1000_int10_b1_d1_biasnone_date_seed2SunJul062014_time183238'
+#res.dir <- 'ts1000_int10_b1_d1_biasnone_date_seed2SunJul062014_time183238'
 res.dir <- file.path ('results', res.dir [length (res.dir)])
 
 ## Libraries
@@ -20,13 +20,23 @@ trees <- read.tree (file = file.path (res.dir, 'ERMM.tre'))
 
 ## Generate figures
 # plot clade successes across time
+cat ('Plotting clade success ...')
 pdf (file.path (res.dir, 'clade_success.pdf'))
 plotSuccess (res)
 dev.off ()
 # plot normalised clade success
+cat ('Plotting normalised clade success ...')
 pdf (file.path (res.dir, 'normalised_clade_success.pdf'))
 plotNormalisedSuccess (res, min.time.span, min.size)
 dev.off ()
 # Create .gif of trees produced
+cat ('Plotting tree growth ...')
 plotTreeGrowth (trees, file.path (res.dir, 'ERMM_tree.gif'),
                 time.steps)
+# plot fate ~ ED
+cat ('Plotting Fate ~ ED ...')
+pdf (file.path (res.dir, 'fate_ED.pdf'))
+fates <- getFates (trees)
+eds <- getEDs (trees)
+plotFateVsED (fates, eds, time.lag = 1)
+dev.off ()
