@@ -6,6 +6,7 @@
 ## Deps
 library (ape)
 library (MoreTreeTools)
+library (ggplot2)
 
 ## Functions
 findNonZeros <- function (element) {
@@ -306,4 +307,21 @@ plotFateVsED <- function (fates, eds, time.lag = 1) {
   plot (x = x, y = y, xlab = 'ED', ylab = 'Species\' Fate',
         col = rainbow (3, alpha = 0.5)[3], pch = 19,
         main = paste0 ('Time lag: [', time.lag, ']'))
+}
+
+histClageAges <- function (res.dirs) {
+  ## Take a vector of res dirs and plot clade ages in hist
+  ages <- bias <- c ()
+  for (each in res.dirs) {
+    res <- read.csv (file = file.path (
+      'results', each, 'clades_through_time.csv'))
+    ages <- c (ages, colSums (res != 0))
+    each.bias <- substr (x = each,
+                         start = (regexpr ("_bias", each) + 5),
+                         stop = (regexpr ("_date", each) - 1))
+    bias <- c (bias, rep (each.bias, ncol (res)))
+  }
+  clade.ages <- data.frame (ages = ages, bias = bias)
+  hist <- ggplot(clade.ages, aes (x = ages, fill = bias))
+  hist + geom_bar()
 }

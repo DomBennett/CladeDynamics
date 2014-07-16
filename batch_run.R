@@ -2,7 +2,10 @@
 ## D.J. Bennett
 ## Run 1 and 2 multiple times with multiple args
 
+## Unique parameters
+i.bias <- c ('none', 'PE', 'FP', 'iPE', 'iFP')
 ## Shared parameters
+n.compare <- length (i.bias) # the number of last runs to compare
 burnin <- 1 # time to throw away to remove bias of start
 min.time.span <- 5
 min.size <- 5
@@ -11,8 +14,6 @@ time <- 100
 sample <- 0.1
 birth <- 1
 death <- 1
-## Unique parameters
-i.bias <- c ('none', 'PE', 'FP', 'iPE', 'iFP')
 
 ## Run
 for (i in 1:length (i.bias)) {
@@ -21,3 +22,4 @@ for (i in 1:length (i.bias)) {
   source ("1_model.R", echo = TRUE)
   source ("2_analysis.R", echo = TRUE)
 }
+source ('3_compare.R', echo = TRUE)
