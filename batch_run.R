@@ -9,10 +9,10 @@ n.compare <- length (i.bias) # the number of last runs to compare
 burnin <- 1 # time to throw away to remove bias of start
 min.time.span <- 5
 min.size <- 5
-seed.n <- 1000
+seed.n <- 100
 time <- 100
 sample <- 0.1
-birth <- 1
+birth <- 1.1
 death <- 1
 
 ## Run
