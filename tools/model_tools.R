@@ -4,9 +4,7 @@
 ## Custom functions for modelling tree growth
 
 ## Deps
-library (ape)
 library (MoreTreeTools)
-library (plyr)
 
 ## Functions
 seedTree <- function (n, age) {
@@ -22,7 +20,7 @@ seedTree <- function (n, age) {
   tree
 }
 
-countChildren <- function (tree) {
+.countChildren <- function (tree, extinct) {
   # Count the number of extant children for every node
   .count <- function (node.label) {
     node <- which (tree$node.label == node.label)
@@ -43,8 +41,10 @@ countChildren <- function (tree) {
   res
 }
 
-reformat <- function (clade.performance, interval) {
-  # take list of list and convert to a dataframe
+.reformat <- function (clade.performance, sample,
+                       progress.bar = 'none') {
+  # Take list of list of clade performances and convert
+  #  to a dataframe.
   .getTime <- function (i, node) {
     # get success for node at a time point
     data <- clade.performance[[i]]
@@ -74,90 +74,59 @@ reformat <- function (clade.performance, interval) {
   colnames (res) <- nodes[1]
   nodes <- data.frame (node = nodes[-1])
   # add to res
-  m_ply (.data = nodes, .fun = .addNode, .progress = 'time')
-  rownames (res) <- seq (interval, interval*nrow (res), interval)
+  m_ply (.data = nodes, .fun = .addNode, .progress = progress.bar)
+  rownames (res) <- seq (sample, sample*nrow (res), sample)
   res
 }
 
-calcAddBool <- function (seed.tree, birth, death, max.age, sample.unit = 1) {
-  ## Calculate the adding and dropping of tips for
-  ##  specified maximum tree age and sample trees produced at set
-  ##  units of tree branch growth
-  nspp <- length (tree$tip.label)
-  tree.age <- getAge (tree, node = length (tree$tip.label) + 1)
-  res <- list () # collect a list of addbools for each sampling unit
-  while (tree.age < max.age) {
-    branch.growth <- 0
-    add.bool <- c ()
-    while (branch.growth < sample.unit) {
-      add.bool <- c (add.bool, sample (c (TRUE, FALSE), size = 1,
-                                       prob = c (birth, death)))
-      if (add.bool[length (add.bool)]) {
-        nspp <- nspp + 1
-        branch.growth <- branch.growth + 1/nspp
-      }
-    }
-    tree.age <- tree.age + branch.growth
-    res <- c (res, list (add.bool))
-  }
-  res
-}
-
-growTree <- function (add.bool, bias = c ('none', 'PE', 'FP')) {
-  # Grow a tree using an equal rates markov model
-  #  with specified births and deaths choose species
-  #  to speciate based on bias
-  randomTipIndex <- function (extant.tips, add = TRUE) {
-    # Return a random tip index based on bias and whether
+growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
+                      bias = 'FP', strength = 1,
+                      stop.by = c ('max.n', 'max.time'),
+                      max.iteration = 10000) {
+  ## Grow a tree using a modified rates markov model
+  ##  with specified births and deaths. Species are selected
+  ##  to speciate or go extinct based on ED bias.
+  # Internal functions
+  randomTip <- function (add = TRUE) {
+    # Return a random tip based on bias and whether
     #  it is being added or not
-    if (bias == 'none') {
-      return (sample (extant.tips, 1))
-    }
-    # calculate probs based on bias
-    if (bias %in% c ('PE', 'iPE')) {
-      # Pendant edge uses all tip edges
-      tip.edges <- which (tree$edge[, 2] %in%
-                            extant.tips)
-      probs <- tree$edge.length[tip.edges]
-    } else {
-      # Fair proportion uses the proportion of lost branch
-      # if the species were lost
-      # drop extinct species
-      extant.tree <- drop.tip (tree, tip = extinct)
-      # calc fp
-      probs <- calcFairProportion (extant.tree)
-      # reorder to match extant.tips
-      probs <-
-        probs[match (tree$tip.label[extant.tips], probs[ ,1]), 2]
-    }
-    # inverse probabilities if adding
-    # so that the least evolutionary have the highest chance
-    # of speciating (or inverse if iPE or iFP)
-    if (bias %in% c ('FP', 'PE')) {
-      if (add) {
-        probs <- 1/probs
+    .calcED <- function (tree) {
+      if (bias == 'FP') {
+        extant.tree <- drop.tip (tree, tip = extinct)
+        eds <- calcED (extant.tree)
+      } else if (bias == 'PE') {
+        eds <- calcED (tree, type = 'PE')
+        # remove extinct
+        eds <- eds[!eds[ ,1] %in% extinct, ]
+      } else {
+        stop (paste0 ('Unknown bias: [', bias, '].
+                       Must be FP or PE.'))
       }
-    } else {
-      if (!add) {
-        probs <- 1/probs
-      }
+      eds
     }
-    probs <- probs/sum (probs)
-    # return tip index based on probs
-    sample (extant.tips, size = 1, prob = probs)
+    probs <- .calcED (tree)
+    if (add) {
+      # inverse probabilities if adding
+      probs[ ,2] <- 1/probs[ ,2]
+    }
+    # return a species name based on probs^strength
+    sample (probs[ ,1], size = 1, prob = probs[ ,2]^strength)
   }
-  add <- function (extant.tips) {
+  add <- function () {
+    # add a tip to the tree
+    extant.tips <- which (!tree$tip.label %in% extinct)
     # time passed is 1/length (extant.tips) -- so that
     #  births and deaths are scaled to 1 unit of branch length
-    time.passed <- 1/length (extant.tips)
+    time.passed <- (birth + death)/length (extant.tips)
     # find tip edges for all extant tips
     tip.edges <- which (tree$edge[ ,2] %in% extant.tips)
     # extant edges grow by 1/length (extant.tips)
     tree$edge.length[tip.edges] <-
       tree$edge.length[tip.edges] + time.passed
     # find random species to speciate
-    to.speciate <- randomTipIndex (extant.tips)
+    to.speciate <- randomTip ()
     # find its tip edge
+    to.speciate <- which (tree$tip.label == to.speciate)
     to.speciate <- which (tree$edge[ ,2] %in% to.speciate)
     # new node must have unique labels
     new.node.label <- paste0 ('n', max.node + 1)
@@ -172,27 +141,76 @@ growTree <- function (add.bool, bias = c ('none', 'PE', 'FP')) {
     # add 1 to globals to keep names unique!
     max.node <<- max.node + 1
     max.tip <<- max.tip + 1
+    # add to n and time
+    time <<- time + time.passed
+    n <<- n + 1
   }
-  drop <- function (extant.tips) {
-    # Choose a species to add to the extinct list
-    to.drop <- randomTipIndex (extant.tips, add = FALSE)
-    # to.drop is an index, find corresponding tip label
-    to.drop <- tree$tip.label[to.drop]
+  drop <- function () {
+    # choose a species to add to the extinct list
+    to.drop <- randomTip (add = FALSE)
     extinct <<- c (extinct, to.drop)
   }
-  run <- function (add.bool) {
-    # find all extant tips -- their index in tip.label
-    extant.tips <- which (!tree$tip.label %in% extinct)
+  run <- function () {
+    # run function
+    # randomly add or drop
+    add.bool <- sample (c (TRUE, FALSE), size = 1,
+                        prob = c (birth, death))
     if (add.bool) {
-      add (extant.tips)
-    } else if (length (extant.tips) > 2) {
-      drop (extant.tips)
+      add ()
     } else {
-      # At the beginning of a run this might appear a lot...
-      #  try increasing the number of births to deaths
-      print ('Drop species -- but too few species in tree. Skipping.')
+      n.extant <- length (tree$tip.label) - length (extinct)
+      if (n.extant > 2) {
+        # only drop species if there are more than
+        # two species in a tree, this might create edge
+        # effects for certain parameters
+        drop ()
+      }
     }
   }
-  m_ply (.data = (add.bool = add.bool), .fun = run)
+  runForTime <- function (i) {
+    # run and stop after max.time
+    run ()
+    if (time >= stop.at) {
+      stop (exp.message)
+    }
+  }
+  runForN <- function (i) {
+    # run and stop after max.n
+    run ()
+    if (n >= stop.at) {
+      stop (exp.message)
+    }
+  }
+  if (is.null (seed.tree)) {
+    # create an arbitrary seed tree of size 2
+    tree <<- seedTree (n = 2, age = birth/2)
+    # create globals
+    max.node <- length (tree$tip.label) - 1
+    max.tip <- length (tree$tip.label) # starting tree has n tips and n-1 int node
+    extinct <- c () # vector of all extinct species
+    n <- 2
+    time <- birth/2
+  } else {
+    # in this case we're going to build on top of the seed
+    tree <<- seed.tree
+    # set n and time to zero
+    n <- time <- 0
+  }
+  # expected stop message
+  exp.message <- 'Max reached'
+  # run m_ply until stop ()
+  stop.by <- match.arg (stop.by)
+  if (stop.by == 'max.time') {
+    try (expr = m_ply (.data = (i = 1:max.iteration), .fun = runForTime),
+         silent = TRUE)
+  } else {
+    try (expr = m_ply (.data = (i = 1:max.iteration), .fun = runForN),
+         silent = TRUE)
+  }
+  error.message <- geterrmessage ()
+  # if last error is not exp.message raise it
+  if (!grepl (exp.message, error.message)) {
+    stop (error.message)
+  }
   tree
 }
