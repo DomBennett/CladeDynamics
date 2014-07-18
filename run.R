@@ -1,18 +1,45 @@
 ## 05/07/2014
 ## D.J. Bennett
-## Run 1 and 2
+## Run all scripts with different parameters
 
-## Model Parameters
-seed.n <- 2 # how big should the initial tree be?
-time <- 5 # how many units of branch length should the tree grow by?
-sample <- 0.01 # how often should sampling the success of a tree occur?
-birth <- 1.1 # how many births to deaths per unit of branch length?
-death <- 1
-bias <- 'none' # 'none', 'PE' or 'FP'
-## Analysis Parameters
-min.time.span = 5 # minimum amount of time a clade exists for it to be normalised plotted
-min.size = 5 # minimum maximum size for normalised plotting
+## Parameter descriptions
+# seed.n -- how big should the initial tree be?
+# time -- how many units of branch length should the tree grow by?
+# sample -- how often should sampling the success of a tree occur?
+# birth -- how many births per unit of branch length?
+# death -- how many deaths per unit of branch length?
+# bias -- what type of ED? 'PE' or 'FP'
+# strength -- power determing the effect of the bias 
+# min.time.span -- minimum amount of time a clade exists for it to be normalised plotted
+# min.size -- minimum maximum size for normalised plotting
+
+## Parameter set-up
+seed.n <- 2
+time <- 10
+sample <- 0.1
+birth <- 0.6
+death <- 0.4
+min.time.span <- 5
+min.size <- 5
+# changing parameters
+strengths <- c (-1, -0.5, 0, 0.5, 1, -1, -0.5, 0, 0.5, 1)
+biases <- c ('FP', 'FP', 'FP', 'FP', 'FP', 'PE', 'PE', 'PE', 'PE', 'PE')
+
+## Create run log
+headers <- data.frame ("res.dir", "strength", "bias", "time",
+            "sample", "birth", "death", "seed.n",
+            "min.time.span", "min.size")
+runlog <- file.path (
+  'results', paste0 (
+    'run_log_', format (Sys.time (), "%H%M_%d%m%y"), '.csv'))
+write.table (headers, runlog, sep = ',', row.names = FALSE)
 
 ## Run
-source ("1_model.R")
-source ("2_analysis.R")
+for (i in 1:length (strengths)) {
+  cat (paste0 ('Working on model [', i,']\n'))
+  strength <- strengths[i]
+  bias <- biases[i]
+  source ('1_model.R', print.eval = TRUE)
+  source ('2_analysis.R', print.eval = TRUE)
+}
+source ('3_compare.R', print.eval = TRUE)
