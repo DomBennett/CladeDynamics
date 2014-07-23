@@ -4,10 +4,12 @@
 
 ## Libs
 library (testthat)
+source (file.path ('tools', 'test_tools.R'))
 source (file.path ('tools', 'model_tools.R'))
 source (file.path ('tools', 'analysis_tools.R'))
 
 ## Tests
+# Model tools first ...
 context ('Testing model tools ...')
 test_that ('seedTree([basic]) works ...', {
   tree <- seedTree (10, 10)
@@ -52,3 +54,48 @@ test_that ('growMRMMTree([basic]) works ...', {
   # it should have 10 tips
   expect_that (length (tree$tip.label), equals (10))
 })
+# Now for those analysis tools ...
+context ('Testing analysis tools')
+test_that ('plotSuccess([basic]) works ...', {
+  # generate random clade data using Poisson dist
+  data <- genRandomData (100, 100, 1)
+  # plot
+  plotSuccess (data)
+  # if plot is generated check devices
+  expect_that (is.null (dev.list ()), is_false ())
+  # turn off devices
+  dev.off ()
+})
+test_that ('plotNormalisedSuccess([basic]) works ...', {
+  # generate random clade data using Poisson dist
+  data <- genRandomData (100, 100, 1)
+  # plot
+  plotNormalisedSuccess (data)
+  # if plot is generated check devices
+  expect_that (is.null (dev.list ()), is_false ())
+  # turn off devices
+  dev.off ()
+})
+test_that ('getFates([basic]) works ...', {
+  trees <- genRandomTrees (100)
+  # fates should all be 0 and 1 at the beginning
+  # because there is no extinction in the random trees
+  # and species are added to the tree at the newset tip
+  fates <- getFates (trees)
+  # so... the tree starts with 3 tips, so the first fate for 
+  # tip 3 is 1, this is where tip 4 is added in time step 2
+  expect_that (as.numeric (fates [3,1]), equals (1))
+})
+test_that ('plotFatesVsED([basic]) works ...', {
+  trees <- genRandomTrees (10)
+  fates <- getFates (trees)
+  eds <- getEDs (trees)
+  plotFateVsED (fates, eds, time.lag = 1)
+  expect_that (is.null (dev.list ()), is_false ())
+  dev.off ()
+})
+# untested (not critical to model):
+#  nomarlise (sub function of plotNormalisedSuccess)
+#  findRiseAndFall (not used anymore)
+#  findNonZeros (sub function of plotSuccess)
+#  plotTreeGrowth (using an external program + subject to change)
