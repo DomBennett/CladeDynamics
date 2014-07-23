@@ -1,7 +1,6 @@
 ## 17/06/2014
 ## D.J. Bennett
-## The rise and fall of clades
-## Custom functions for modelling tree growth
+## Tools for MRMM trees
 
 ## Deps
 library (MoreTreeTools)
