@@ -4,5 +4,5 @@
 *.gif
 *.pdf
 *.csv
-*.tre
 *log*
+*results*
