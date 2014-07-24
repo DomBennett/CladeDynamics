@@ -7,6 +7,7 @@ library (testthat)
 source (file.path ('tools', 'test_tools.R'))
 source (file.path ('tools', 'model_tools.R'))
 source (file.path ('tools', 'analysis_tools.R'))
+source (file.path ('tools', 'compare_tools.R'))
 
 ## Tests
 # Model tools first ...
@@ -99,3 +100,35 @@ test_that ('plotFatesVsED([basic]) works ...', {
 #  findRiseAndFall (not used anymore)
 #  findNonZeros (sub function of plotSuccess)
 #  plotTreeGrowth (using an external program + subject to change)
+context ('Testing compare tools ...')
+test_that ('calcTreeShapeStats ([basic]) works ...', {
+  test.tree <- stree (64, 'balanced')
+  test.tree <- compute.brlen (test.tree)
+  res <- calcTreeShapeStats (test.tree)
+  # colless test should be 0 for a balanced tree
+  expect_that (res[['colless.stat']], equals (0))
+})
+test_that ('calcMeanTreeShapeStates([basic]) works ...', {
+  test.trees <- list ()
+  for (i in 1:10) {
+    test.tree <- stree (64, 'balanced')
+    test.tree <- compute.brlen (test.tree)
+    test.trees <- c (test.trees, list (test.tree))
+  }
+  res <- calcMeanTreeShapeStats (test.trees)
+  # colless test should be 0 for balanced trees
+  expect_that (res[['mean.colless.stat']], equals (0))
+})
+test_that ('extractStat([basic]) works ...', {
+  # create test simulated list
+  simulated.tree.stats <-
+    list ('1' = list (mean = 1, sd = 1, stat = c (1,1,1,1)),
+          '0' = list (mean = 1, sd = 1, stat = c (1,1,1,1)),
+          '-1' = list (mean = 1, sd = 1, stat = c (1,1,1,1)))
+  res1 <- extractStat (simulated.tree.stats, 'mean')
+  expect_that (res1, equals (c (1,1,1)))
+  res2 <- extractStat (simulated.tree.stats, 'stat')
+  expect_that (unlist (res2), equals (rep (1, 12)))
+})
+# untested (not critical to model):
+#  histCladeAge (requires writing test files, likely to change)
