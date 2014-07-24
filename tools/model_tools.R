@@ -91,8 +91,12 @@ growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
     #  it is being added or not
     .calcED <- function (tree) {
       if (bias == 'FP') {
-        extant.tree <- drop.tip (tree, tip = extinct)
-        eds <- calcED (extant.tree)
+        if (!is.null (extinct)) {
+          extant.tree <- drop.tip (tree, tip = extinct)
+          eds <- calcED (extant.tree)
+        } else {
+          eds <- calcED (tree)
+        }
       } else if (bias == 'PE') {
         eds <- calcED (tree, type = 'PE')
         # remove extinct
