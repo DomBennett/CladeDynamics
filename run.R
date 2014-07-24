@@ -15,19 +15,27 @@
 # min.size -- minimum maximum size for normalised plotting
 # plot.tree.growth -- create .gif of tree growing, default False as this requires installation of ImageMagik
 
+## Shared functions
+closeDevices <- function () {
+  # make sure all graphical devices are off
+  while (!is.null (dev.list ())) {
+    dev.off ()
+  }
+}
+
 ## Parameter set-up
 seed.n <- 2
 time <- 10
-burnin <- 0.1
+burnin <- time*0.1 # 10% of time
 sample <- 0.1
 birth <- 0.6
 death <- 0.4
 min.time.span <- 5
 min.size <- 5
 plot.tree.growth <- FALSE
+bias <- 'FP'
 # changing parameters
-strengths <- c (-1, -0.5, 0, 0.5, 1, -1, -0.5, 0, 0.5, 1)
-biases <- c ('FP', 'FP', 'FP', 'FP', 'FP', 'PE', 'PE', 'PE', 'PE', 'PE')
+strengths <- rep (c (-1, -0.5, 0, 0.5, 1), each = 10)
 
 ## Create run log
 headers <- data.frame ("res.dir", "strength", "bias", "time",
@@ -40,10 +48,10 @@ write.table (headers, runlog, sep = ',', row.names = FALSE, col.names = FALSE)
 
 ## Run
 for (i in 1:length (strengths)) {
-  cat (paste0 ('\nWorking on model [', i,']\n'))
+  cat (paste0 ('\n\nWorking on model [', i,']\n'))
   strength <- strengths[i]
   bias <- biases[i]
   source ('1_model.R', print.eval = TRUE)
   source ('2_analysis.R', print.eval = TRUE)
 }
-#source ('3_compare.R', print.eval = TRUE)
+source ('3_compare.R', print.eval = TRUE)
