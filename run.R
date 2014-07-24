@@ -50,7 +50,6 @@ write.table (headers, runlog, sep = ',', row.names = FALSE, col.names = FALSE)
 for (i in 1:length (strengths)) {
   cat (paste0 ('\n\nWorking on model [', i,']\n'))
   strength <- strengths[i]
-  bias <- biases[i]
   source ('1_model.R', print.eval = TRUE)
   source ('2_analysis.R', print.eval = TRUE)
 }
