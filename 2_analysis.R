@@ -27,12 +27,12 @@ trees <- trees[-(1:burnin.steps)]
 cat ('\nPlotting clade success ...')
 pdf (file.path (res.dir, 'clade_success.pdf'))
 plotSuccess (res)
-dev.off ()
+closeDevices ()
 # plot normalised clade success
 cat ('\nPlotting normalised clade success ...')
 pdf (file.path (res.dir, 'normalised_clade_success.pdf'))
 plotNormalisedSuccess (res, min.time.span, min.size)
-dev.off ()
+closeDevices ()
 # Create .gif of trees produced
 if (plot.tree.growth) {
   cat ('\nPlotting tree growth ...')
@@ -45,4 +45,4 @@ pdf (file.path (res.dir, 'fate_ED.pdf'))
 fates <- getFates (trees)
 eds <- getEDs (trees)
 plotFateVsED (fates, eds, time.lag = 1)
-dev.off ()
+closeDevices ()
