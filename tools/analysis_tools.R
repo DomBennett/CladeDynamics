@@ -189,7 +189,7 @@ plotNormalisedSuccess <- function (res, min.time.span = 5, min.size = 2) {
     all.y <- c (all.y, normalised.element$y)
   }
   if (any (is.null (all.x))) {
-    print ('No clades met criteria minimum criteria for normalised plotting.')
+    cat ('\nNo clades met minimum criteria for normalised plotting.')
   } else {
     # add a mean line...
     all.x <- round (all.x, digits = 1)
@@ -222,7 +222,7 @@ plotTreeGrowth <- function (trees, file.dir, time.steps = FALSE,
     plot (trees[[i]], show.tip.label = FALSE, x.lim = x.lim)
     mtext (paste0 ('t = ', time.steps[i]), adj = 0.1, line = 0)
   }
-  dev.off()
+  closeDevices ()
   system (paste0 ("convert -delay ", delay," *.png ", file.dir))
   file.remove (list.files (pattern = ".png"))
 }
