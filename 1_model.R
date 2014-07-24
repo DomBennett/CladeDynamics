@@ -9,7 +9,9 @@ source (file.path ('tools', 'model_tools.R'))
 
 ## Dirs
 # create a unique dir based on time for every run
-res.dir <- format (Sys.time (), "%H%M_%d%m%y")
+counter <- nrow (read.csv (runlog))
+res.dir <- paste0 ('n', counter, '_',
+                   format (Sys.time (), "%H%M_%d%m%y"))
 # record parameters in runlog
 parameters <- data.frame (res.dir, strength, bias, time,
                           sample, birth, death, seed.n,
@@ -38,9 +40,10 @@ iterations <- time/sample
 ## Model
 runmodel <- function (i) {
   # grow tree using MRMM
-  tree <- growMRMMTree (birth = birth, death = death,
+  tree <<- growMRMMTree (birth = birth, death = death,
                         stop.at = sample, stop.by = 'max.time',
-                        strength = strength, bias = bias)
+                        strength = strength, bias = bias,
+                        seed.tree = tree)
   # write last tree to disk
   write.tree (tree, file = file.path (
     res.dir, 'MRMM.tre'), append = TRUE)
