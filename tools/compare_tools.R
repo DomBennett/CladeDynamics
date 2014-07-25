@@ -3,6 +3,7 @@
 ## Tools for comparing MRMM tree runs
 
 ## Libs
+library (MoreTreeTools)
 library (ape)
 library (apTreeshape)
 library (caper)
