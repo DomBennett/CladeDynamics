@@ -53,7 +53,11 @@ test_that ('growMRMMTree([basic]) works ...', {
   # grow a tree to 10 tips
   tree <- growMRMMTree (birth = 2, death = 1, stop.at = 10)
   # it should have 10 tips
-  expect_that (length (tree$tip.label), equals (10))
+  expect_that (length (drop.extinct(tree)$tip.label), equals (10))
+  # it should have extinct tips
+  cat (paste0 ('NOTE! There is a 0.017 probability of \'growMRMMTree([basic])\' test failing.
+               Try running again if it does fail.'))
+  expect_that (is.ultrametric (tree), is_false ())
 })
 # Now for those analysis tools ...
 context ('Testing analysis tools')
@@ -132,3 +136,4 @@ test_that ('extractStat([basic]) works ...', {
 })
 # untested (not critical to model):
 #  histCladeAge (requires writing test files, likely to change)
+cat ('\n\nTests passed.')
