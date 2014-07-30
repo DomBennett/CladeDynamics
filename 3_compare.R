@@ -33,14 +33,14 @@ for (i in 1:nrow (metadata)) {
 
 ## Calculate tree stats
 # natural trees first
-natural.tree.stats <- calcMeanTreeShapeStats (natural.trees)
+natural.tree.stats <- calcTreeShapeStats (natural.trees)
 
 # calculate for each unique strength
 simulated.tree.stats <- list ()
 strengths <- sort (unique (metadata$strength))
 for (i in 1:length (strengths)) {
   tree.i <- which (metadata$strength == strengths[i])
-  temp.res <- list (calcMeanTreeShapeStats (simulated.trees[tree.i]))
+  temp.res <- list (calcTreeShapeStats (simulated.trees[tree.i]))
   names (temp.res) <- strengths[i]
   simulated.tree.stats <- c (simulated.tree.stats, temp.res)
 }

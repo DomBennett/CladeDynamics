@@ -10,9 +10,8 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
-calcTreeShapeStats <- function (tree, reference = TRUE, n.dist = 100) {
-  ## Calculates a variety of tree shape statistics. If reference is TRUE
-  ##  compares to stats generated for an equally sized Yule tree
+.calcTreeShapeStats <- function (tree, reference = TRUE, n.dist = 100) {
+  ## Hidden workhorse function for calcTreeShapeStats
   calcTopologyStats <- function (tree) {
     calcStats <- function (tree) {
       # first convert tree to treeshape object
@@ -72,26 +71,34 @@ calcTreeShapeStats <- function (tree, reference = TRUE, n.dist = 100) {
   as.list (stats)
 }
 
-calcMeanTreeShapeStats <- function (trees) {
-  tree.stats <- list (colless.stat = NULL, sackin.stat = NULL,
-                      iprime.stat = NULL, gamma.stat = NULL,
-                      tc.stat = NULL)
-  for (i in 1:length (trees)) {
-    res <- calcTreeShapeStats (trees[[i]])
-    for (each in names (tree.stats)) {
-      tree.stats[[each]] <- c (tree.stats[[each]],
-                               res[[each]])
+calcTreeShapeStats <- function (tree, reference = TRUE, n.dist = 100) {
+  ## Calculates a variety of tree shape statistics. If reference is TRUE
+  ##  compares to stats generated for an equally sized Yule tree.
+  if (class (tree) == 'multiPhylo' | class (tree) == 'list') {
+    stats <- list (colless.stat = NULL, sackin.stat = NULL,
+                   iprime.stat = NULL, gamma.stat = NULL,
+                   tc.stat = NULL)
+    eachTree <- function (i) {
+      res <- .calcTreeShapeStats (tree[[i]], reference)
+      for (each in names (stats)) {
+        stats[[each]] <<- c (stats[[each]],
+                             res[[each]])
+      }
     }
+    m_ply (.data = data.frame (i = 1:length (tree)),
+           .fun = eachTree)
+    # find means and standard deviations
+    for (each in names (stats)) {
+      mean.res <- mean (stats[[each]], na.rm = TRUE)
+      sd.res <- sd (stats[[each]], na.rm = TRUE)
+      res <- list (mean.res, sd.res)
+      names (res) <- c (paste0 ('mean.', each), paste0 ('sd.', each))
+      stats <- c (stats, res)
+    }
+    return (stats)
+  } else {
+    return (.calcTreeShapeStats (trees, reference = TRUE, n.dist = 100))
   }
-  # find means and standard deviations
-  for (each in names (tree.stats)) {
-    mean.res <- mean (tree.stats[[each]], na.rm = TRUE)
-    sd.res <- sd (tree.stats[[each]], na.rm = TRUE)
-    res <- list (mean.res, sd.res)
-    names (res) <- c (paste0 ('mean.', each), paste0 ('sd.', each))
-    tree.stats <- c (tree.stats, res)
-  }
-  tree.stats
 }
 
 extractStat <- function (simulated.tree.stats, stat.name) {

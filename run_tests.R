@@ -105,21 +105,21 @@ test_that ('plotFatesVsED([basic]) works ...', {
 #  findNonZeros (sub function of plotSuccess)
 #  plotTreeGrowth (using an external program + subject to change)
 context ('Testing compare tools ...')
-test_that ('calcTreeShapeStats ([basic]) works ...', {
+test_that ('.calcTreeShapeStats ([basic]) works ...', {
   test.tree <- stree (64, 'balanced')
   test.tree <- compute.brlen (test.tree)
-  res <- calcTreeShapeStats (test.tree)
+  res <- .calcTreeShapeStats (test.tree)
   # colless test should be 0 for a balanced tree
   expect_that (res[['colless.stat']], equals (0))
 })
-test_that ('calcMeanTreeShapeStates([basic]) works ...', {
+test_that ('calcTreeShapeStates([basic]) works ...', {
   test.trees <- list ()
   for (i in 1:10) {
     test.tree <- stree (64, 'balanced')
     test.tree <- compute.brlen (test.tree)
     test.trees <- c (test.trees, list (test.tree))
   }
-  res <- calcMeanTreeShapeStats (test.trees)
+  res <- calcTreeShapeStats (test.trees)
   # colless test should be 0 for balanced trees
   expect_that (res[['mean.colless.stat']], equals (0))
 })
