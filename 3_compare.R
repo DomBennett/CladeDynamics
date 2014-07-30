@@ -5,6 +5,19 @@
 ## Libraries
 source (file.path ('tools', 'compare_tools.R'))
 
+## Functions
+getBigClades <- function (tree, min.n = 500, max.n = 1000) {
+  countChildren <- function (node) {
+    length (getChildren (tree, node))
+  }
+  ntips <- getSize (tree)
+  nodes <- ntips:(ntips + tree$Nnode)
+  nchildren <- mdply (.data = data.frame (node = nodes),
+         .fun = countChildren)
+  bool <- nchildren$V1 > min.n & nchildren$V1 < max.n
+  nchildren$node[bool]
+}
+
 ## Dirs
 metadata <- read.csv (runlog, stringsAsFactors = FALSE)
 data.dir <- 'data'
@@ -19,7 +32,17 @@ for (i in 1:length (tree.files)) {
   if (class (tree) == 'multiPhylo') {
     tree <- tree[[1]]
   }
-  natural.trees <- c (natural.trees, list (tree))
+  # if the tree is bigger than 1000 extract clades that are
+  #  greater than 500 and less than 1000
+  if (getSize (tree) > 1000) {
+    nodes <- getBigClades (tree)
+    for (n in nodes) {
+      clade.tree <- extract.clade (tree, n)
+      natural.trees <- c (natural.trees, list (clade.tree))
+    }
+  } else {
+    natural.trees <- c (natural.trees, list (tree))
+  }
 }
 # Simulated trees
 simulated.trees <- list ()
