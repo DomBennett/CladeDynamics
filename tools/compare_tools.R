@@ -97,7 +97,7 @@ calcTreeShapeStats <- function (tree, reference = TRUE, n.dist = 100) {
     }
     return (stats)
   } else {
-    return (.calcTreeShapeStats (trees, reference = TRUE, n.dist = 100))
+    return (.calcTreeShapeStats (tree, reference = TRUE, n.dist = 100))
   }
 }
 
