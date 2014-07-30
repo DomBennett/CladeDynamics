@@ -152,6 +152,7 @@ growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
     # choose a species to add to the extinct list
     to.drop <- as.character(randomTip (add = FALSE))
     extinct <<- c (extinct, to.drop)
+    n <<- n - 1
   }
   run <- function () {
     # run function
