@@ -5,7 +5,8 @@
 
 ## Dirs
 # read in last run folder
-res.dir <- read.csv (runlog, stringsAsFactors = FALSE)[1,'res.dir']
+res.dir <- read.csv (runlog, stringsAsFactors = FALSE)
+res.dir <- res.dir[nrow (res.dir),'res.dir']
 res.dir <- file.path ('results', as.character (res.dir))
 
 ## Libraries
