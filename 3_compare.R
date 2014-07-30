@@ -62,7 +62,9 @@ for (each in stat.names) {
         ylab = paste0 ('Tree stat: [', each, ']'), pch = 19,
         col = rainbow (3, alpha = 0.8)[3])
   abline (lm (y ~ x))
-  abline (h = mean (natural.tree.stats[[each]], na.rm = TRUE), col = 'red')
+  mtext (text = paste0 ('Mean natural stat: [',
+                        mean (natural.tree.stats[[each]],
+                              na.rm = TRUE), ']') )
 }
 closeDevices ()
 # hist clade ages
