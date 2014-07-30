@@ -25,7 +25,7 @@ closeDevices <- function () {
 
 ## Parameter set-up
 seed.n <- 2
-time <- 10
+time <- 5
 burnin <- time*0.1 # 10% of time
 sample <- 0.1
 birth <- 0.6
@@ -35,7 +35,7 @@ min.size <- 5
 plot.tree.growth <- FALSE
 bias <- 'FP'
 # changing parameters
-strengths <- rep (c (-1, -0.5, 0, 0.5, 1), each = 10)
+strengths <- rep (c (-1, -0.5, 0, 0.5, 1), each = 5)
 
 ## Create run log
 headers <- data.frame ("res.dir", "strength", "bias", "time",
