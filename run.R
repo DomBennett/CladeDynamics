@@ -37,6 +37,11 @@ bias <- 'FP'
 # changing parameters
 strengths <- rep (c (-1, -0.5, 0, 0.5, 1), each = 5)
 
+## Check if there is a results folder
+if (!is.dir ('results')) {
+  dir.create ('results')
+}
+
 ## Create run log
 headers <- data.frame ("res.dir", "strength", "bias", "time",
             "sample", "birth", "death", "seed.n",
