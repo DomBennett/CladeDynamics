@@ -5,59 +5,27 @@
 ## Libraries
 source (file.path ('tools', 'compare_tools.R'))
 
-## Functions
-getBigClades <- function (tree, min.n = 500, max.n = 1000) {
-  countChildren <- function (node) {
-    length (getChildren (tree, node))
-  }
-  ntips <- getSize (tree)
-  nodes <- ntips:(ntips + tree$Nnode)
-  nchildren <- mdply (.data = data.frame (node = nodes),
-         .fun = countChildren)
-  bool <- nchildren$V1 > min.n & nchildren$V1 < max.n
-  nchildren$node[bool]
-}
-
 ## Dirs
 metadata <- read.csv (runlog, stringsAsFactors = FALSE)
 data.dir <- 'data'
 
 ## Input
-# Natural Trees
-natural.trees <- list ()
-tree.files <- list.files (data.dir, '.tre')
-for (i in 1:length (tree.files)) {
-  tree <- read.tree (file.path (data.dir, tree.files[i]))
-  # choose the first tree if list
-  if (class (tree) == 'multiPhylo') {
-    tree <- tree[[1]]
-  }
-  # if the tree is bigger than 1000 extract clades that are
-  #  greater than 500 and less than 1000
-  if (getSize (tree) > 1000) {
-    nodes <- getBigClades (tree)
-    for (n in nodes) {
-      clade.tree <- extract.clade (tree, n)
-      natural.trees <- c (natural.trees, list (clade.tree))
-    }
-  } else {
-    natural.trees <- c (natural.trees, list (tree))
-  }
-}
-# Simulated trees
+# load pre-calculated natural tree stats
+load (file.path (data.dir, 'natural_tree_stats.Rd'))
+# Read in last reconstructed phylogeny of simulated trees
 simulated.trees <- list ()
 for (i in 1:nrow (metadata)) {
   res.dir <- file.path ('results', metadata$res.dir[i])
   tree <- read.tree (file.path (res.dir, 'MRMM.tre'))
   # use last tree of the model run
   tree <- tree[[length (tree)]]
+  # drop all extinct nodes
+  tree <- drop.extinct (tree)
+  # then add to list
   simulated.trees <- c (simulated.trees, list (tree))
 }
 
 ## Calculate tree stats
-# natural trees first
-natural.tree.stats <- calcTreeShapeStats (natural.trees)
-
 # calculate for each unique strength
 simulated.tree.stats <- list ()
 strengths <- sort (unique (metadata$strength))
