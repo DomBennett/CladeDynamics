@@ -38,7 +38,7 @@ bias <- 'FP'
 strengths <- rep (c (-1, -0.5, 0, 0.5, 1), each = 5)
 
 ## Check if there is a results folder
-if (!is.dir ('results')) {
+if (!file.exists ('results')) {
   dir.create ('results')
 }
 
