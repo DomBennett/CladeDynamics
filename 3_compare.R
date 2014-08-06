@@ -43,9 +43,9 @@ for (each in stat.names) {
   plot (x = x, y = y, xlab = 'ED strength',
         ylab = paste0 ('Tree stat: [', each, ']'), pch = 19,
         col = rainbow (3, alpha = 0.8)[3])
-  model <- lm (y ~ x)
   Y <- mean (natural.tree.stats[[each]], na.rm = TRUE)
-  X <- predict (model, newdata = data.frame (y = Y))
+  abline (lm (y ~ x))
+  mtext (paste0 ('Mean Nat Stat: [', Y,']'))
 }
 closeDevices ()
 # hist clade ages

@@ -25,9 +25,9 @@ closeDevices <- function () {
 }
 
 ## Parameter set-up
-n <- 10
+n <- 5
 seed.n <- 2
-time <- 100
+time <- 1
 burnin <- time*0.1 # 10% of time
 sample <- 0.1
 birth <- 2
