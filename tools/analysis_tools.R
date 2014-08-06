@@ -189,7 +189,7 @@ plotNormalisedSuccess <- function (res, min.time.span = 5, min.size = 2) {
     all.y <- c (all.y, normalised.element$y)
   }
   if (any (is.null (all.x))) {
-    cat ('\nNo clades met minimum criteria for normalised plotting.')
+    cat ('\n... No clades met minimum criteria for normalised plotting')
   } else {
     # add a mean line...
     all.x <- round (all.x, digits = 1)
