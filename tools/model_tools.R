@@ -108,8 +108,8 @@ growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
       eds
     }
     probs <- .calcED (tree)
-    if (add) {
-      # inverse probabilities if adding
+    if (!add) {
+      # inverse probabilities if not adding
       probs[ ,2] <- 1/probs[ ,2]
     }
     # return a species name based on probs^strength
