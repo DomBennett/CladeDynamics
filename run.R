@@ -27,11 +27,11 @@ closeDevices <- function () {
 ## Parameter set-up
 n <- 10
 seed.n <- 2
-time <- 5
+time <- 100
 burnin <- time*0.1 # 10% of time
 sample <- 0.1
-birth <- 0.6
-death <- 0.4
+birth <- 2
+death <- 1
 min.time.span <- 5
 min.size <- 5
 plot.tree.growth <- FALSE

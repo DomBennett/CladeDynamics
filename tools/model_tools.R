@@ -108,12 +108,14 @@ growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
       eds
     }
     probs <- .calcED (tree)
+    # apply strength
+    probs[ ,2] <- probs[ ,2]^strength
     if (!add) {
       # inverse probabilities if not adding
       probs[ ,2] <- 1/probs[ ,2]
     }
-    # return a species name based on probs^strength
-    sample (probs[ ,1], size = 1, prob = probs[ ,2]^strength)
+    # return a species name based on probs
+    sample (probs[ ,1], size = 1, prob = probs[ ,2])
   }
   add <- function () {
     # add a tip to the tree
