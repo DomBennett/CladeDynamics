@@ -3,9 +3,10 @@
 ## Run all scripts with different parameters
 
 ## Parameter descriptions
+# n -- the number of trees to simulate
 # seed.n -- how big should the initial tree be?
 # time -- how many units of branch length should the tree grow by?
-# burning -- how many units of branch length to throw away at start to account for bias created by seed tree?
+# burnin -- how many units of branch length to throw away at start to account for bias created by seed tree?
 # sample -- how often should sampling the success of a tree occur?
 # birth -- how many births per unit of branch length?
 # death -- how many deaths per unit of branch length?
@@ -24,6 +25,7 @@ closeDevices <- function () {
 }
 
 ## Parameter set-up
+n <- 10
 seed.n <- 2
 time <- 5
 burnin <- time*0.1 # 10% of time
@@ -34,8 +36,6 @@ min.time.span <- 5
 min.size <- 5
 plot.tree.growth <- FALSE
 bias <- 'FP'
-# changing parameters
-strengths <- rep (c (-1, -0.5, 0, 0.5, 1), each = 5)
 
 ## Check if there is a results folder
 if (!file.exists ('results')) {
@@ -49,12 +49,13 @@ headers <- data.frame ("res.dir", "strength", "bias", "time",
 runlog <- file.path (
   'results', paste0 (
     'run_log_', format (Sys.time (), "%H%M_%d%m%y"), '.csv'))
-write.table (headers, runlog, sep = ',', row.names = FALSE, col.names = FALSE)
+write.table (headers, runlog, sep = ',', row.names = FALSE,
+             col.names = FALSE)
 
 ## Run
-for (i in 1:length (strengths)) {
-  cat (paste0 ('\n\nWorking on model [', i,']\n'))
-  strength <- strengths[i]
+for (i in 1:n) {
+  cat (paste0 ('\n\n------ Working on model [', i,'] ------\n'))
+  strength <- runif (1, -1, 1)
   source ('1_model.R', print.eval = TRUE)
   source ('2_analysis.R', print.eval = TRUE)
 }

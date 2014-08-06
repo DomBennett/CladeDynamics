@@ -26,13 +26,9 @@ for (i in 1:nrow (metadata)) {
 }
 
 ## Calculate tree stats
-# calculate for each unique strength
 simulated.tree.stats <- list ()
-strengths <- sort (unique (metadata$strength))
-for (i in 1:length (strengths)) {
-  tree.i <- which (metadata$strength == strengths[i])
-  temp.res <- list (calcTreeShapeStats (simulated.trees[tree.i]))
-  names (temp.res) <- strengths[i]
+for (i in 1:length (simulated.trees)) {
+  temp.res <- list (calcTreeShapeStats (simulated.trees[i]))
   simulated.tree.stats <- c (simulated.tree.stats, temp.res)
 }
 
@@ -42,20 +38,14 @@ pdf (file.path ('results', 'treestats_ED_strength.pdf'))
 stat.names <- c ('colless.stat', 'sackin.stat', 'iprime.stat',
                  'gamma.stat', 'tc.stat')
 for (each in stat.names) {
-  stats <- extractStat (simulated.tree.stats, each)
-  x <- y <- NULL
-  # reformat for a vector of x and y
-  for (i in 1:length (stats)) {
-    x <- c (x, rep (strengths[i], length (stats[[i]])))
-    y <- c (y, stats[[i]])
-  }
+  y <- unlist (extractStat (simulated.tree.stats, each))
+  x <- metadata$strength
   plot (x = x, y = y, xlab = 'ED strength',
         ylab = paste0 ('Tree stat: [', each, ']'), pch = 19,
         col = rainbow (3, alpha = 0.8)[3])
-  abline (lm (y ~ x))
-  mtext (text = paste0 ('Mean natural stat: [',
-                        mean (natural.tree.stats[[each]],
-                              na.rm = TRUE), ']') )
+  model <- lm (y ~ x)
+  Y <- mean (natural.tree.stats[[each]], na.rm = TRUE)
+  X <- predict (model, newdata = data.frame (y = Y))
 }
 closeDevices ()
 # hist clade ages
