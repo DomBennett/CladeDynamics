@@ -44,7 +44,7 @@ res.dir <- file.path ('results', 'analysis_1')
 
 ## Create run log
 runlog <- file.path (res.dir, 'runlog.csv')
-if (!file.exists (runlog)) {
+if (file.exists (runlog)) {
   file.remove (runlog)
 }
 headers <- data.frame ('treefilename', 'strength', 'bias',
