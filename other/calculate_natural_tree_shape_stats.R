@@ -3,8 +3,8 @@
 ## Calculate tree shape stats for natural trees
 
 ## Parameters
-max.n = 1000
-min.n = 500
+target <- 100
+leeway <- 10
 
 ## Libraries
 source (file.path ('tools', 'compare_tools.R'))
@@ -14,29 +14,48 @@ data.dir <- 'data'
 
 ## Input
 natural.trees <- list ()
+weights <- NULL # vector of source of tree, for weighting mean
 tree.files <- list.files (data.dir, '\\.tre')
+min.n <- target - (target*leeway/100))
+max.n <- target + (target*leeway/100))
 for (i in 1:length (tree.files)) {
   tree <- read.tree (file.path (data.dir, tree.files[i]))
   # choose the first tree if list
   if (class (tree) == 'multiPhylo') {
     tree <- tree[[1]]
   }
-  # if the tree is bigger than 1000 extract clades that are
-  #  greater than 500 and less than 1000
+  # if the tree is bigger than target extract clades that are
+  #  within leeway of target
   if (getSize (tree) >= max.n) {
     clade.trees <- getSubtrees (tree, min.n, max.n)
+    if (is.null (clade.trees)) {
+      next
+    }
     for (clade.tree in clade.trees) {
       natural.trees <- c (natural.trees, list (clade.tree))
+      weights <- c (weights, i)
     }
   } else if (getSize (tree) >= min.n) {
     natural.trees <- c (natural.trees, list (tree))
+    weights <- c (weights, i)
   } else {
     next
   }
 }
 
-## Calculate tree stats
-natural.tree.stats <- calcTreeShapeStats (natural.trees)
+## Calculate tree stats for each group of trees
+colless.stat <- sackin.stat <- iprime.stat <- gamma.stat <- tc.stat <- NULL
+for (w in unique (weights)) {
+  natural.tree.stats <- calcTreeShapeStats (natural.trees[weights == w])
+  colless.stat <- c (colless.stat, natural.tree.stats['mean.colless.stat'][[1]])
+  sackin.stat <- c (sackin.stat, natural.tree.stats['mean.sackin.stat'][[1]])
+  iprime.stat <- c (iprime.stat, natural.tree.stats['mean.iprime.stat'][[1]])
+  gamma.stat <- c (gamma.stat, natural.tree.stats['mean.gamma.stat'][[1]])
+  tc.stat <- c (tc.stat, natural.tree.stats['mean.tc.stat'][[1]])
+}
+natural.tree.stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
+                                  gamma.stat, tc.stat)
 
 ## Save tree stats
-save (natural.tree.stats, file = file.path (data.dir, 'natural_tree_stats.Rd'))
+filename <- paste0 ('natural_tree_stats_t', target, '_l', leeway, '.Rd')
+save (natural.tree.stats, file = file.path (data.dir, filename))
