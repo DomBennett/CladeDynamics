@@ -1,6 +1,6 @@
 ## 05/07/2014
 ## D.J. Bennett
-## Run all scripts with different parameters
+## Analysis 2: How do clade dynamics change with ED bias?
 
 ## Parameter descriptions
 # n -- the number of trees to simulate
