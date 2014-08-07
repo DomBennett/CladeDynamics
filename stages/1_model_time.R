@@ -1,8 +1,7 @@
 ## 17/06/2014
 ## D.J. Bennett
-## Modelling tree growth using a modified rates
-## markov model, where rates are determined by ED.
-## This script is run through run.R
+## Model trees for set amount of time, take
+##  tree samples at different time points
 
 ## Libraries
 source (file.path ('tools', 'model_tools.R'))
