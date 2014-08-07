@@ -10,7 +10,7 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
-.calcTreeShapeStats <- function (tree, reference = TRUE, n.dist = 100) {
+.calcTreeShapeStats <- function (tree, reference = TRUE, iterations = 100) {
   ## Hidden workhorse function for calcTreeShapeStats
   calcTopologyStats <- function (tree) {
     calcStats <- function (tree) {
@@ -35,11 +35,11 @@ library (ggplot2)
     if (is.binary.phylo (tree)[1] == TRUE) {
       return (unlist (calcStats (tree)))
     } else {
-      # run multi2di n.dist times, calc stats and take means
+      # run multi2di iterations times, calc stats and take means
       run <- function (i) {
         calcStats (multi2di (tree))
       }
-      res <- mdply (.data = data.frame (i = 1:n.dist), .fun = run)[ ,-1]
+      res <- mdply (.data = data.frame (i = 1:iterations), .fun = run)[ ,-1]
       return (colMeans (res))
     }
   }
@@ -57,21 +57,27 @@ library (ggplot2)
     }
     c ('tc.stat' = tc.stat, 'gamma.stat' = tc.stat)
   }
+  calcReference <- function (n) {
+    # Calculate equivalent values for a distribution of Yule trees
+    #  and return means
+    .calc <- function (i) {
+      reference <- sim.bdtree (b = 1, d = 0, n = n, stop = 'taxa')
+      c (calcTopologyStats (reference), calcBranchingStats (reference))
+    }
+    res <- mdply (.data = data.frame (i = 1:iterations), .fun = .calc)
+    colMeans (res[ ,-1])
+  }
   # calculate topology and branching stats
   stats <- c (calcTopologyStats (tree), calcBranchingStats (tree))
   if (reference) {
-    # Pure birth reference
-    reference <- sim.bdtree (b = 1, d = 0,
-                             n = length (tree$tip.label), stop = 'taxa')
-    ref.stats <- c (calcTopologyStats (reference),
-                    calcBranchingStats (reference))
+    ref.stats <- calcReference (getSize (tree))
     # divide stats by ref stats
     stats <- stats/ref.stats
   }
   as.list (stats)
 }
 
-calcTreeShapeStats <- function (tree, reference = TRUE, n.dist = 100) {
+calcTreeShapeStats <- function (tree, reference = TRUE, iterations = 100) {
   ## Calculates a variety of tree shape statistics. If reference is TRUE
   ##  compares to stats generated for an equally sized Yule tree.
   if (class (tree) == 'multiPhylo' | class (tree) == 'list') {
@@ -97,7 +103,7 @@ calcTreeShapeStats <- function (tree, reference = TRUE, n.dist = 100) {
     }
     return (stats)
   } else {
-    return (.calcTreeShapeStats (tree, reference = TRUE, n.dist = 100))
+    return (.calcTreeShapeStats (tree, reference = TRUE, iterations = 100))
   }
 }
 
@@ -117,6 +123,30 @@ extractStat <- function (simulated.tree.stats, stat.name) {
     }
   }
   res
+}
+
+drawCorresPoints <- function (model, distribution) {
+  ## Plot mean, mean and 5% and 95% quantiles of an x distribution's
+  ##  equivalent y values
+  .draw <- function (actual, predicted, ...) {
+    lines (x = c (actual, actual, min.x),
+           y = c (min.y, predicted, predicted), ...)
+  }
+  # find the minimum values of x and y in plotted space
+  min.y <- floor (min (model$model[ ,'y'])) + floor (min (model$model[ ,'y']))
+  min.x <- floor (min (model$model[ ,'x'])) + floor (min (model$model[ ,'x']))
+  # get actual
+  q1.x <- quantile (distribution, 0.05, na.rm = TRUE)
+  q2.x <- quantile (distribution, 0.95, na.rm = TRUE)
+  m.x <- mean (distribution, na.rm = TRUE)
+  # get predicted values
+  q1.y <- predict (model, data.frame (x = q1.x))
+  q2.y <- predict (model, data.frame (x = q2.x))
+  m.y <- predict (model, data.frame (x = m.x))
+  # draw lines
+  .draw (q1.x, q1.y, col = 'red', lty = 2)
+  .draw (q2.x, q2.y, col = 'red', lty = 2)
+  .draw (m.x, m.y, lwd = 2)
 }
 
 histClageAges <- function (metadata) {
