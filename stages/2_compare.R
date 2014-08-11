@@ -23,8 +23,6 @@ for (i in 1:nrow (metadata)) {
   # read in tree
   tree.dir <- file.path (res.dir, metadata$treefilename[i])
   tree <- read.tree (tree.dir)
-  # drop all extinct nodes
-  tree <- drop.extinct (tree)
   # then add to list
   trees <- c (trees, list (tree))
 }

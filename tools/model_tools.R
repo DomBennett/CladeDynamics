@@ -80,7 +80,7 @@ seedTree <- function (n, age) {
 
 growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
                       bias = 'FP', strength = 1,
-                      stop.by = c ('max.n', 'max.time'),
+                      stop.by = c ('max.n', 'max.time'), fossils = TRUE,
                       max.iteration = 10000) {
   ## Grow a tree using a modified rates markov model
   ##  with specified births and deaths. Species are selected
@@ -151,9 +151,15 @@ growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
     n <<- n + 1
   }
   drop <- function () {
-    # choose a species to add to the extinct list
+    # choose a species to drop
     to.drop <- as.character(randomTip (add = FALSE))
-    extinct <<- c (extinct, to.drop)
+    if (fossils) {
+      # either add to the extinct vector if fossils are to be kept
+      extinct <<- c (extinct, to.drop)
+    } else {
+      # or drop the species
+      tree <<- drop.tip (tree, to.drop)
+    }
     n <<- n - 1
   }
   run <- function () {
@@ -193,7 +199,7 @@ growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
     # create globals
     max.node <- length (tree$tip.label) - 1
     max.tip <- length (tree$tip.label) # starting tree has n tips and n-1 int node
-    extinct <- c () # vector of all extinct species
+    extinct <- NULL # vector of all extinct species
     n <- 2
     time <- birth/2
   } else {

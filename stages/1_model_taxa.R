@@ -21,7 +21,8 @@ write.table (parameters, runlog, sep = ',', append = TRUE,
 cat (paste0 ('\nModelling tree of size [', n.taxa, '] ...'))
 tree <- growMRMMTree (birth = birth, death = death,
                       stop.at = n.taxa, stop.by = 'max.n',
-                      strength = strength, bias = bias)
+                      strength = strength, bias = bias,
+                      fossils = FALSE)
 
 ## Saving results
 cat ('\nSaving results ...')
