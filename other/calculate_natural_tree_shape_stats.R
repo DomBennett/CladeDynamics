@@ -16,19 +16,21 @@ data.dir <- 'data'
 natural.trees <- list ()
 weights <- NULL # vector of source of tree, for weighting mean
 tree.files <- list.files (data.dir, '\\.tre')
-min.n <- target - (target*leeway/100))
-max.n <- target + (target*leeway/100))
+min.n <- target - (target*leeway/100)
+max.n <- target + (target*leeway/100)
 for (i in 1:length (tree.files)) {
   tree <- read.tree (file.path (data.dir, tree.files[i]))
-  # choose the first tree if list
+  # choose the biggest tree if list
   if (class (tree) == 'multiPhylo') {
-    tree <- tree[[1]]
+    sizes <- unlist(lapply (tree, getSize))
+    tree <- tree[[which (sizes == max(sizes))[1]]]
   }
   # if the tree is bigger than target extract clades that are
   #  within leeway of target
   if (getSize (tree) >= max.n) {
-    clade.trees <- getSubtrees (tree, min.n, max.n)
-    if (is.null (clade.trees)) {
+    # may not work for polytomous trees, use try
+    clade.trees <- try (getSubtrees (tree, min.n, max.n), silent = TRUE)
+    if (is.null (clade.trees) | class (clade.trees) == 'try-error') {
       next
     }
     for (clade.tree in clade.trees) {

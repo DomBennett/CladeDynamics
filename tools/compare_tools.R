@@ -44,18 +44,20 @@ library (ggplot2)
     }
   }
   calcBranchingStats <- function (tree) {
-    if (is.ultrametric (tree)) {
-      # set tree age to 1
-      tree.age <- getAge (tree, node = length (tree$tip.label) + 1)
-      tree$edge.length <- tree$edge.length/tree.age
-      # gamma stat
-      gamma.stat <- gammaStat (tree)
-      # total cophenetic distance
-      tc.stat <- sum (cophenetic (tree))
-    } else {
-      tc.stat <- gamma.stat <- NA
+    # TODO: make trees ultrametric?
+    if (!is.null (tree$edge.length)) {
+      if (is.ultrametric (tree)) {
+        # set tree age to 1
+        tree.age <- getAge (tree, node = length (tree$tip.label) + 1)
+        tree$edge.length <- tree$edge.length/tree.age
+        # gamma stat
+        gamma.stat <- gammaStat (tree)
+        # total cophenetic distance
+        tc.stat <- sum (cophenetic (tree))
+        return (c ('tc.stat' = tc.stat, 'gamma.stat' = tc.stat))
+      }
     }
-    c ('tc.stat' = tc.stat, 'gamma.stat' = tc.stat)
+    c ('tc.stat' = NA, 'gamma.stat' = NA)
   }
   calcReference <- function (n) {
     # Calculate equivalent values for a distribution of Yule trees
