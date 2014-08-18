@@ -9,7 +9,7 @@ library (treebase)
 meta <- metadata ()
 
 ## First clear out all treebase trees from dir
-treebase.files <- list.files(path = 'data', pattern = 'treebase')
+treebase.files <- list.files (path = 'data', pattern = 'treebase')
 file.remove(file.path ('data', treebase.files))
 
 ## Download all species trees with more than 100 taxa
