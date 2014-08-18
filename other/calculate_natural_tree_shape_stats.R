@@ -10,7 +10,7 @@ leeway <- 10
 source (file.path ('tools', 'compare_tools.R'))
 
 ## Functions
-convertToDist <- function  (tree, n = 1) {
+convertToDist <- function  (tree, n = 100) {
   # Convert a polytmous tree into a distribution of dichotomous trees
   trees <- list ()
   for (i in 1:n) {
