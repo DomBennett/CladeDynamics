@@ -78,13 +78,12 @@ seedTree <- function (n, age) {
   res
 }
 
-growMRMMTree <- function (birth, death, stop.at, seed.tree = NULL,
+runEDBMM <- function (birth, death, stop.at, seed.tree = NULL,
                       bias = 'FP', strength = 1,
                       stop.by = c ('max.n', 'max.time'), fossils = TRUE,
                       max.iteration = 10000) {
-  ## Grow a tree using a modified rates markov model
-  ##  with specified births and deaths. Species are selected
-  ##  to speciate or go extinct based on ED bias.
+  ## Grow tree using a markov model with diversification rates
+  ##  based on evolutionary distinctiveness (EDBMM)
   # Internal functions
   randomTip <- function (add = TRUE) {
     # Return a random tip based on bias and whether

@@ -39,10 +39,10 @@ iterations <- time/sample
 ## Model
 runmodel <- function (i) {
   # grow tree using MRMM
-  tree <<- growMRMMTree (birth = birth, death = death,
-                        stop.at = sample, stop.by = 'max.time',
-                        strength = strength, bias = bias,
-                        seed.tree = tree)
+  tree <<- runEDBMM (birth = birth, death = death,
+                     stop.at = sample, stop.by = 'max.time',
+                     strength = strength, bias = bias,
+                     seed.tree = tree)
   # write last tree to disk
   write.tree (tree, file = file.path (
     res.dir, 'MRMM.tre'), append = TRUE)
