@@ -78,10 +78,63 @@ seedTree <- function (n, age) {
   res
 }
 
-runEDBMM <- function (birth, death, stop.at, seed.tree = NULL,
-                      bias = 'FP', strength = 1,
-                      stop.by = c ('max.n', 'max.time'), fossils = TRUE,
-                      max.iteration = 10000) {
+runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
+                      seed.tree = NULL, bias = 'FP', strength = 1,
+                      record = FALSE, sample.at = stop.at*.1,
+                      fossils = FALSE, max.iteration = 10000,
+                      progress.bar = 'none') {
+  ## Wrapper function to allow recording of trees through time
+  ## Parameters
+  ##  birth - how many births per unit of branch length
+  ##  death - how many deaths per unit of branch length
+  ##  stop.at - what value to stop at
+  ##  stop.by - what to stop at time or taxa
+  ##  seed.tree - tree to start model with, else a random tree of 2 tips
+  ##  bias - what type of ED bias to use FP or PE
+  ##  strength - power modifier of ED bias
+  ##  record - return list of trees at specified sample points
+  ##  fossils - keep fossils in tree?
+  ##  max.iterations - maximum number of iterations to prevent inf looping
+  ##  progress.bar - plyr progress bar, record only
+  stop.by <- match.arg (stop.by)
+  if (is.null (seed.tree)) {
+    # create an arbitrary seed tree of size 2
+    tree <- seedTree (n = 2, age = birth/2)
+  } else {
+    # in this case we're going to build on top of the seed
+    tree <- seed.tree
+  }
+  # create globals
+  extinct <- NULL # vector of all extinct species
+  max.node <- tree$Nnode
+  max.tip <- getSize (tree)
+  if (!record) {
+    results <- .runEDBMM (birth, death, stop.at, tree,
+               bias, strength, extinct, max.node,
+               max.tip, stop.by, fossils, max.iteration)
+    return (results[['tree']])
+  }
+  iterations <- stop.at/sample.at # number of iterations
+  trees <- list (tree) # collect trees
+  runmodel <- function (i) {
+    results <- .runEDBMM (birth, death, sample.at, tree,
+                          bias, strength, extinct, max.node,
+                          max.tip, stop.by, fossils, max.iteration)
+    tree <<- results[['tree']]
+    max.node <<- results[['max.node']]
+    max.tip <<- results[['max.tip']]
+    extinct <<- results[['extinct']]
+    trees <<- c (trees, list (tree))
+  }
+  m_ply (.data = (i = 1:iterations), .fun = runmodel,
+         .progress = progress.bar)
+  class (trees) <- 'multiPhylo'
+  return (trees)
+}
+
+.runEDBMM <- function (birth, death, stop.at, seed.tree,
+                      bias, strength, extinct, max.node,
+                      max.tip, stop.by, fossils, max.iteration) {
   ## Grow tree using a markov model with diversification rates
   ##  based on evolutionary distinctiveness (EDBMM)
   # Internal functions
@@ -146,7 +199,7 @@ runEDBMM <- function (birth, death, stop.at, seed.tree = NULL,
     max.node <<- max.node + 1
     max.tip <<- max.tip + 1
     # add to n and time
-    time <<- time + time.passed
+    t <<- t + time.passed
     n <<- n + 1
   }
   drop <- function () {
@@ -178,41 +231,29 @@ runEDBMM <- function (birth, death, stop.at, seed.tree = NULL,
       }
     }
   }
-  runForTime <- function (i) {
-    # run and stop after max.time
+  runForT <- function (i) {
+    # run and stop after t
     run ()
-    if (time >= stop.at) {
+    if (t >= stop.at) {
       stop (exp.message)
     }
   }
   runForN <- function (i) {
-    # run and stop after max.n
+    # run and stop after n
     run ()
     if (n >= stop.at) {
       stop (exp.message)
     }
   }
-  if (is.null (seed.tree)) {
-    # create an arbitrary seed tree of size 2
-    tree <<- seedTree (n = 2, age = birth/2)
-    # create globals
-    max.node <- length (tree$tip.label) - 1
-    max.tip <- length (tree$tip.label) # starting tree has n tips and n-1 int node
-    extinct <- NULL # vector of all extinct species
-    n <- 2
-    time <- birth/2
-  } else {
-    # in this case we're going to build on top of the seed
-    tree <<- seed.tree
-    # set n and time to zero
-    n <- time <- 0
-  }
+  # set n and t to zero
+  n <- t <- 0
+  # set tree as seed.tree
+  tree <- seed.tree
   # expected stop message
   exp.message <- 'Max reached'
   # run m_ply until stop ()
-  stop.by <- match.arg (stop.by)
-  if (stop.by == 'max.time') {
-    try (expr = m_ply (.data = (i = 1:max.iteration), .fun = runForTime),
+  if (stop.by == 't') {
+    try (expr = m_ply (.data = (i = 1:max.iteration), .fun = runForT),
          silent = TRUE)
   } else {
     try (expr = m_ply (.data = (i = 1:max.iteration), .fun = runForN),
@@ -223,5 +264,6 @@ runEDBMM <- function (birth, death, stop.at, seed.tree = NULL,
   if (!grepl (exp.message, error.message)) {
     stop (error.message)
   }
-  tree
+  list (tree = tree, max.node = max.node, max.tip = max.tip,
+        extinct = extinct)
 }
