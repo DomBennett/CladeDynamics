@@ -3,6 +3,26 @@
 ## Analysis of modelled MRMM trees
 ## This script is run through run.R
 
+## TODO
+# get this to work now with a multiPhylo
+# import functions from model tools
+# implement a new function for calculating CM and CG
+
+# # calc 'success' of each node in tree
+# temp.success <- .countChildren (tree, extinct)
+# # add dataframe to a list
+# clade.performance <<- c (clade.performance,
+#                          list (temp.success))
+# }
+# # write seed tree first
+# write.tree (tree, file = file.path (res.dir, 'MRMM.tre'))
+# cat ('\nRunning tree growth model ...')
+# m_ply (.data = (i = 1:iterations), .fun = runmodel,
+#        .progress = 'time')
+# # convert list of dataframes into single dataframe
+# cat ('\nReformatting model output ...')
+# res <- .reformat (clade.performance, sample)
+
 ## Dirs
 # read in last run folder
 res.dir <- read.csv (runlog, stringsAsFactors = FALSE)
