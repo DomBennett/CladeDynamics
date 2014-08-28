@@ -4,8 +4,9 @@
 
 ## Parameter descriptions
 # n -- the number of trees to simulate
-# target.unit -- aim for number of taxa (n) or amount of time (t) in end tree
-# target -- target number of taxa or time of end tree
+# seed -- starting number of taxa in random seed tree (must be >= 2)
+# stop.by -- aim for number of taxa (n) or amount of time (t) in end tree
+# stop.at -- target number of taxa or time of end tree
 # leeway -- percentage buffer around target
 # birth -- how many births per unit of branch length?
 # death -- how many deaths per unit of branch length?
@@ -25,11 +26,12 @@ closeDevices <- function () {
 ## Meta parameter set-up for 4 analyses
 n.analyses <- 4 # make sure there are four elements in each meta parameter
 meta.n <- rep (10, n.analyses)
+meta.seed <- c (2, 2, 2, 100)
 meta.birth <- c (2, 2, 2, 1)
 meta.death <- c (1, 1, 1, 1)
 meta.bias <- c ('FP', 'FP', 'FP', 'FP')
-meta.target.unit <- c ('n', 'n', 'n', 't')
-meta.target <- c (100, 500, 1000, 100)
+meta.stop.by <- c ('n', 'n', 'n', 't')
+meta.stop.at <- c (100, 500, 1000, 100)
 meta.leeway <- c (10, 10, 10, 10)
 meta.min.strength <- c (-1, -1, -1, -1)
 meta.max.strength <- c (1, 1, 1, 1)
@@ -44,15 +46,15 @@ if (!file.exists ('results')) {
 for (i in 1:n.analyses) {
   # print analysis number
   cat ('\n--------------------------------')
-  cat (paste0 ('          Analysis [', i, ']'))
+  cat (paste0 ('\n          Analysis [', i, ']'))
   cat ('\n--------------------------------\n')
   # parameter set-up
   n <- meta.n[i]
   birth <- meta.birth[i]
   death <- meta.death[i]
   bias <- meta.bias[i]
-  target.unit <- meta.target.unit[i]
-  target <- meta.target[i]
+  stop.by <- meta.stop.by[i]
+  stop.at <- meta.stop.at[i]
   leeway <- meta.leeway[i]
   min.strength <- meta.min.strength[i]
   max.strength <- meta.max.strength[i]
@@ -73,8 +75,8 @@ for (i in 1:n.analyses) {
   write.table (headers, runlog, sep = ',', row.names = FALSE,
                col.names = FALSE)
   # run
-  min.n <- target - (target*leeway/100)
-  max.n <- target + (target*leeway/100)
+  min.n <- stop.at - (stop.at*leeway/100)
+  max.n <- stop.at + (stop.at*leeway/100)
   for (j in 1:n) {
     # print statement
     cat (paste0 ('\n------ Working on model [', j,'] of [', n,
