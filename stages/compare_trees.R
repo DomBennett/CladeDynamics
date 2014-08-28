@@ -12,7 +12,7 @@ data.dir <- 'data'
 ## Input
 cat ('\nReading in data ...')
 # load pre-calculated natural tree stats given leeway and target
-filename <- paste0 ('natural_tree_stats_t', target, '_l', leeway, '.Rd')
+filename <- paste0 ('natural_tree_stats_t', stop.at, '_l', leeway, '.Rd')
 if (!file.exists (file.path (data.dir, filename))) {
   stop ('No natural tree stats have been pre-calcualted with given parameters')
 }

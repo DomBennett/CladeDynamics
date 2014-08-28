@@ -19,65 +19,6 @@ seedTree <- function (n, age) {
   tree
 }
 
-.countChildren <- function (tree, extinct) {
-  # Count the number of extant children for every node
-  .count <- function (node.label) {
-    node <- which (tree$node.label == node.label)
-    node <- length (tree$tip.label) + node
-    if (sum (tree$edge[ ,1] == node) > 1) {
-      # if the node has two descending edges
-      node.children <- getChildren (tree, node)
-      extant <- node.children[!node.children %in% extinct]
-      return (length (extant))
-    }
-    return (0)
-  }
-  # all internal nodes
-  node.labels <- tree$node.label
-  res <- mdply (.data = data.frame (node.label = node.labels),
-                .fun = .count)
-  colnames (res) <- c ('node', 'n.children')
-  res
-}
-
-.reformat <- function (clade.performance, sample,
-                       progress.bar = 'none') {
-  # Take list of list of clade performances and convert
-  #  to a dataframe.
-  .getTime <- function (i, node) {
-    # get success for node at a time point
-    data <- clade.performance[[i]]
-    if (any (data$node == node)) {
-      return (data[data$node == node, 2])
-    }
-    0
-  }
-  .getNode <- function (node) {
-    mdply (.data = data.frame (
-      i = 1:length (clade.performance)),
-      .fun = .getTime, node)[ ,2]
-  }
-  .addNode <- function (node) {
-    # add success for node at all time points
-    # for a res dataframe
-    node <- as.character (node)
-    node.success <- .getNode (node)
-    res[node] <- node.success
-    res <<- res
-  }
-  # get nodes across times
-  nodes <- unique (unlist (llply (.data = clade.performance,
-                                  .fun = function (x) as.vector(x$node))))
-  # build res dataframe by adding first results
-  res <- data.frame (.getNode (nodes[1]))
-  colnames (res) <- nodes[1]
-  nodes <- data.frame (node = nodes[-1])
-  # add to res
-  m_ply (.data = nodes, .fun = .addNode, .progress = progress.bar)
-  rownames (res) <- seq (sample, sample*nrow (res), sample)
-  res
-}
-
 runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
                       seed.tree = NULL, bias = 'FP', strength = 1,
                       record = FALSE, sample.at = stop.at*.1,
@@ -99,7 +40,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
   stop.by <- match.arg (stop.by)
   if (is.null (seed.tree)) {
     # create an arbitrary seed tree of size 2
-    tree <- seedTree (n = 2, age = birth/2)
+    tree <- seedTree (n = 2, age = (birth + death)/2)
   } else {
     # in this case we're going to build on top of the seed
     tree <- seed.tree
