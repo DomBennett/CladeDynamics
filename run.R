@@ -25,19 +25,19 @@ closeDevices <- function () {
 
 ## Meta parameter set-up for 4 analyses
 n.analyses <- 4 # make sure there are four elements in each meta parameter
-meta.n <- rep (10, n.analyses)
-meta.seed <- c (2, 2, 2, 100)
+meta.n <- rep (2, n.analyses)
+meta.seed <- c (2, 2, 2, 50)
 meta.birth <- c (2, 2, 2, 1)
 meta.death <- c (1, 1, 1, 1)
 meta.bias <- c ('FP', 'FP', 'FP', 'FP')
 meta.stop.by <- c ('n', 'n', 'n', 't')
-meta.stop.at <- c (100, 500, 1000, 100)
+meta.stop.at <- c (10, 50, 100, 10)
 meta.leeway <- c (10, 10, 10, 10)
 meta.min.strength <- c (-1, -1, -1, -1)
 meta.max.strength <- c (1, 1, 1, 1)
 meta.record <- c (FALSE, FALSE, FALSE, TRUE)
 
-## If isn't a results folder, create one
+## If there isn't a results folder, create one
 if (!file.exists ('results')) {
   dir.create ('results')
 }
@@ -50,6 +50,7 @@ for (i in 1:n.analyses) {
   cat ('\n--------------------------------\n')
   # parameter set-up
   n <- meta.n[i]
+  seed <- meta.seed[i]
   birth <- meta.birth[i]
   death <- meta.death[i]
   bias <- meta.bias[i]
@@ -79,20 +80,20 @@ for (i in 1:n.analyses) {
   max.n <- stop.at + (stop.at*leeway/100)
   for (j in 1:n) {
     # print statement
-    cat (paste0 ('\n------ Working on model [', j,'] of [', n,
-                 '] ------'))
+    cat (paste0 ('\n--- Working on model [', j,'] of [', n,
+                 '] ---'))
     strength <- runif (1, min.strength, max.strength)
     stop.at <- round (runif (1, min.n, max.n))
     source (file.path ('stages', 'model_trees.R'),
             print.eval = TRUE)
     # analyse clades if record
     if (record) {
-      cat ('\n------ Analysing clades through time ------')
+      cat ('\n--- Analysing clades through time ---')
       source (file.path ('stages', 'analyse_clades.R'),
               print.eval = TRUE)
     }
   }
-  cat ('\n------ Comparing trees to natural trees ------')
+  cat ('\n--- Comparing trees to natural trees ---')
   source (file.path ('stages','compare_trees.R'), print.eval = TRUE)
-  cat ('\n------ Model completed ------')
+  cat ('\n------ Model completed ------\n')
 }
