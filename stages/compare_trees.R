@@ -12,7 +12,12 @@ data.dir <- 'data'
 ## Input
 cat ('\nReading in data ...')
 # load pre-calculated natural tree stats given leeway and target
-filename <- paste0 ('natural_tree_stats_t', stop.at, '_l', leeway, '.Rd')
+if (stop.by == 'n') {
+  target <- meta.stop.at[i]
+} else {
+  target <- seed
+}
+filename <- paste0 ('natural_tree_stats_t', target, '_l', leeway, '.Rd')
 if (!file.exists (file.path (data.dir, filename))) {
   stop ('No natural tree stats have been pre-calcualted with given parameters')
 }
@@ -23,6 +28,10 @@ for (i in 1:nrow (metadata)) {
   # read in tree
   tree.dir <- file.path (res.dir, metadata$treefilename[i])
   tree <- read.tree (tree.dir)
+  # make sure it isn't multiPhylo
+  if (class (tree) == 'multiPhylo') {
+    tree <- tree[[length (tree)]]
+  }
   # then add to list
   trees <- c (trees, list (tree))
 }
@@ -52,3 +61,25 @@ for (each in stat.names) {
   drawCorresPoints (model, natural.tree.stats[ ,each])
 }
 closeDevices ()
+# if record, plot clade stats against ED strength
+if (record) {
+  ed.strengths <- timespans <- cgs <- cms <- NULL
+  cladestatsfiles <- sub ('\\.tre', '\\.csv',
+                          metadata$treefilename)
+  for (i in 1:nrow (metadata)) {
+    clade.stats <- read.csv (file.path (res.dir, cladestatsfiles[i]))
+    timespans <- c (timespans, clade.stats$time.span)
+    cgs <- c (cgs, clade.stats$cg)
+    cms <- c (cms, clade.stats$cm)
+    ed.strengths <- c (ed.strengths,
+                       rep (metadata$strength[i], nrow (clade.stats)))
+  }
+  pdf (file.path (res.dir, 'cladestats_ED_strength.pdf'))
+  plot (timespans ~ ed.strengths, xlab = 'ED strength', ylab = 'Clade time span',
+        col = rainbow (3, alpha = 0.7)[3], pch = 19)
+  plot (cms ~ ed.strengths, xlab = 'ED strength', ylab = 'Centre of Mass',
+        col = rainbow (3, alpha = 0.7)[3], pch = 19)
+  plot (cgs ~ ed.strengths, xlab = 'ED strength', ylab = 'Centre of gyration',
+        col = rainbow (3, alpha = 0.7)[3], pch = 19)
+  closeDevices ()
+}
