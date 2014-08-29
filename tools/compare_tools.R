@@ -150,17 +150,3 @@ drawCorresPoints <- function (model, distribution) {
   .draw (q2.x, q2.y, col = 'red', lty = 2)
   .draw (m.x, m.y, lwd = 2)
 }
-
-histClageAges <- function (metadata) {
-  ## Take metadata and plot clade ages in hist for each ED strength
-  ages <- strength <- NULL
-  for (i in 1:nrow (metadata)) {
-    res <- read.csv (file = file.path (
-      'results', metadata$res.dir[i], 'clades_through_time.csv'))[ ,-1]
-    ages <- c (ages, colSums (res != 0))
-    strength <- c (strength, rep (metadata$strength[i], ncol (res)))
-  }
-  clade.ages <- data.frame (ages = ages, strength = strength)
-  hist <- ggplot (clade.ages, aes (x = ages, fill = strength))
-  hist + geom_density ()
-}

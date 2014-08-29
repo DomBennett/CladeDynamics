@@ -10,7 +10,7 @@
 # leeway -- percentage buffer around target
 # birth -- how many births per unit of branch length?
 # death -- how many deaths per unit of branch length?
-# bias -- what type of ED? 'PE' or 'FP'
+# bias -- what type of ED? 'PE', 'ES' or 'FP'
 # min.strength -- min power determing the effect of the bias
 # max.strength -- max power determing the effect of the bias
 # record -- record clade successes through time or not

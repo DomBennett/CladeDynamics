@@ -109,6 +109,24 @@ plotFateVsED <- function (fates, eds, time.lag = 1) {
         main = paste0 ('Time lag: [', time.lag, ']'))
 }
 
+# test_that ('getFates([basic]) works ...', {
+#   trees <- genRandomTrees (100)
+#   # fates should all be 0 and 1 at the beginning
+#   # because there is no extinction in the random trees
+#   # and species are added to the tree at the newset tip
+#   fates <- getFates (trees)
+#   # so... the tree starts with 3 tips, so the first fate for 
+#   # tip 3 is 1, this is where tip 4 is added in time step 2
+#   expect_that (as.numeric (fates [3,1]), equals (1))
+# })
+# test_that ('plotFatesVsED([basic]) works ...', {
+#   trees <- genRandomTrees (10)
+#   fates <- getFates (trees)
+#   eds <- getEDs (trees)
+#   plotFateVsED (fates, eds, time.lag = 1)
+#   expect_that (is.null (dev.list ()), is_false ())
+#   dev.off ()
+# })
 
 ## Defunct functions for identifying the rise and fall of a clade, for plotting
 ##  Now I might use, a spindle diagram? Or use CM to identify the centre?
@@ -190,3 +208,18 @@ findRiseAndFall <- function (element, min.size, min.time) {
 #   # return radiation index
 #   start:(end+2)
 # }
+
+## A way to plot range of ages of clades
+histClageAges <- function (metadata) {
+  ## Take metadata and plot clade ages in hist for each ED strength
+  ages <- strength <- NULL
+  for (i in 1:nrow (metadata)) {
+    res <- read.csv (file = file.path (
+      'results', metadata$res.dir[i], 'clades_through_time.csv'))[ ,-1]
+    ages <- c (ages, colSums (res != 0))
+    strength <- c (strength, rep (metadata$strength[i], ncol (res)))
+  }
+  clade.ages <- data.frame (ages = ages, strength = strength)
+  hist <- ggplot (clade.ages, aes (x = ages, fill = strength))
+  hist + geom_density ()
+}

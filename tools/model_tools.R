@@ -20,10 +20,10 @@ seedTree <- function (n, age) {
 }
 
 runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
-                      seed.tree = NULL, bias = 'FP', strength = 1,
-                      record = FALSE, sample.at = stop.at*.1,
-                      fossils = FALSE, max.iteration = 10000,
-                      progress.bar = 'none') {
+                      seed.tree = NULL, bias = c ('FP', 'ES', 'PE'),
+                      strength = 1, record = FALSE,
+                      sample.at = stop.at*.1, fossils = FALSE,
+                      max.iteration = 10000, progress.bar = 'none') {
   ## Wrapper function to allow recording of trees through time
   ## Parameters
   ##  birth - how many births per unit of branch length
@@ -37,6 +37,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
   ##  fossils - keep fossils in tree?
   ##  max.iterations - maximum number of iterations to prevent inf looping
   ##  progress.bar - plyr progress bar, record only
+  bias <- match.arg (bias)
   stop.by <- match.arg (stop.by)
   if (is.null (seed.tree)) {
     # create an arbitrary seed tree of size 2
@@ -83,32 +84,23 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
     # Return a random tip based on bias and whether
     #  it is being added or not
     .calcED <- function (tree) {
-      if (bias == 'FP') {
-        if (!is.null (extinct)) {
-          extant.tree <- drop.tip (tree, tip = extinct)
-          eds <- calcED (extant.tree)
-        } else {
-          eds <- calcED (tree)
-        }
-      } else if (bias == 'PE') {
-        eds <- calcED (tree, type = 'PE')
-        # remove extinct
-        eds <- eds[!eds[ ,1] %in% extinct, ]
+      if (!is.null (extinct)) {
+        extant.tree <- drop.tip (tree, tip = extinct)
+        eds <- calcED (extant.tree, type = bias)
       } else {
-        stop (paste0 ('Unknown bias: [', bias, '].
-                       Must be FP or PE.'))
+        eds <- calcED (tree, type = bias)
       }
       eds
     }
     probs <- .calcED (tree)
     # apply strength
-    probs[ ,2] <- probs[ ,2]^strength
+    probs[ ,1] <- probs[ ,1]^strength
     if (!add) {
       # inverse probabilities if not adding
-      probs[ ,2] <- 1/probs[ ,2]
+      probs[ ,1] <- 1/probs[ ,1]
     }
     # return a species name based on probs
-    sample (probs[ ,1], size = 1, prob = probs[ ,2])
+    sample (rownames (probs), size = 1, prob = probs[ ,1])
   }
   add <- function () {
     # add a tip to the tree
