@@ -44,7 +44,6 @@ library (ggplot2)
     }
   }
   calcBranchingStats <- function (tree) {
-    # TODO: make trees ultrametric?
     if (!is.null (tree$edge.length)) {
       if (is.ultrametric (tree)) {
         # set tree age to 1
@@ -54,7 +53,7 @@ library (ggplot2)
         gamma.stat <- gammaStat (tree)
         # total cophenetic distance
         tc.stat <- sum (cophenetic (tree))
-        return (c ('tc.stat' = tc.stat, 'gamma.stat' = tc.stat))
+        return (c ('tc.stat' = tc.stat, 'gamma.stat' = gamma.stat))
       }
     }
     c ('tc.stat' = NA, 'gamma.stat' = NA)
