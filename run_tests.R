@@ -38,60 +38,6 @@ test_that ('runEDBMM(record=TRUE) works ...', {
   expect_that (getSize (tree[[2]]), equals (12))
   expect_that (getSize (tree[[3]]), equals (22))
 })
-# Now for those analysis tools ...
-context ('Testing analysis tools')
-test_that ('plotSuccess([basic]) works ...', {
-  # generate random clade data using Poisson dist
-  data <- genRandomData (100, 100, 1)
-  # plot
-  plotSuccess (data)
-  # if plot is generated check devices
-  expect_that (is.null (dev.list ()), is_false ())
-  # turn off devices
-  dev.off ()
-})
-test_that ('plotNormalisedSuccess([basic]) works ...', {
-  # generate random clade data using Poisson dist
-  data <- genRandomData (100, 100, 1)
-  # plot
-  plotNormalisedSuccess (data)
-  # if plot is generated check devices
-  expect_that (is.null (dev.list ()), is_false ())
-  # turn off devices
-  dev.off ()
-})
-test_that ('.reformat([basic]) works ...', {
-  # generate random clade success data using Poisson dist.
-  clade.success <- list ()
-  for (i in 1:10) {
-    node <- paste0 ('n', unique (rpois (100, i)))
-    n.children <- rpois (length (node), 10 + i)
-    clade.success <- c (clade.success, list (
-      data.frame (node = node, n.children = n.children)))
-  }
-  reformatted <- .reformat (clade.success, 1)
-  # test that one of the elements is as expected
-  node <- as.character (clade.success[[1]][1,1])
-  n.children <- clade.success[[1]][1,2]
-  expect_that (reformatted[node][1,], equals (n.children))
-})
-test_that ('.countChildren([basic]) works ...', {
-  # simple tree of 10 tips and one internal node
-  tree <- stree (10)
-  # .countChildren requires node.labels
-  tree$node.label <- 'n1'
-  # .countChildren requires a list of extinct species
-  extinct <- c ()
-  res1 <- .countChildren (tree, extinct)
-  expect_that (res1[1,2], equals (10))
-  # adding a species to extinct ...
-  extinct <- c ('t1')
-  res2 <- .countChildren (tree, extinct)
-  expect_that (res2[1,2], equals (9))
-})
-## TODO:
-##  --calcCladeSuccess
-##  --getCladeSuccess
 context ('Testing compare tools ...')
 test_that ('.calcTreeShapeStats ([basic]) works ...', {
   test.tree <- stree (64, 'balanced')

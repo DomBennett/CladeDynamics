@@ -32,13 +32,13 @@ if (seed > 2) {
   tree <- runEDBMM (birth = birth, death = death,
                     stop.at = stop.at, stop.by = stop.by,
                     strength = strength, bias = bias,
-                    fossils = FALSE, record = record,
+                    fossils = FALSE, record = FALSE,
                     seed.tree = seed.tree)
 } else {
   tree <- runEDBMM (birth = birth, death = death,
                     stop.at = stop.at, stop.by = stop.by,
                     strength = strength, bias = bias,
-                    fossils = FALSE, record = record)
+                    fossils = FALSE, record = FALSE)
 }
 
 ## Saving results

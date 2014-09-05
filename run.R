@@ -13,7 +13,6 @@
 # bias -- what type of ED? 'PE', 'ES' or 'FP'
 # min.strength -- min power determing the effect of the bias
 # max.strength -- max power determing the effect of the bias
-# record -- record clade successes through time or not
 
 ## Shared functions
 closeDevices <- function () {
@@ -26,7 +25,7 @@ closeDevices <- function () {
 ## Meta parameter set-up for 4 analyses
 n.analyses <- 4 # make sure there are four elements in each meta parameter
 meta.n <- rep (2, n.analyses)
-meta.seed <- c (2, 2, 2, 50)
+meta.seed <- c (2, 2, 2, 100)
 meta.birth <- c (2, 2, 2, 1)
 meta.death <- c (1, 1, 1, 1)
 meta.bias <- c ('FP', 'FP', 'FP', 'FP')
@@ -35,7 +34,6 @@ meta.stop.at <- c (10, 50, 100, 10)
 meta.leeway <- c (10, 10, 10, 10)
 meta.min.strength <- c (-1, -1, -1, -1)
 meta.max.strength <- c (1, 1, 1, 1)
-meta.record <- c (FALSE, FALSE, FALSE, TRUE)
 
 ## If there isn't a results folder, create one
 if (!file.exists ('results')) {
@@ -59,7 +57,6 @@ for (i in 1:n.analyses) {
   leeway <- meta.leeway[i]
   min.strength <- meta.min.strength[i]
   max.strength <- meta.max.strength[i]
-  record <- meta.record[i]
   # results folder set-up
   res.dir <- paste0 ('parameter_set_', i)
   if (!file.exists (file.path ('results', res.dir))) {
@@ -86,12 +83,6 @@ for (i in 1:n.analyses) {
     stop.at <- round (runif (1, min.n, max.n))
     source (file.path ('stages', 'model_trees.R'),
             print.eval = TRUE)
-    # analyse clades if record
-    if (record) {
-      cat ('\n--- Analysing clades through time ---')
-      source (file.path ('stages', 'analyse_clades.R'),
-              print.eval = TRUE)
-    }
   }
   cat ('\n--- Comparing trees to natural trees ---')
   source (file.path ('stages','compare_trees.R'), print.eval = TRUE)
