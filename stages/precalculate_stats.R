@@ -1,6 +1,6 @@
 ## 31/07/2014
 ## D.J. Bennett
-## Calculate tree shape stats for natural trees
+## Calculate tree shape stats for real trees
 
 ## Parameters
 target <- 100
