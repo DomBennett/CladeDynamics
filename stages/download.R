@@ -15,7 +15,10 @@ if (is.environment(.GlobalEnv)) {
 }
 
 ## Dirs
-output.dir <- file.path ('data', 'trees', 'treebase')
+output.dir <- file.path ('data', 'raw_trees', 'treebase')
+if (!file.exists (output.dir)) {
+  dir.create (output.dir)
+}
 
 ## Setup
 # First clear out all treebase trees from dir
