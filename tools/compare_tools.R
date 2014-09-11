@@ -72,8 +72,9 @@ library (ggplot2)
   stats <- c (calcTopologyStats (tree), calcBranchingStats (tree))
   if (reference) {
     ref.stats <- calcReference (getSize (tree))
-    # divide stats by ref stats
-    stats <- stats/ref.stats
+    # divide stats by ref stats (except for gamma)
+    bool <- names (stats) != 'gamma.stat'
+    stats[bool] <- stats[bool]/ref.stats[bool]
   }
   as.list (stats)
 }
