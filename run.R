@@ -81,10 +81,10 @@ for (i in 1:n.analyses) {
                  '] ---'))
     strength <- runif (1, min.strength, max.strength)
     stop.at <- round (runif (1, min.n, max.n))
-    source (file.path ('stages', 'model_trees.R'),
+    source (file.path ('stages', 'model.R'),
             print.eval = TRUE)
   }
   cat ('\n--- Comparing trees to natural trees ---')
-  source (file.path ('stages','compare_trees.R'), print.eval = TRUE)
+  source (file.path ('stages','compare.R'), print.eval = TRUE)
   cat ('\n------ Model completed ------\n')
 }
