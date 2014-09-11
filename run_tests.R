@@ -6,8 +6,9 @@
 library (testthat)
 source (file.path ('tools', 'test_tools.R'))
 source (file.path ('tools', 'model_tools.R'))
-source (file.path ('tools', 'analysis_tools.R'))
 source (file.path ('tools', 'compare_tools.R'))
+source (file.path ('tools', 'parse_tools.R'))
+source (file.path ('tools', 'precalculate_tools.R'))
 
 ## Tests
 # Model tools first ...
@@ -39,21 +40,14 @@ test_that ('runEDBMM(record=TRUE) works ...', {
   expect_that (getSize (tree[[3]]), equals (22))
 })
 context ('Testing compare tools ...')
-test_that ('.calcTreeShapeStats ([basic]) works ...', {
-  test.tree <- stree (64, 'balanced')
-  test.tree <- compute.brlen (test.tree)
-  res <- .calcTreeShapeStats (test.tree)
-  # colless test should be 0 for a balanced tree
-  expect_that (res[['colless.stat']], equals (0))
-})
 test_that ('calcTreeShapeStates([basic]) works ...', {
   test.trees <- list ()
-  for (i in 1:10) {
+  for (i in 1:5) {
     test.tree <- stree (64, 'balanced')
     test.tree <- compute.brlen (test.tree)
     test.trees <- c (test.trees, list (test.tree))
   }
-  res <- calcTreeShapeStats (test.trees)
+  res <- calcTreeShapeStats (test.trees, iterations = 1)
   # colless test should be 0 for balanced trees
   expect_that (res[['mean.colless.stat']], equals (0))
 })
@@ -67,5 +61,42 @@ test_that ('extractStat([basic]) works ...', {
   expect_that (res1, equals (c (1,1,1)))
   res2 <- extractStat (simulated.tree.stats, 'stat')
   expect_that (unlist (res2), equals (rep (1, 12)))
+})
+context ('Testing parse tools ...')
+test_that ('convertToDist([basic]) works ...', {
+  # create a simple tree
+  tree <- stree (10)
+  res <- convertToDist (tree, 1)[[1]]
+  expect_that (res$Nnode, equals (9))
+})
+test_that ('safeChronos([basic]) works ...', {
+  # create a simple non-ultrametric tree
+  tree <- rtree (10)
+  res1 <- safeChronos (tree, lambda = 1, quiet = TRUE)
+  expect_that (is.ultrametric (res1), is_true ())
+  # create a simple tree without branch lengths
+  tree <- stree (10)
+  res2 <- safeChronos (tree, lambda = 1, quiet = TRUE)
+  expect_that (is.ultrametric (res2), throws_error ())
+})
+context ('Testing precalculate tools ...')
+test_that ('pack([basic]) works ...', {
+  # create a random mix of trees
+  # ... too big
+  res1 <- pack (stree (12, 'left'), 11, 9)
+  expect_that (getSize (res1[[1]]), equals (11))
+  # ... too small
+  res2 <- pack (stree (8, 'left'), 11, 9)
+  expect_that (res2, is_null ())
+  # ... some big, some small
+  trees <- list ()
+  ns <- c (8,8,8,8,8,12,12,12,12,12)
+  for (i in 1:length (ns)) {
+    n <- ns[i]
+    trees <- c (trees, list (stree (n, 'left')))
+  }
+  class (trees) <- 'multiPhylo'
+  res3 <- pack (trees, 11, 9)
+  expect_that (length (res3), equals (5))
 })
 cat ('\n\nTests passed.')
