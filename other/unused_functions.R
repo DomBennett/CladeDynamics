@@ -224,6 +224,28 @@ histClageAges <- function (metadata) {
   hist + geom_density ()
 }
 
+# if record, plot clade stats against ED strength
+if (record) {
+  ed.strengths <- timespans <- cgs <- cms <- NULL
+  cladestatsfiles <- sub ('\\.tre', '\\.csv',
+                          metadata$treefilename)
+  for (i in 1:nrow (metadata)) {
+    clade.stats <- read.csv (file.path (res.dir, cladestatsfiles[i]))
+    timespans <- c (timespans, clade.stats$time.span)
+    cgs <- c (cgs, clade.stats$cg)
+    cms <- c (cms, clade.stats$cm)
+    ed.strengths <- c (ed.strengths,
+                       rep (metadata$strength[i], nrow (clade.stats)))
+  }
+  pdf (file.path (res.dir, 'cladestats_ED_strength.pdf'))
+  plot (timespans ~ ed.strengths, xlab = 'ED strength', ylab = 'Clade time span',
+        col = rainbow (3, alpha = 0.7)[3], pch = 19)
+  plot (cms ~ ed.strengths, xlab = 'ED strength', ylab = 'Centre of Mass',
+        col = rainbow (3, alpha = 0.7)[3], pch = 19)
+  plot (cgs ~ ed.strengths, xlab = 'ED strength', ylab = 'Centre of gyration',
+        col = rainbow (3, alpha = 0.7)[3], pch = 19)
+  closeDevices ()
+}
 ## Clade analysis functions with tests (no longer part of pipeline 05/09/2014)
 findNonZeros <- function (element) {
   ## Find all results that are not zero
