@@ -62,6 +62,7 @@ library (ggplot2)
     # Calculate equivalent values for a distribution of Yule trees
     #  and return means
     .calc <- function (i) {
+      ## TODO: Yule reference takes a long time, find alternative
       reference <- sim.bdtree (b = 1, d = 0, n = n, stop = 'taxa')
       c (calcTopologyStats (reference), calcBranchingStats (reference))
     }
@@ -79,15 +80,18 @@ library (ggplot2)
   as.list (stats)
 }
 
-calcTreeShapeStats <- function (tree, reference = TRUE, iterations = 100) {
-  ## Calculates a variety of tree shape statistics. If reference is TRUE
-  ##  compares to stats generated for an equally sized Yule tree.
+calcTreeShapeStats <- function (tree, reference = TRUE,
+                                iterations = 100) {
+  ## Calculates a variety of tree shape statistics.
+  ##  If reference is TRUE compares to stats generated
+  ##  for an equally sized Yule tree.
   if (class (tree) == 'multiPhylo' | class (tree) == 'list') {
     stats <- list (colless.stat = NULL, sackin.stat = NULL,
                    iprime.stat = NULL, gamma.stat = NULL,
                    tc.stat = NULL)
     eachTree <- function (i) {
-      res <- .calcTreeShapeStats (tree[[i]], reference)
+      res <- .calcTreeShapeStats (tree[[i]], reference = reference,
+                                  iterations = iterations)
       for (each in names (stats)) {
         stats[[each]] <<- c (stats[[each]],
                              res[[each]])
@@ -100,12 +104,14 @@ calcTreeShapeStats <- function (tree, reference = TRUE, iterations = 100) {
       mean.res <- mean (stats[[each]], na.rm = TRUE)
       sd.res <- sd (stats[[each]], na.rm = TRUE)
       res <- list (mean.res, sd.res)
-      names (res) <- c (paste0 ('mean.', each), paste0 ('sd.', each))
+      names (res) <- c (paste0 ('mean.', each),
+                        paste0 ('sd.', each))
       stats <- c (stats, res)
     }
     return (stats)
   } else {
-    return (.calcTreeShapeStats (tree, reference = TRUE, iterations = 100))
+    return (.calcTreeShapeStats (tree, reference = reference,
+                                 iterations = iterations))
   }
 }
 
