@@ -11,6 +11,7 @@ if (is.environment(.GlobalEnv)) {
   target <- 100
   leeway <- 10
   iterations <- 100
+  reference  <- FALSE
 }
 
 ## Dirs
@@ -23,7 +24,8 @@ if (!file.exists (output.dir)) {
 ## Input
 min.n <- target - (target * leeway/100)
 max.n <- target + (target * leeway/100)
-treeinfo.master <- read.csv (file.path (input.dir, 'treeinfo.csv'))
+treeinfo.master <- read.csv (file.path (input.dir,
+                                        'treeinfo.csv'))
 treeinfo <- data.frame ()
 trees <- list ()
 study.names <- NULL
@@ -49,7 +51,8 @@ counter <- 0
 colless.stat <- sackin.stat <- iprime.stat <-
   gamma.stat <- tc.stat <- NULL
 for (set in trees) {
-  stats <- calcTreeShapeStats (set, iterations = iterations)
+  stats <- calcTreeShapeStats (set, iterations = iterations,
+                               reference = reference)
   # extract the mean value of the set
   colless.stat <- c (colless.stat, stats['mean.colless.stat'][[1]])
   sackin.stat <- c (sackin.stat, stats['mean.sackin.stat'][[1]])
@@ -60,9 +63,9 @@ for (set in trees) {
 }
 stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
                                   gamma.stat, tc.stat)
-res <- cbind (treeinfo, stats)
+stats <- cbind (treeinfo, stats)
 
 ## Save
 filename <- paste0 ('t', target, '_l', leeway, '.Rd')
-save (res, file = file.path (output.dir, filename))
+save (stats, file = file.path (output.dir, filename))
 cat (paste0 ('\nStage complete, calculated for [', counter,'] tree sets'))
