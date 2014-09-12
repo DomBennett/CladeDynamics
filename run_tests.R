@@ -5,13 +5,28 @@
 ## Libs
 library (testthat)
 source (file.path ('tools', 'test_tools.R'))
+source (file.path ('tools', 'download_tools.R'))
 source (file.path ('tools', 'model_tools.R'))
 source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'parse_tools.R'))
 source (file.path ('tools', 'precalculate_tools.R'))
 
 ## Tests
-# Model tools first ...
+cat ('\n\n Running tests ...')
+context ('Testing download tools ...')
+test_that ('safeConnect([basic]) works ...', {
+  expect_that (safeConnect (expr = a - 2,
+                            wait = 0.1,
+                            trys = 1,
+                            verbose = FALSE),
+               throws_error ())
+  a <- 2
+  expect_that (safeConnect (expr = a - 2,
+                            wait = 0.1,
+                            trys = 1,
+                            verbose = FALSE),
+               equals (0))
+})
 context ('Testing model tools ...')
 test_that ('seedTree([basic]) works ...', {
   tree <- seedTree (10, 10)
