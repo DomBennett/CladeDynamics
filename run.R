@@ -14,14 +14,6 @@
 # min.strength -- min power determing the effect of the bias
 # max.strength -- max power determing the effect of the bias
 
-## Shared functions
-closeDevices <- function () {
-  # make sure all graphical devices are off
-  while (!is.null (dev.list ())) {
-    dev.off ()
-  }
-}
-
 ## Meta parameter set-up for 4 analyses
 n.analyses <- 4 # make sure there are four elements in each meta parameter
 meta.n <- rep (2, n.analyses)
@@ -32,7 +24,7 @@ meta.bias <- c ('FP', 'FP', 'FP', 'FP')
 meta.stop.by <- c ('n', 'n', 'n', 't')
 meta.stop.at <- c (10, 50, 100, 10)
 meta.leeway <- c (10, 10, 10, 10)
-meta.min.strength <- c (-1, -1, -1, -1)
+meta.min.strength <- c (-1.5, -1.5, -1.5, -1.5)
 meta.max.strength <- c (1, 1, 1, 1)
 
 ## If there isn't a results folder, create one
@@ -46,6 +38,7 @@ for (i in 1:n.analyses) {
   cat ('\n--------------------------------')
   cat (paste0 ('\n          Analysis [', i, ']'))
   cat ('\n--------------------------------\n')
+  
   # parameter set-up
   n <- meta.n[i]
   seed <- meta.seed[i]
@@ -57,12 +50,14 @@ for (i in 1:n.analyses) {
   leeway <- meta.leeway[i]
   min.strength <- meta.min.strength[i]
   max.strength <- meta.max.strength[i]
+  
   # results folder set-up
   res.dir <- paste0 ('parameter_set_', i)
   if (!file.exists (file.path ('results', res.dir))) {
     dir.create (file.path ('results', res.dir))
   }
   res.dir <- file.path ('results', res.dir)
+  
   # create a run log
   runlog <- file.path (res.dir, 'runlog.csv')
   if (file.exists (runlog)) {
@@ -72,19 +67,22 @@ for (i in 1:n.analyses) {
                          'birth', 'death')
   write.table (headers, runlog, sep = ',', row.names = FALSE,
                col.names = FALSE)
+  
   # run
   min.n <- stop.at - (stop.at*leeway/100)
   max.n <- stop.at + (stop.at*leeway/100)
-  for (j in 1:n) {
-    # print statement
-    cat (paste0 ('\n--- Working on model [', j,'] of [', n,
-                 '] ---'))
-    strength <- runif (1, min.strength, max.strength)
-    stop.at <- round (runif (1, min.n, max.n))
-    source (file.path ('stages', 'model.R'),
-            print.eval = TRUE)
-  }
+  source (file.path ('stages', 'model.R'), print.eval = TRUE)
+  
+  # compare
   cat ('\n--- Comparing trees to natural trees ---')
+  if (stop.by == 'n') {
+    target <- meta.stop.at[i]
+  } else {
+    target <- seed
+  }
   source (file.path ('stages','compare.R'), print.eval = TRUE)
+  
+  # end
   cat ('\n------ Model completed ------\n')
 }
+cat ('\n\n run.R complete')
