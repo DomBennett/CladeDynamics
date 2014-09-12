@@ -14,7 +14,10 @@ leeway <- 10 # the percentage wobble around targets
 iterations <- 100 # number of iterations of Yule comparison
 
 ## Stop if you don't want to run this!
-
+x <- readline ('Running this script will delete already
+           downloaded files, are you sure you want to continue?
+           Hit return to continue. Ctrl+Z to exit.')
+rm (x)
 
 ## Process
 # download
