@@ -8,6 +8,7 @@
 
 ## Libraries
 library (treebase)
+source (file.path ('tools', 'download_tools.R'))
 
 ## Parameters
 if (is.environment(.GlobalEnv)) {
@@ -38,7 +39,7 @@ write.table (headers, download.log, sep = ',', row.names = FALSE,
 
 ## Search
 cat ('\nSearching suitable trees ....')
-meta <- suppressWarnings (metadata ())
+meta <- safeConnect (expr = suppressWarnings (metadata ()))
 # choose those with more than min.taxa taxa
 meta <- meta[meta$ntaxa >= min.taxa, ]
 # choose those that are species trees
@@ -54,8 +55,10 @@ counter <- 0
 for (i in 1:nrow (meta)) {
   cat (paste0 ('\n.... tree [',i,']'))
   tree.data <- meta[i, ]
-  tree <- suppressWarnings (search_treebase (
-    tree.data$Tree.id, by = 'id.tree', verbose = FALSE))
+  tree <- safeConnect (expr = {
+    suppressWarnings (search_treebase (tree.data$Tree.id,
+                                       by = 'id.tree',
+                                       verbose = FALSE))})
   closeAllConnections ()
   if (length (tree) > 0) {
     filename <- paste0 (tree.data$Study.id, '.tre')
