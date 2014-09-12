@@ -4,22 +4,28 @@
 
 ## Libraries
 source (file.path ('tools', 'compare_tools.R'))
+source (file.path ('tools', 'misc_tools.R'))
+
+## Parameters
+if (is.environment(.GlobalEnv)) {
+  reference <- FALSE
+  iterations <- 100
+  target <- 100
+  leeway <- 10
+  res.dir <- file.path ('results', 'test_parameters')
+  runlog <- file.path (res.dir, 'runlog.csv')
+}
 
 ## Dirs
 metadata <- read.csv (runlog, stringsAsFactors = FALSE)
-data.dir <- 'data'
+data.dir <- file.path ('data', 'treestats')
 
 ## Input
 cat ('\nReading in data ...')
 # load pre-calculated natural tree stats given leeway and target
-if (stop.by == 'n') {
-  target <- meta.stop.at[i]
-} else {
-  target <- seed
-}
-filename <- paste0 ('natural_tree_stats_t', target, '_l', leeway, '.Rd')
+filename <- paste0 ('t', target, '_l', leeway, '.Rd')
 if (!file.exists (file.path (data.dir, filename))) {
-  stop ('No natural tree stats have been pre-calcualted with given parameters')
+  stop ('No natural tree stats have been pre-calculated with given parameters')
 }
 load (file.path (data.dir, filename))
 # Read in last reconstructed phylogeny of simulated trees
@@ -40,9 +46,14 @@ for (i in 1:nrow (metadata)) {
 cat ('\nCalculating tree stats ...')
 tree.stats <- list ()
 for (i in 1:length (trees)) {
-  temp.res <- list (calcTreeShapeStats (trees[i]))
+  temp.res <- list (calcTreeShapeStats (
+    trees[i], iterations = iterations, reference = reference))
   tree.stats <- c (tree.stats, temp.res)
 }
+
+## Write out
+save (tree.stats, file = file.path (
+  res.dir, 'shapestats.Rd'))
 
 ## Plotting results
 # extract the distribution of each stat and plot against ED strength
@@ -58,28 +69,6 @@ for (each in stat.names) {
         col = rainbow (3, alpha = 0.8)[3])
   model <- lm (y ~ x)
   abline (model)
-  drawCorresPoints (model, natural.tree.stats[ ,each])
+  drawCorresPoints (model, stats[ ,each])
 }
 closeDevices ()
-# if record, plot clade stats against ED strength
-if (record) {
-  ed.strengths <- timespans <- cgs <- cms <- NULL
-  cladestatsfiles <- sub ('\\.tre', '\\.csv',
-                          metadata$treefilename)
-  for (i in 1:nrow (metadata)) {
-    clade.stats <- read.csv (file.path (res.dir, cladestatsfiles[i]))
-    timespans <- c (timespans, clade.stats$time.span)
-    cgs <- c (cgs, clade.stats$cg)
-    cms <- c (cms, clade.stats$cm)
-    ed.strengths <- c (ed.strengths,
-                       rep (metadata$strength[i], nrow (clade.stats)))
-  }
-  pdf (file.path (res.dir, 'cladestats_ED_strength.pdf'))
-  plot (timespans ~ ed.strengths, xlab = 'ED strength', ylab = 'Clade time span',
-        col = rainbow (3, alpha = 0.7)[3], pch = 19)
-  plot (cms ~ ed.strengths, xlab = 'ED strength', ylab = 'Centre of Mass',
-        col = rainbow (3, alpha = 0.7)[3], pch = 19)
-  plot (cgs ~ ed.strengths, xlab = 'ED strength', ylab = 'Centre of gyration',
-        col = rainbow (3, alpha = 0.7)[3], pch = 19)
-  closeDevices ()
-}
