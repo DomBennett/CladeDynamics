@@ -7,7 +7,7 @@ source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'misc_tools.R'))
 
 ## Parameters
-if (is.environment(.GlobalEnv)) {
+if (!exists ('res.dir')) {
   reference <- FALSE
   iterations <- 100
   target <- 100

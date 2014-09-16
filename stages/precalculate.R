@@ -7,7 +7,7 @@ source (file.path ('tools', 'precalculate_tools.R'))
 source (file.path ('tools', 'compare_tools.R'))
 
 ## Parameters
-if (is.environment(.GlobalEnv)) {
+if (!exists ('target')) {
   target <- 100
   leeway <- 10
   iterations <- 100

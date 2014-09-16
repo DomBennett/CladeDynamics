@@ -6,7 +6,7 @@
 source (file.path ('tools', 'parse_tools.R'))
 
 ## Parameters
-if (is.environment(.GlobalEnv)) {
+if (!exists ('tree.dist')) {
   tree.dist <- 1 # how many trees in a dichotomous distribution?
   use.chronos <- FALSE # use chronos to make trees ultrametric?
 }

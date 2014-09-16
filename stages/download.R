@@ -11,7 +11,7 @@ library (treebase)
 source (file.path ('tools', 'download_tools.R'))
 
 ## Parameters
-if (is.environment(.GlobalEnv)) {
+if (!exists ('min.taxa')) {
   min.taxa <- 100
 }
 
@@ -53,7 +53,7 @@ cat (paste0 ('\n.... max size [', max (meta$ntaxa), ']'))
 cat ('\nDownloading trees ....')
 counter <- 0
 for (i in 1:nrow (meta)) {
-  cat (paste0 ('\n.... tree [',i,']'))
+  cat (paste0 ('\n.... tree [',i,']\n'))
   tree.data <- meta[i, ]
   tree <- safeConnect (expr = {
     suppressWarnings (search_treebase (tree.data$Tree.id,
@@ -63,10 +63,16 @@ for (i in 1:nrow (meta)) {
   if (length (tree) > 0) {
     filename <- paste0 (tree.data$Study.id, '.tre')
     tree.data <- cbind (filename, tree.data)
-    write.tree (tree[[1]], file = file.path (output.dir, filename),
-                append = TRUE)
-    write.table (tree.data, download.log, sep = ',', append = TRUE,
-                 col.names = FALSE, row.names = FALSE)
+    # control for malformed downloaded trees
+    error <- try (write.tree (
+      tree[[1]], file = file.path (output.dir, filename),
+      append = TRUE), silent = TRUE)
+    if (!is.null (error)) {
+      next
+    }
+    write.table (tree.data, download.log, sep = ',',
+                 append = TRUE, col.names = FALSE,
+                 row.names = FALSE)
     counter <- counter + 1
   } else {
     cat ('\n........ no tree could be retrieved')

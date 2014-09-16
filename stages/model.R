@@ -6,7 +6,7 @@
 source (file.path ('tools', 'model_tools.R'))
 
 ## Parameters
-if (is.environment(.GlobalEnv)) {
+if (!exists ('res.dir')) {
   # run outside of run.R for testing stage
   res.dir <- file.path ('results', 'test_parameters')
   list.files (res.dir)
