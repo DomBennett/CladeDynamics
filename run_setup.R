@@ -6,8 +6,8 @@
 ##  already be in /data
 
 ## Parameters
-use.chronos <- FALSE # make trees ultrametric?
-tree.dist <- 1 # the number of trees in a distribution for a polytomous tree
+use.chronos <- TRUE # make trees ultrametric?
+tree.dist <- 10 # the number of trees in a distribution for a polytomous tree
 min.taxa <- 100 # the minimum tree size to be downloaded
 targets <- c (100, 500, 1000) # the different tree sizes for which to calculate stats
 leeway <- 10 # the percentage wobble around targets

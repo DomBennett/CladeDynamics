@@ -16,13 +16,13 @@
 
 ## Meta parameter set-up for 4 analyses
 n.analyses <- 4 # make sure there are four elements in each meta parameter
-meta.n <- rep (2, n.analyses)
+meta.n <- rep (1000, n.analyses)
 meta.seed <- c (2, 2, 2, 100)
 meta.birth <- c (2, 2, 2, 1)
 meta.death <- c (1, 1, 1, 1)
 meta.bias <- c ('FP', 'FP', 'FP', 'FP')
 meta.stop.by <- c ('n', 'n', 'n', 't')
-meta.stop.at <- c (10, 50, 100, 10)
+meta.stop.at <- c (100, 500, 1000, 10)
 meta.leeway <- c (10, 10, 10, 10)
 meta.min.strength <- c (-1.5, -1.5, -1.5, -1.5)
 meta.max.strength <- c (1, 1, 1, 1)
