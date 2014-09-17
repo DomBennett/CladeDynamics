@@ -47,8 +47,6 @@ metadata$chronos <- FALSE # made ultrametric by chronos
 
 ## Parse
 counter <- 0
-# container for multiPhylos
-trees <- list ()
 # metadata for trees that get used
 treeinfo <- data.frame ()
 for (i in 1:length (tree.files)) {
@@ -98,16 +96,15 @@ for (i in 1:length (tree.files)) {
     tree <- list (tree)
     class (tree) <- 'multiPhylo'
   }
-  trees <- c (trees, list (tree))
+  # write out
+  write.tree (tree, file.path (output.dir,
+                               tempinfo['filename']))
+  # save details
   treeinfo <- rbind (treeinfo, tempinfo)
   counter <- counter + 1
 }
 
 ## Output
-for (i in 1:length (trees)) {
-  write.tree (trees[[i]], file.path (
-    output.dir, treeinfo[i, 'filename']))
-}
 write.csv (treeinfo, file.path (output.dir, 'treeinfo.csv'),
            row.names = FALSE)
 cat (paste0 ('\nStage complete, parsed [', counter,'] trees'))
