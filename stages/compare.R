@@ -12,7 +12,7 @@ if (!exists ('res.dir')) {
   iterations <- 100
   target <- 100
   leeway <- 10
-  res.dir <- file.path ('results', 'test_parameters')
+  res.dir <- file.path ('results', 'parameter_set_1')
   runlog <- file.path (res.dir, 'runlog.csv')
 }
 
@@ -55,6 +55,44 @@ for (i in 1:length (trees)) {
 save (tree.stats, file = file.path (
   res.dir, 'shapestats.Rd'))
 
+# TODO: rethink how the calcTreeShapeStats works to avoid this loop
+colless.stat <- sackin.stat <- iprime.stat <- 
+  gamma.stat <- tc.stat <- rep (NA, length (tree.stats))
+for (i in 1:length (tree.stats)) {
+  colless.stat[i] <- tree.stats[[i]][['colless.stat']]
+  sackin.stat[i] <- tree.stats[[i]][['sackin.stat']]
+  iprime.stat[i] <- tree.stats[[i]][['iprime.stat']]
+  gamma.stat[i] <- tree.stats[[i]][['gamma.stat']]
+  tc.stat[i] <- tree.stats[[i]][['tc.stat']]
+}
+stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
+            gamma.stat, tc.stat)
+stats <- cbind (metadata, stats)
+stats[stats[['colless.stat']] > 1200,]
+
+window.size <- 0.25
+maxs <- seq (from = (-1.5 + window.size), to = 1,
+             by = window.size)
+mins <- seq (from = -1.5, to = (1 - window.size),
+             by = window.size)
+res <- rep (NA, length (maxs))
+for (i in 1:length (maxs)) {
+  temp <- stats[stats$strength < maxs[i] &
+                  stats$strength > mins[i],
+                'sackin.stat']
+  indist <- rep (NA, 1000)
+  for (j in 1:1000) {
+    samp <- sample (real.stats, 1)
+    indist[j] <- mean (temp) > samp
+  }
+  res[i] <- abs (0.5 - sum (indist)/1000)
+}
+par(xaxt="n")
+plot (res, ylab = 'Difference from 0.5', pch = 19)
+lablist <- paste0 (mins, ':', maxs)
+axis(1, at = 1:length (maxs), labels = FALSE)
+text(1:length (maxs), 0.01, labels = lablist, srt = 45, pos = 1, xpd = TRUE)
+
 ## Plotting results
 # extract the distribution of each stat and plot against ED strength
 cat ('\nPlotting ...')
@@ -69,6 +107,6 @@ for (each in stat.names) {
         col = rainbow (3, alpha = 0.8)[3])
   model <- lm (y ~ x)
   abline (model)
-  drawCorresPoints (model, stats[ ,each])
+  #drawCorresPoints (model, stats[ ,each])
 }
 closeDevices ()
