@@ -61,11 +61,11 @@ for (set in trees) {
   tc.stat <- c (tc.stat, stats['mean.tc.stat'][[1]])
   counter <- counter + 1
 }
-stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
+real.stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
                                   gamma.stat, tc.stat)
-stats <- cbind (treeinfo, stats)
+real.stats <- cbind (treeinfo, real.stats)
 
 ## Save
 filename <- paste0 ('t', target, '_l', leeway, '.Rd')
-save (stats, file = file.path (output.dir, filename))
+save (real.stats, file = file.path (output.dir, filename))
 cat (paste0 ('\nStage complete, calculated for [', counter,'] tree sets'))
