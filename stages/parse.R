@@ -76,7 +76,7 @@ for (i in 1:length (tree.files)) {
   # is it polytomous?
   poly.bool <- getSize (tree) != (tree$Nnode + 1)
   # print progress
-  cat (paste0 ('\nWorking on [', tempinfo['Tree.id'],']'))
+  cat (paste0 ('\nWorking on [', tempinfo[['Tree.id']],']'))
   # if not ultrametric make it (if I can)
   if (use.chronos && bl.bool && !ultra.bool) {
     cat ('\n.... using chronos')
@@ -97,8 +97,8 @@ for (i in 1:length (tree.files)) {
     class (tree) <- 'multiPhylo'
   }
   # write out
-  write.tree (tree, file.path (output.dir,
-                               tempinfo['filename']))
+  write.tree (tree, file.path (
+    output.dir, tempinfo[['filename']]))
   # save details
   treeinfo <- rbind (treeinfo, tempinfo)
   counter <- counter + 1
