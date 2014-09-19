@@ -68,37 +68,29 @@ for (i in 1:length (tree.stats)) {
 stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
             gamma.stat, tc.stat)
 stats <- cbind (metadata, stats)
-stats[stats[['colless.stat']] > 1200,]
 
-window.size <- 0.25
-maxs <- seq (from = (-1.5 + window.size), to = 1,
-             by = window.size)
-mins <- seq (from = -1.5, to = (1 - window.size),
-             by = window.size)
-res <- rep (NA, length (maxs))
-for (i in 1:length (maxs)) {
-  temp <- stats[stats$strength < maxs[i] &
-                  stats$strength > mins[i],
-                'sackin.stat']
-  indist <- rep (NA, 1000)
-  for (j in 1:1000) {
-    samp <- sample (real.stats, 1)
-    indist[j] <- mean (temp) > samp
-  }
-  res[i] <- abs (0.5 - sum (indist)/1000)
-}
-par(xaxt="n")
-plot (res, ylab = 'Difference from 0.5', pch = 19)
-lablist <- paste0 (mins, ':', maxs)
-axis(1, at = 1:length (maxs), labels = FALSE)
-text(1:length (maxs), 0.01, labels = lablist, srt = 45, pos = 1, xpd = TRUE)
-
-## Plotting results
-# extract the distribution of each stat and plot against ED strength
-cat ('\nPlotting ...')
-pdf (file.path (res.dir, 'treestats_ED_strength.pdf'))
+res <- data.frame ()
+window.size <- 0.5
 stat.names <- c ('colless.stat', 'sackin.stat', 'iprime.stat',
                  'gamma.stat', 'tc.stat')
+for (i in 1:length (stat.names)) {
+  diff <- windowAnalysis (stats[ ,stat.names[i]],
+                          real.stats[ ,stat.names[i]],
+                          size = window.size,
+                          strengths = stats[, 'strength'])
+  temp <- data.frame (diff, size = window.size,
+                      stat = stat.names[i])
+  res <- rbind (res, temp)
+}
+res <- na.omit (res)
+
+## Plotting results
+cat ('\nPlotting ...')
+pdf (file.path (res.dir, 'treestats_ED_strength.pdf'))
+# plot distributions differences
+p <- ggplot (res, aes (mid, diff))
+p + geom_point (aes (colour = stat))
+# plot stats against strength
 for (each in stat.names) {
   x <- unlist (extractStat (tree.stats, each))
   y <- metadata$strength
@@ -107,6 +99,5 @@ for (each in stat.names) {
         col = rainbow (3, alpha = 0.8)[3])
   model <- lm (y ~ x)
   abline (model)
-  #drawCorresPoints (model, stats[ ,each])
 }
 closeDevices ()

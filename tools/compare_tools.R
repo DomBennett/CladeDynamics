@@ -156,3 +156,34 @@ drawCorresPoints <- function (model, distribution) {
   .draw (q2.x, q2.y, col = 'red', lty = 2)
   .draw (m.x, m.y, lwd = 2)
 }
+
+calcDistDiff <- function (dist.1, dist.2, n = 1000) {
+  # Randomly pull from dists, calc difference, calc mean
+  .calc <- function (i) {
+    sample.1 <- sample (dist.1, 1)
+    sample.2 <- sample (dist.2, 1)
+    sample.1 - sample.2
+  }
+  res <- mdply (.data = data.frame (i = 1:n),
+                .fun = .calc)[ ,2]
+  mean (res)
+}
+
+windowAnalysis <- function (sim.stats, real.stats, size,
+                            strengths, incr = 0.01,
+                            scale = TRUE) {
+  .calc <- function (i) {
+    samp <- sim.stats[strengths < maxs[i] &
+                        strengths > mins[i]]
+    data.frame (diff = abs (calcDistDiff (samp, real.stats)),
+                mid = (maxs[i]+mins[i])/2)
+  }
+  maxs <- seq (from = (-1.5 + size), to = 1, by = incr)
+  mins <- seq (from = -1.5, to = (1 - size), by = incr)
+  res <- mdply (.data = data.frame (i = 1:length (maxs)),
+                .fun = .calc)[ ,-1]
+  if (scale) {
+    res[['diff']] <- res[['diff']] / max (res[['diff']])
+  }
+  res
+}
