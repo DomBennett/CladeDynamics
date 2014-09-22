@@ -12,7 +12,7 @@ source (file.path ('tools', 'parse_tools.R'))
 source (file.path ('tools', 'precalculate_tools.R'))
 
 ## Tests
-cat ('\n\n Running tests ...')
+cat ('\n\n Running tests ...\n')
 context ('Testing download tools ...')
 test_that ('safeConnect([basic]) works ...', {
   expect_that (safeConnect (expr = a - 2,
@@ -114,4 +114,4 @@ test_that ('pack([basic]) works ...', {
   res3 <- pack (trees, 11, 9)
   expect_that (length (res3), equals (5))
 })
-cat ('\n\nTests passed.')
+cat ('\n\nTests passed.\n')
