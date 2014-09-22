@@ -12,7 +12,7 @@ source (file.path ('tools', 'parse_tools.R'))
 source (file.path ('tools', 'precalculate_tools.R'))
 
 ## Tests
-cat ('\n\n Running tests ...\n')
+cat ('\n\nRunning tests ...\n')
 context ('Testing download tools ...')
 test_that ('safeConnect([basic]) works ...', {
   expect_that (safeConnect (expr = a - 2,
