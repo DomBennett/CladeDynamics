@@ -3,10 +3,10 @@
 ## Run all analyses
 
 ## Parameter descriptions
-# n -- the number of trees to simulate
+# n.model -- the number of trees to simulate
 # seed -- starting number of taxa in random seed tree (must be >= 2)
 # stop.by -- aim for number of taxa (n) or amount of time (t) in end tree
-# stop.at -- target number of taxa or time of end tree
+# target -- target number of taxa or time of end tree
 # leeway -- percentage buffer around target
 # birth -- how many births per unit of branch length?
 # death -- how many deaths per unit of branch length?
@@ -14,75 +14,42 @@
 # min.strength -- min power determing the effect of the bias
 # max.strength -- max power determing the effect of the bias
 
-## Meta parameter set-up for 4 analyses
-n.analyses <- 4 # make sure there are four elements in each meta parameter
-meta.n <- rep (1000, n.analyses)
-meta.seed <- c (2, 2, 2, 100)
-meta.birth <- c (2, 2, 2, 1)
-meta.death <- c (1, 1, 1, 1)
-meta.bias <- c ('FP', 'FP', 'FP', 'FP')
-meta.stop.by <- c ('n', 'n', 'n', 't')
-meta.stop.at <- c (100, 500, 1000, 10)
-meta.leeway <- c (10, 10, 10, 10)
-meta.min.strength <- c (-1.5, -1.5, -1.5, -1.5)
-meta.max.strength <- c (1, 1, 1, 1)
-
-## If there isn't a results folder, create one
+## Analysis parameter declarations
+analysis.1 <- list (n.model = 1, seed = 2,
+                    birth = 2, death = 1,
+                    bias = 'FP', stop.by = 'n',
+                    target = 100, leeway = 10,
+                    min.strength = -1.5,
+                    max.strength = 1)
+analysis.2 <- list (n.model = 1, seed = 2,
+                    birth = 2, death = 1,
+                    bias = 'FP', stop.by = 'n',
+                    target = 101, leeway = 10,
+                    min.strength = -1.5,
+                    max.strength = 1)
+analysis.3 <- list (n.model = 1, seed = 2,
+                    birth = 2, death = 1,
+                    bias = 'FP', stop.by = 'n',
+                    target = 102, leeway = 10,
+                    min.strength = -1.5,
+                    max.strength = 1)
+analysis.4 <- list (n.model = 1, seed = 2,
+                    birth = 1, death = 1,
+                    bias = 'FP', stop.by = 't',
+                    target = 10, leeway = 10,
+                    min.strength = -1.5,
+                    max.strength = 1)
+analysis.parameters <- list (analysis_1 = analysis.1,
+                             analysis_2 = analysis.2,
+                             analysis_3 = analysis.3,
+                             analysis_4 = analysis.4)
+rm (analysis.1, analysis.2, analysis.3, analysis.4)
+# if there isn't a results folder, create one
 if (!file.exists ('results')) {
   dir.create ('results')
 }
 
-## Loop through each analysis and run
-for (i in 1:n.analyses) {
-  # print analysis number
-  cat ('\n--------------------------------')
-  cat (paste0 ('\n          Analysis [', i, ']'))
-  cat ('\n--------------------------------\n')
-  
-  # parameter set-up
-  n <- meta.n[i]
-  seed <- meta.seed[i]
-  birth <- meta.birth[i]
-  death <- meta.death[i]
-  bias <- meta.bias[i]
-  stop.by <- meta.stop.by[i]
-  stop.at <- meta.stop.at[i]
-  leeway <- meta.leeway[i]
-  min.strength <- meta.min.strength[i]
-  max.strength <- meta.max.strength[i]
-  
-  # results folder set-up
-  res.dir <- paste0 ('parameter_set_', i)
-  if (!file.exists (file.path ('results', res.dir))) {
-    dir.create (file.path ('results', res.dir))
-  }
-  res.dir <- file.path ('results', res.dir)
-  
-  # create a run log
-  runlog <- file.path (res.dir, 'runlog.csv')
-  if (file.exists (runlog)) {
-    file.remove (runlog)
-  }
-  headers <- data.frame ('treefilename', 'strength', 'bias',
-                         'birth', 'death')
-  write.table (headers, runlog, sep = ',', row.names = FALSE,
-               col.names = FALSE)
-  
-  # run
-  min.n <- stop.at - (stop.at*leeway/100)
-  max.n <- stop.at + (stop.at*leeway/100)
-  source (file.path ('stages', 'model.R'), print.eval = TRUE)
-  
-  # compare
-  cat ('\n--- Comparing trees to natural trees ---')
-  if (stop.by == 'n') {
-    target <- meta.stop.at[i]
-  } else {
-    target <- seed
-  }
-  source (file.path ('stages','compare.R'), print.eval = TRUE)
-  
-  # end
-  cat ('\n------ Model completed ------\n')
-}
+## Process
+source (file.path ('stages', 'model.R'), print.eval = TRUE)
+source (file.path ('stages','compare.R'), print.eval = TRUE)
 cat ('\n\n run.R complete')
