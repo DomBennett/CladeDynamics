@@ -1,7 +1,6 @@
 ## 07/08/2014
 ## D.J. Bennett
 ## Run all analyses
-
 ## Parameter descriptions
 # n.model -- the number of trees to simulate
 # seed -- starting number of taxa in random seed tree (must be >= 2)
@@ -13,6 +12,9 @@
 # bias -- what type of ED? 'PE', 'ES' or 'FP'
 # min.strength -- min power determing the effect of the bias
 # max.strength -- max power determing the effect of the bias
+
+## Timestamp
+cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 
 ## Analysis parameter declarations
 analysis.1 <- list (n.model = 1, seed = 2,
@@ -52,4 +54,6 @@ if (!file.exists ('results')) {
 ## Process
 source (file.path ('stages', 'model.R'), print.eval = TRUE)
 source (file.path ('stages','compare.R'), print.eval = TRUE)
-cat ('\n\n run.R complete')
+
+## Timestamp
+cat (paste0 ('\nrun.R finished at [', Sys.time (), ']'))

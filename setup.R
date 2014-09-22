@@ -5,6 +5,9 @@
 ## Note. the results of this run should be
 ##  already be in /data
 
+## Timestamp
+cat (paste0 ('\nsetup.R started at [', Sys.time (), ']'))
+
 ## Parameters
 use.chronos <- TRUE # make trees ultrametric?
 tree.dist <- 10 # the number of trees in a distribution for a polytomous tree
@@ -38,4 +41,6 @@ for (target in targets) {
   cat (paste0 ('\n--- Working on target [', target,'] ---'))
   source (file.path ('stages', 'precalculate.R'), print.eval = TRUE)
 }
-cat ('\n\nRun_setup.R complete')
+
+## Timestamp
+cat (paste0 ('\nsetup.R finished at [', Sys.time (), ']'))
