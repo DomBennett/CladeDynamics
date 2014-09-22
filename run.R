@@ -17,28 +17,28 @@
 cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 
 ## Analysis parameter declarations
-analysis.1 <- list (n.model = 1, seed = 2,
+analysis.1 <- list (n.model = 1000, seed = 2,
                     birth = 2, death = 1,
                     bias = 'FP', stop.by = 'n',
                     target = 100, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
-analysis.2 <- list (n.model = 1, seed = 2,
+analysis.2 <- list (n.model = 1000, seed = 2,
                     birth = 2, death = 1,
                     bias = 'FP', stop.by = 'n',
-                    target = 101, leeway = 10,
+                    target = 500, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
-analysis.3 <- list (n.model = 1, seed = 2,
+analysis.3 <- list (n.model = 1000, seed = 2,
                     birth = 2, death = 1,
                     bias = 'FP', stop.by = 'n',
-                    target = 102, leeway = 10,
+                    target = 1000, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
-analysis.4 <- list (n.model = 1, seed = 2,
+analysis.4 <- list (n.model = 1000, seed = 2,
                     birth = 1, death = 1,
                     bias = 'FP', stop.by = 't',
-                    target = 10, leeway = 10,
+                    target = 100, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
 analysis.parameters <- list (analysis_1 = analysis.1,
