@@ -5,10 +5,25 @@
 ## Libraries
 source (file.path ('tools', 'parse_tools.R'))
 
+## Functions
+getTreeFiles <- function (dirs) {
+  for (d in dirs) {
+    if (file.exists (file.path (d, 'metadata.csv'))) {
+      metadata <- rbind (read.csv (file.path (
+        d, 'metadata.csv')))
+      bool <- !metadata$filename %in% deja.vues
+      tree.files <<- c (tree.files, file.path (
+        d, metadata$filename[bool]))
+      metadata <<- metadata[bool, ]
+    }
+  }
+}
+
 ## Parameters
 if (!exists ('tree.dist')) {
   tree.dist <- 1 # how many trees in a dichotomous distribution?
   use.chronos <- FALSE # use chronos to make trees ultrametric?
+  overwrite <- FALSE
 }
 
 ## Dirs
@@ -18,23 +33,32 @@ output.dir <- file.path ('data', 'parsed_trees')
 if (!file.exists (output.dir)) {
   dir.create (output.dir)
 }
-# clear out all trees from dir
-tree.files <- list.files (path = output.dir,
-                              pattern = '\\.tre')
-file.remove (file.path (output.dir, tree.files))
 
-## Metadata
+## Overwrite
+if (overwrite) {
+  # clear out all trees from dir
+  tree.files <- list.files (path = output.dir,
+                            pattern = '\\.tre')
+  file.remove (file.path (output.dir, tree.files))
+  # metadata for trees that get used
+  treeinfo <- data.frame ()
+  deja.vues <- NULL
+} else {
+  deja.vues <- list.files(output.dir, pattern = '\\.tre')
+  treeinfo <- as.data.frame (read.csv (file.path (output.dir, 'treeinfo.csv')))
+}
+
+## Metadata + files
 # read all tree data from lit and tb
-metadata1 <- read.csv (file.path (treebase.dir, 'metadata.csv'))
-tree.files <- file.path (treebase.dir, metadata1$filename)
-metadata2 <- read.csv (file.path (literature.dir, 'metadata.csv'))
-tree.files <- c (tree.files, file.path (literature.dir, metadata2$filename))
-metadata <- rbind (metadata1, metadata2)
+tree.files <- metadata <- NULL
+getTreeFiles (c (treebase.dir, literature.dir))
+if (length (tree.files) == 0) {
+  stop ('Stopped: Overwrite false and no new files to add!')
+}
 # choose the first study.id metadata if duplicated
 #  (not the best solution but good enough)
 tree.files <- tree.files[!duplicated (metadata['Study.id'])]
 metadata <- metadata[!duplicated (metadata['Study.id']), ]
-rm (metadata1, metadata2)
 
 ## Data slots
 # add extra data slots to metadata, to track for 
@@ -47,8 +71,6 @@ metadata$chronos <- FALSE # made ultrametric by chronos
 
 ## Parse
 counter <- 0
-# metadata for trees that get used
-treeinfo <- data.frame ()
 for (i in 1:length (tree.files)) {
   tempinfo <- metadata[i, ]
   # suppress add.terminal warnings
