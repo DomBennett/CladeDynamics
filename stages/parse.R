@@ -7,6 +7,8 @@ source (file.path ('tools', 'parse_tools.R'))
 
 ## Functions
 getTreeFiles <- function (dirs) {
+  ## Add new tree files and metadata to metadata and
+  ##  tree.files from vector of dirs
   for (d in dirs) {
     if (file.exists (file.path (d, 'metadata.csv'))) {
       metadata <- rbind (read.csv (file.path (
@@ -98,7 +100,8 @@ for (i in 1:length (tree.files)) {
   # is it polytomous?
   poly.bool <- getSize (tree) != (tree$Nnode + 1)
   # print progress
-  cat (paste0 ('\nWorking on [', tempinfo[['Tree.id']],']'))
+  cat (paste0 ('\nWorking on tree [', i, '/',
+               length (tree.files),']'))
   # if not ultrametric make it (if I can)
   if (use.chronos && bl.bool && !ultra.bool) {
     cat ('\n.... using chronos')
