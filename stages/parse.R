@@ -60,7 +60,9 @@ if (!file.exists (parse.log)) {
                          "type", "quality",
                          "ntaxa", "date",
                          "publisher", "author",
-                         "title" )
+                         "title", "multi",
+                         "poly", "bl", "ultra",
+                         "chronos")
   write.table (headers, parse.log, sep = ',',
                row.names = FALSE, col.names = FALSE)
 }
