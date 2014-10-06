@@ -17,37 +17,37 @@
 cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 
 ## Analysis parameter declarations
-analysis.1 <- list (n.model = 1000, seed = 2,
+analysis.1 <- list (n.model = 10, seed = 2,
                     birth = 2, death = 1,
                     bias = 'FP', stop.by = 'n',
                     target = 100, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
-analysis.2 <- list (n.model = 1000, seed = 2,
+analysis.2 <- list (n.model = 10, seed = 2,
                     birth = 2, death = 1,
                     bias = 'FP', stop.by = 'n',
                     target = 200, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
-analysis.3 <- list (n.model = 1000, seed = 2,
+analysis.3 <- list (n.model = 10, seed = 2,
                     birth = 2, death = 1,
                     bias = 'FP', stop.by = 'n',
                     target = 300, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
-analysis.4 <- list (n.model = 1000, seed = 100,
+analysis.4 <- list (n.model = 10, seed = 100,
                     birth = 1, death = 1,
                     bias = 'FP', stop.by = 't',
                     target = 100, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
-analysis.5 <- list (n.model = 1000, seed = 200,
+analysis.5 <- list (n.model = 10, seed = 200,
                     birth = 1, death = 1,
                     bias = 'FP', stop.by = 't',
                     target = 100, leeway = 10,
                     min.strength = -1.5,
                     max.strength = 1)
-analysis.6 <- list (n.model = 1000, seed = 300,
+analysis.6 <- list (n.model = 10, seed = 300,
                     birth = 1, death = 1,
                     bias = 'FP', stop.by = 't',
                     target = 100, leeway = 10,
