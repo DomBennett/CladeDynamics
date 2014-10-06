@@ -25,6 +25,7 @@ if (!exists ('tree.dist')) {
   tree.dist <- 1 # how many trees in a dichotomous distribution?
   use.chronos <- FALSE # use chronos to make trees ultrametric?
   overwrite <- FALSE
+  subsample <- 100
 }
 
 ## Dirs
@@ -65,6 +66,15 @@ if (length (tree.files) == 0) {
 #  (not the best solution but good enough)
 tree.files <- tree.files[!duplicated (metadata['Study.id'])]
 metadata <- metadata[!duplicated (metadata['Study.id']), ]
+# if more tree.files than subsample, choose subsample at random
+if (is.numeric (subsample)) {
+  if (subsample < length (tree.files)) {
+    cat (paste0 ('.... taking [', subsample, '] subsample'))
+    random.is <- sample (1:length (tree.files), subsample)
+    tree.files <- tree.files[random.is]
+    metadata <- metadata[random.is, ]
+  }
+}
 
 ## Data slots
 # add extra data slots to metadata, to track for 
