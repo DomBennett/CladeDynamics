@@ -35,9 +35,14 @@ if (overwrite) {
   if (file.exists (download.log)) {
     file.remove (download.log)
   }
-  headers <- data.frame ("filename", "Study.id", "Tree.id", "kind",
-                         "type", "quality", "ntaxa", "date", "publisher",
-                         "author", "title" )
+}
+if (!file.exists (download.log)) {
+  headers <- data.frame ("filename", "Study.id",
+                         "Tree.id", "kind",
+                         "type", "quality",
+                         "ntaxa", "date",
+                         "publisher", "author",
+                         "title" )
   write.table (headers, download.log, sep = ',', row.names = FALSE,
                col.names = FALSE)
 }

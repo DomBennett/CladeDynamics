@@ -29,12 +29,15 @@ if (!exists ('tree.dist')) {
 }
 
 ## Dirs
-treebase.dir <- file.path ('data', 'raw_trees', 'treebase')
-literature.dir <- file.path ('data', 'raw_trees', 'literature')
+treebase.dir <- file.path ('data', 'raw_trees',
+                           'treebase')
+literature.dir <- file.path ('data', 'raw_trees',
+                             'literature')
 output.dir <- file.path ('data', 'parsed_trees')
 if (!file.exists (output.dir)) {
   dir.create (output.dir)
 }
+parse.log <- file.path (output.dir, 'treeinfo.csv')
 
 ## Overwrite
 if (overwrite) {
@@ -42,17 +45,24 @@ if (overwrite) {
   tree.files <- list.files (path = output.dir,
                             pattern = '\\.tre')
   file.remove (file.path (output.dir, tree.files))
+  if (file.exists (parse.log)) {
+    file.remove (parse.log)
+  }
   # metadata for trees that get used
   treeinfo <- data.frame ()
   deja.vues <- NULL
 } else {
   deja.vues <- list.files(output.dir, pattern = '\\.tre')
-  if (file.exists (file.path (output.dir, 'treeinfo.csv'))) {
-    treeinfo <- as.data.frame (read.csv (file.path (
-      output.dir, 'treeinfo.csv')))
-  } else {
-    treeinfo <- data.frame ()
-  }
+}
+if (!file.exists (parse.log)) {
+  headers <- data.frame ("filename", "Study.id",
+                         "Tree.id", "kind",
+                         "type", "quality",
+                         "ntaxa", "date",
+                         "publisher", "author",
+                         "title" )
+  write.table (headers, parse.log, sep = ',',
+               row.names = FALSE, col.names = FALSE)
 }
 
 ## Metadata + files
@@ -143,7 +153,9 @@ for (i in 1:length (tree.files)) {
   write.tree (tree, file.path (
     output.dir, tempinfo[['filename']]))
   # save details
-  treeinfo <- rbind (treeinfo, tempinfo)
+  write.table (tempinfo, parse.log, sep = ',',
+               append = TRUE, col.names = FALSE,
+               row.names = FALSE)
   counter <- counter + 1
 }
 
