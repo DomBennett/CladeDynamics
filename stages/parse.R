@@ -114,8 +114,8 @@ for (i in 1:length (tree.files)) {
   # is it polytomous?
   poly.bool <- getSize (tree) != (tree$Nnode + 1)
   # print progress
-  cat (paste0 ('\nWorking on tree [', i, '/',
-               length (tree.files),']'))
+  cat (paste0 ('\nWorking on [', tree.files[i],
+               '] [' i, '/', length (tree.files),']'))
   # if not ultrametric make it (if I can)
   if (use.chronos && bl.bool && !ultra.bool) {
     cat ('\n.... using chronos')
