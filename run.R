@@ -56,7 +56,9 @@ analysis.6 <- list (n.model = 10, seed = 300,
 analysis.parameters <- list (analysis_1 = analysis.1,
                              analysis_2 = analysis.2,
                              analysis_3 = analysis.3,
-                             analysis_4 = analysis.4)
+                             analysis_4 = analysis.4,
+                             analysis_5 = analysis.5,
+                             analysis_6 = analysis.6)
 rm (analysis.1, analysis.2, analysis.3, analysis.4)
 # if there isn't a results folder, create one
 if (!file.exists ('results')) {

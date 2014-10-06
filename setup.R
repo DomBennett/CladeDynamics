@@ -15,7 +15,6 @@ tree.dist <- 10 # the number of trees in a distribution for a polytomous tree
 min.taxa <- 100 # the minimum tree size to be downloaded
 targets <- c (100, 200, 300) # the different tree sizes for which to calculate stats
 leeway <- 10 # the percentage wobble around targets
-iterations <- 100 # number of iterations of Yule comparison
 overwrite <- FALSE # delete all existing parsed trees and run again
 
 ## Process
