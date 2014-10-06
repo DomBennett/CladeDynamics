@@ -10,6 +10,7 @@ cat (paste0 ('\nsetup.R started at [', Sys.time (), ']'))
 
 ## Parameters
 use.chronos <- TRUE # make trees ultrametric?
+subsample <- 100 # if numeric, take only subsample of trees for download
 tree.dist <- 10 # the number of trees in a distribution for a polytomous tree
 min.taxa <- 100 # the minimum tree size to be downloaded
 targets <- c (100, 200, 300) # the different tree sizes for which to calculate stats
@@ -19,12 +20,10 @@ overwrite <- FALSE # delete all existing parsed trees and run again
 
 ## Process
 # download
-if (overwrite) {
-  cat ('\n--------------------------------')
-  cat (paste0 ('\n          Download'))
-  cat ('\n--------------------------------\n')
-  source (file.path ('stages', 'download.R'), print.eval = TRUE)
-}
+cat ('\n--------------------------------')
+cat (paste0 ('\n          Download'))
+cat ('\n--------------------------------\n')
+source (file.path ('stages', 'download.R'), print.eval = TRUE)
 # parse
 cat ('\n--------------------------------')
 cat (paste0 ('\n          Parsing'))
