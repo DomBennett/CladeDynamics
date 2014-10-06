@@ -27,20 +27,20 @@ if (!file.exists (output.dir)) {
 # First clear out all treebase trees from dir
 treebase.files <- list.files (path = output.dir,
                               pattern = '\\.tre')
+download.log <- file.path (output.dir, 'metadata.csv')
 if (overwrite) {
   file.remove (file.path (output.dir, treebase.files))
   treebase.files <- NULL
+  # setup download log
+  if (file.exists (download.log)) {
+    file.remove (download.log)
+  }
+  headers <- data.frame ("filename", "Study.id", "Tree.id", "kind",
+                         "type", "quality", "ntaxa", "date", "publisher",
+                         "author", "title" )
+  write.table (headers, download.log, sep = ',', row.names = FALSE,
+               col.names = FALSE)
 }
-# setup download log
-download.log <- file.path (output.dir, 'metadata.csv')
-if (file.exists (download.log)) {
-  file.remove (download.log)
-}
-headers <- data.frame ("filename", "Study.id", "Tree.id", "kind",
-                       "type", "quality", "ntaxa", "date", "publisher",
-                       "author", "title" )
-write.table (headers, download.log, sep = ',', row.names = FALSE,
-             col.names = FALSE)
 
 ## Search
 cat ('\nSearching suitable trees ....')
