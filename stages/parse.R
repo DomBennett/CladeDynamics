@@ -11,12 +11,11 @@ getTreeFiles <- function (dirs) {
   ##  tree.files from vector of dirs
   for (d in dirs) {
     if (file.exists (file.path (d, 'metadata.csv'))) {
-      metadata <- rbind (read.csv (file.path (
-        d, 'metadata.csv')))
-      bool <- !metadata$filename %in% deja.vues
+      tmetadata <- read.csv (file.path (d, 'metadata.csv'))
+      bool <- !tmetadata$filename %in% deja.vues
       tree.files <<- c (tree.files, file.path (
-        d, metadata$filename[bool]))
-      metadata <<- metadata[bool, ]
+        d, tmetadata$filename[bool]))
+      metadata <<- rbind (metadata, tmetadata[bool, ])
     }
   }
 }
@@ -47,7 +46,12 @@ if (overwrite) {
   deja.vues <- NULL
 } else {
   deja.vues <- list.files(output.dir, pattern = '\\.tre')
-  treeinfo <- as.data.frame (read.csv (file.path (output.dir, 'treeinfo.csv')))
+  if (file.exists (file.path (output.dir, 'treeinfo.csv'))) {
+    treeinfo <- as.data.frame (read.csv (file.path (
+      output.dir, 'treeinfo.csv')))
+  } else {
+    treeinfo <- data.frame ()
+  }
 }
 
 ## Metadata + files
