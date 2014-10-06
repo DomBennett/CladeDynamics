@@ -97,6 +97,10 @@ for (i in 1:length (tree.files)) {
     tree <- tree[[which (sizes == max(sizes))[1]]]
     tempinfo['multi'] <- TRUE
   }
+  # ensure we have a tree
+  if (class (tree) != 'phylo') {
+    next
+  }
   # does it have branch lengths?
   bl.bool <- !is.null (tree$edge.length) &&
     all (!is.na (tree$edge.length))
@@ -115,7 +119,7 @@ for (i in 1:length (tree.files)) {
   poly.bool <- getSize (tree) != (tree$Nnode + 1)
   # print progress
   cat (paste0 ('\nWorking on [', tree.files[i],
-               '] [' i, '/', length (tree.files),']'))
+               '] [', i, '/', length (tree.files),']'))
   # if not ultrametric make it (if I can)
   if (use.chronos && bl.bool && !ultra.bool) {
     cat ('\n.... using chronos')
