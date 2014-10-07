@@ -160,8 +160,4 @@ for (i in 1:length (tree.files)) {
                row.names = FALSE)
   counter <- counter + 1
 }
-
-## Output
-write.csv (treeinfo, file.path (output.dir, 'treeinfo.csv'),
-           row.names = FALSE)
 cat (paste0 ('\nStage complete, parsed [', counter,'] trees'))
