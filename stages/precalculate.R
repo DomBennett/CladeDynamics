@@ -29,8 +29,11 @@ treeinfo.master <- read.csv (file.path (input.dir,
 treeinfo <- data.frame ()
 trees <- list ()
 study.names <- NULL
+cat ('\nReading in trees and packing for target size ....')
 for (i in 1:nrow (treeinfo.master)) {
   tree.file <- treeinfo.master[i,'filename']
+  cat (paste0 ('\n.... working on [', tree.file,
+               '] [', i, '/', nrow (treeinfo.master),']'))
   # read in
   tree <- read.tree (file.path (input.dir, tree.file))
   # pack into a multiphylo of right sized trees
@@ -50,7 +53,10 @@ names (trees) <- study.names
 counter <- 0
 colless.stat <- sackin.stat <- iprime.stat <-
   gamma.stat <- tc.stat <- NULL
+cat ('\nCalculating tree stats for sets of trees ....')
 for (set in trees) {
+  cat (paste0 ('\n.... working on set [', counter + 1,
+               '/', length (trees),']'))
   stats <- calcTreeShapeStats (set, iterations = iterations,
                                reference = reference)
   # extract the mean value of the set

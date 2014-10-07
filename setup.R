@@ -16,6 +16,7 @@ min.taxa <- 100 # the minimum tree size to be downloaded
 targets <- c (100, 200, 300) # the different tree sizes for which to calculate stats
 leeway <- 10 # the percentage wobble around targets
 overwrite <- FALSE # delete all existing parsed trees and run again
+reference <- FALSE # use a Yule reference for tree stats of same size
 
 ## Process
 # download
