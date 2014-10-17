@@ -9,14 +9,13 @@
 cat (paste0 ('\nsetup.R started at [', Sys.time (), ']'))
 
 ## Parameters
-use.chronos <- TRUE # make trees ultrametric?
+use.chronos <- FALSE # make trees ultrametric?
 subsample <- 100 # if numeric, take only subsample of trees for download
 tree.dist <- 100 # the number of trees in a distribution for a polytomous tree
-min.taxa <- 100 # the minimum tree size to be downloaded
-targets <- c (100, 200, 300) # the different tree sizes for which to calculate stats
-leeway <- 10 # the percentage wobble around targets
-overwrite <- FALSE # delete all existing parsed trees and run again
-reference <- FALSE # use a Yule reference for tree stats of same size
+min.taxa <- 50 # the minimum tree size to be downloaded
+max.taxa <- 200 # the maximum tree size to be downloaded
+overwrite <- TRUE # delete all existing parsed trees and run again
+reference <- TRUE # use a Yule reference for tree stats of same size
 
 ## Process
 # download

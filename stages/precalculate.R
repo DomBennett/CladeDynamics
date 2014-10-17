@@ -8,8 +8,8 @@ source (file.path ('tools', 'compare_tools.R'))
 
 ## Parameters
 if (!exists ('target')) {
-  target <- 100
-  leeway <- 10
+  min.taxa <- 50
+  max.taxa <- 200
   iterations <- 100
   reference  <- FALSE
 }
@@ -22,8 +22,6 @@ if (!file.exists (output.dir)) {
 }
 
 ## Input
-min.n <- target - (target * leeway/100)
-max.n <- target + (target * leeway/100)
 treeinfo.master <- read.csv (file.path (input.dir,
                                         'treeinfo.csv'))
 treeinfo <- data.frame ()
@@ -37,7 +35,7 @@ for (i in 1:nrow (treeinfo.master)) {
   # read in
   tree <- read.tree (file.path (input.dir, tree.file))
   # pack into a multiphylo of right sized trees
-  tree <- pack (tree, min.n = min.n, max.n = max.n)
+  tree <- pack (tree, min.n = min.taxa, max.n = max.taxa)
   if (!is.null (tree)) {
     study.names <- c (study.names,
                       as.character (treeinfo.master[i,'Study.id']))
@@ -72,6 +70,6 @@ real.stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
 real.stats <- cbind (treeinfo, real.stats)
 
 ## Save
-filename <- paste0 ('t', target, '_l', leeway, '.Rd')
+filename <- paste0 ('min', min.taxa, '_max', max.taxa, '.Rd')
 save (real.stats, file = file.path (output.dir, filename))
 cat (paste0 ('\nStage complete, calculated for [', counter,'] tree sets'))
