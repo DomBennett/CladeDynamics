@@ -17,49 +17,14 @@
 cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 
 ## Analysis parameter declarations
-analysis.1 <- list (n.model = 10, seed = 2,
-                    birth = 2, death = 1,
+analysis.1 <- list (n.model = 100, seed = 2,
+                    max.birth = 5, min.birth = 1.1,
+                    max.death = 1, min.death = 1,
                     bias = 'FP', stop.by = 'n',
-                    target = 100, leeway = 10,
-                    min.strength = -1.5,
-                    max.strength = 1)
-analysis.2 <- list (n.model = 10, seed = 2,
-                    birth = 2, death = 1,
-                    bias = 'FP', stop.by = 'n',
-                    target = 200, leeway = 10,
-                    min.strength = -1.5,
-                    max.strength = 1)
-analysis.3 <- list (n.model = 10, seed = 2,
-                    birth = 2, death = 1,
-                    bias = 'FP', stop.by = 'n',
-                    target = 300, leeway = 10,
-                    min.strength = -1.5,
-                    max.strength = 1)
-analysis.4 <- list (n.model = 10, seed = 100,
-                    birth = 1, death = 1,
-                    bias = 'FP', stop.by = 't',
-                    target = 100, leeway = 10,
-                    min.strength = -1.5,
-                    max.strength = 1)
-analysis.5 <- list (n.model = 10, seed = 200,
-                    birth = 1, death = 1,
-                    bias = 'FP', stop.by = 't',
-                    target = 100, leeway = 10,
-                    min.strength = -1.5,
-                    max.strength = 1)
-analysis.6 <- list (n.model = 10, seed = 300,
-                    birth = 1, death = 1,
-                    bias = 'FP', stop.by = 't',
-                    target = 100, leeway = 10,
-                    min.strength = -1.5,
-                    max.strength = 1)
-analysis.parameters <- list (analysis_1 = analysis.1,
-                             analysis_2 = analysis.2,
-                             analysis_3 = analysis.3,
-                             analysis_4 = analysis.4,
-                             analysis_5 = analysis.5,
-                             analysis_6 = analysis.6)
-rm (analysis.1, analysis.2, analysis.3, analysis.4)
+                    max.ntaxa = 200, min.ntaxa = 50,
+                    min.psi = -1, max.psi = 1)
+analysis.parameters <- list (analysis_1 = analysis.1)
+rm (analysis.1)
 # if there isn't a results folder, create one
 if (!file.exists ('results')) {
   dir.create ('results')

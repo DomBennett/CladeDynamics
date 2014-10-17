@@ -21,7 +21,7 @@ seedTree <- function (n, age) {
 
 runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
                       seed.tree = NULL, bias = c ('FP', 'ES', 'PE'),
-                      strength = 1, record = FALSE,
+                      psi = 1, record = FALSE,
                       sample.at = stop.at*.1, fossils = FALSE,
                       max.iteration = 10000, progress.bar = 'none') {
   ## Wrapper function to allow recording of trees through time
@@ -32,7 +32,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
   ##  stop.by - what to stop at time or taxa
   ##  seed.tree - tree to start model with, else a random tree of 2 tips
   ##  bias - what type of ED bias to use FP or PE
-  ##  strength - power modifier of ED bias
+  ##  psi - power modifier of ED bias
   ##  record - return list of trees at specified sample points
   ##  fossils - keep fossils in tree?
   ##  max.iterations - maximum number of iterations to prevent inf looping
@@ -52,7 +52,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
   max.tip <- getSize (tree)
   if (!record) {
     results <- .runEDBMM (birth, death, stop.at, tree,
-               bias, strength, extinct, max.node,
+               bias, psi, extinct, max.node,
                max.tip, stop.by, fossils, max.iteration)
     return (results[['tree']])
   }
@@ -60,7 +60,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
   trees <- list (tree) # collect trees
   runmodel <- function (i) {
     results <- .runEDBMM (birth, death, sample.at, tree,
-                          bias, strength, extinct, max.node,
+                          bias, psi, extinct, max.node,
                           max.tip, stop.by, fossils, max.iteration)
     tree <<- results[['tree']]
     max.node <<- results[['max.node']]
@@ -75,7 +75,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
 }
 
 .runEDBMM <- function (birth, death, stop.at, seed.tree,
-                      bias, strength, extinct, max.node,
+                      bias, psi, extinct, max.node,
                       max.tip, stop.by, fossils, max.iteration) {
   ## Grow tree using a markov model with diversification rates
   ##  based on evolutionary distinctiveness (EDBMM)
@@ -93,8 +93,8 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
       eds
     }
     probs <- .calcED (tree)
-    # apply strength
-    probs[ ,1] <- probs[ ,1]^strength
+    # apply psi
+    probs[ ,1] <- probs[ ,1]^psi
     if (!add) {
       # inverse probabilities if not adding
       probs[ ,1] <- 1/probs[ ,1]
