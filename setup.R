@@ -10,7 +10,7 @@ cat (paste0 ('\nsetup.R started at [', Sys.time (), ']'))
 
 ## Parameters
 use.chronos <- FALSE # make trees ultrametric?
-subsample <- 100 # if numeric, take only subsample of trees for download
+subsample <- 10 # if numeric, take only subsample of trees for download
 tree.dist <- 100 # the number of trees in a distribution for a polytomous tree
 min.taxa <- 50 # the minimum tree size to be downloaded
 max.taxa <- 200 # the maximum tree size to be downloaded
@@ -32,10 +32,7 @@ source (file.path ('stages', 'parse.R'), print.eval = TRUE)
 cat ('\n--------------------------------')
 cat (paste0 ('\n          Precalculation'))
 cat ('\n--------------------------------\n')
-for (target in targets) {
-  cat (paste0 ('\n--- Working on target [', target,'] ---'))
-  source (file.path ('stages', 'precalculate.R'), print.eval = TRUE)
-}
+source (file.path ('stages', 'precalculate.R'), print.eval = TRUE)
 
 ## Timestamp
 cat (paste0 ('\nsetup.R finished at [', Sys.time (), ']'))

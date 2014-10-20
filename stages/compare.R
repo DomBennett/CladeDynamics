@@ -12,7 +12,7 @@ if (!exists ('res.dir')) {
   iterations <- 100
   target <- 100
   leeway <- 10
-  res.dir <- file.path ('results', 'parameter_set_1')
+  res.dir <- file.path ('results', 'analysis_1')
   runlog <- file.path (res.dir, 'runlog.csv')
 }
 

@@ -7,7 +7,7 @@ source (file.path ('tools', 'precalculate_tools.R'))
 source (file.path ('tools', 'compare_tools.R'))
 
 ## Parameters
-if (!exists ('target')) {
+if (!exists ('min.taxa')) {
   min.taxa <- 50
   max.taxa <- 200
   iterations <- 100
