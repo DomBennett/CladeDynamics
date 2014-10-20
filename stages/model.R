@@ -41,7 +41,7 @@ genParameters <- function (mpars) {
   mpars$psi = runif (1, mpars$min.psi, mpars$max.psi)
   mpars$birth = runif (1, mpars$min.birth, mpars$max.birth)
   mpars$death = runif (1, mpars$min.death, mpars$max.death)
-  mpars$ntaxa = runif (1, mpars$min.ntaxa, mpars$max.ntaxa)
+  mpars$ntaxa = round (runif (1, mpars$min.ntaxa, mpars$max.ntaxa))
   mpars
 }
 

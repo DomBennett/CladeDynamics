@@ -170,16 +170,16 @@ calcDistDiff <- function (dist.1, dist.2, n = 1000) {
 }
 
 windowAnalysis <- function (sim.stats, real.stats, size,
-                            strengths, incr = 0.01,
+                            psi, incr = 0.01,
                             scale = TRUE) {
   .calc <- function (i) {
-    samp <- sim.stats[strengths < maxs[i] &
-                        strengths > mins[i]]
+    samp <- sim.stats[psi < maxs[i] &
+                        psi > mins[i]]
     data.frame (diff = abs (calcDistDiff (samp, real.stats)),
                 mid = (maxs[i]+mins[i])/2)
   }
-  maxs <- seq (from = (-1.5 + size), to = 1, by = incr)
-  mins <- seq (from = -1.5, to = (1 - size), by = incr)
+  maxs <- seq (from = (min (psi) + size), to = max (psi), by = incr)
+  mins <- seq (from = min (psi), to = (max (psi) - size), by = incr)
   res <- mdply (.data = data.frame (i = 1:length (maxs)),
                 .fun = .calc)[ ,-1]
   if (scale) {
