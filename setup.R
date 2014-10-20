@@ -16,6 +16,7 @@ min.taxa <- 50 # the minimum tree size to be downloaded
 max.taxa <- 200 # the maximum tree size to be downloaded
 overwrite <- TRUE # delete all existing parsed trees and run again
 reference <- TRUE # use a Yule reference for tree stats of same size
+iterations <- 100
 
 ## Process
 # download
