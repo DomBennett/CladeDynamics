@@ -143,8 +143,14 @@ for (i in 1:length (tree.files)) {
   }
   # if polytomous, convert to a distribution
   if (poly.bool) {
+    cat ('\n.... converting to distribution')
     tempinfo['poly'] <- TRUE
-    tree <- convertToDist (tree)
+    tree <- try (convertToDist (tree), silent = TRUE)
+    if (class (tree) == 'try-error') {
+      cat (paste0 ('\n.... error occurred: [', tree, ']'))
+      cat ('....\n moving to next tree')
+      next
+    }
   }
   # convert to multiPhylo before adding to trees
   if (any (class (tree) != 'multiPhylo')) {
