@@ -7,16 +7,15 @@ source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'misc_tools.R'))
 
 ## Parameters
-if (!exists ('analysis.parameters')) {
-  testset <- list (n.model = 2, seed = 2,
-                   max.birth = 5, min.birth = 1.1,
-                   max.death = 1, min.death = 1,
-                   bias = 'FP', stop.by = 'n',
-                   max.ntaxa = 200, min.ntaxa = 50,
-                   min.psi = -1, max.psi = 1,
-                   reference = TRUE, iterations = 100)
-  analysis.parameters <- list (testset = testset)
-  rm (testset)
+if (!exists ('pars')) {
+  pars <- list (n.model = 2, seed = 2,
+                max.birth = 5, min.birth = 1.1,
+                max.death = 1, min.death = 1,
+                bias = 'FP', stop.by = 'n',
+                max.ntaxa = 200, min.ntaxa = 50,
+                min.psi = -1, max.psi = 1,
+                reference = TRUE, iterations = 100)
+  name <- 'testset'
 }
 
 ## Dirs
@@ -84,7 +83,7 @@ compare <- function (stats, real.stats) {
   res
 }
 
-plotResults <- function (res, stats, res.dir) {
+plotResults <- function (res, stats, res.dir, metadata) {
   pdf (file.path (res.dir, 'treestats_ED_strength.pdf'))
   # plot distributions differences
   p <- ggplot (res, aes (mid, diff))
@@ -104,31 +103,19 @@ plotResults <- function (res, stats, res.dir) {
   closeDevices ()
 }
 
-iterateAnalysis <- function (i) {
-  ## Iterate through analyses
-  cat ('\n--------------------------------')
-  cat (paste0 ('\n          Analysis [', i, ']'))
-  cat ('\n--------------------------------\n')
-  # get res.dir and runlog
-  analysis.name <- names (analysis.parameters)[i]
-  res.dir <- file.path ('results', analysis.name)
-  runlog <- file.path (res.dir, 'runlog.csv')
-  pars <- analysis.parameters[[i]]
-  cat ('\nReading in data ...')
-  # get metadata
-  metadata <- read.csv (runlog, stringsAsFactors = FALSE)
-  # load pre-calculated natural tree stats
-  filename <- paste0 ('min', pars$min.ntaxa, '_max', pars$max.ntaxa, '.Rd')
-  load (file.path (data.dir, filename))
-  trees <- readTrees (metadata, res.dir, runlog)
-  cat ('\nCalculating tree stats ...')
-  stats <- calcStats (trees, metadata, pars$iterations, pars$reference, res.dir)
-  cat ('\nCompare to real trees ...')
-  res <- compare (stats, real.stats)
-  cat ('\nPlotting ...')
-  plotResults (res, stats, res.dir)
-}
-
 ## Run
-m_ply (.data = data.frame (i = 1:length (analysis.parameters)),
-       .fun = iterateAnalysis)
+res.dir <- file.path ('results', name)
+runlog <- file.path (res.dir, 'runlog.csv')
+cat ('\nReading in data ...')
+# get metadata
+metadata <- read.csv (runlog, stringsAsFactors = FALSE)
+# load pre-calculated natural tree stats
+filename <- paste0 ('min', pars$min.ntaxa, '_max', pars$max.ntaxa, '.Rd')
+load (file.path (data.dir, filename))
+trees <- readTrees (metadata, res.dir, runlog)
+cat ('\nCalculating tree stats ...')
+stats <- calcStats (trees, metadata, pars$iterations, pars$reference, res.dir)
+cat ('\nCompare to real trees ...')
+res <- compare (stats, real.stats)
+cat ('\nPlotting ...')
+plotResults (res, stats, res.dir, metadata)

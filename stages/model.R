@@ -6,16 +6,16 @@
 source (file.path ('tools', 'model_tools.R'))
 
 ## Parameters
-# run outside of run.R for testing
-if (!exists ('analysis.parameters')) {
-  testset <- list (n.model = 2, seed = 2,
-                   max.birth = 5, min.birth = 1.1,
-                   max.death = 1, min.death = 1,
-                   bias = 'FP', stop.by = 'n',
-                   max.ntaxa = 200, min.ntaxa = 50,
-                   min.psi = -1, max.psi = 1)
-  analysis.parameters <- list (testset = testset)
-  rm (testset)
+if (!exists ('pars')) {
+  print ('here')
+  pars <- list (n.model = 2, seed = 2,
+                max.birth = 5, min.birth = 1.1,
+                max.death = 1, min.death = 1,
+                bias = 'FP', stop.by = 'n',
+                max.ntaxa = 200, min.ntaxa = 50,
+                min.psi = -1, max.psi = 1,
+                reference = TRUE, iterations = 100)
+  name <- 'testset'
 }
 
 ## Functions
@@ -36,59 +36,49 @@ dirSetup <- function (analysis.name) {
   runlog
 }
 
-genParameters <- function (mpars) {
+genParameters <- function (pars) {
   ## Generate parameters for model itreation
-  mpars$psi = runif (1, mpars$min.psi, mpars$max.psi)
-  mpars$birth = runif (1, mpars$min.birth, mpars$max.birth)
-  mpars$death = runif (1, mpars$min.death, mpars$max.death)
-  mpars$ntaxa = round (runif (1, mpars$min.ntaxa, mpars$max.ntaxa))
-  mpars
+  pars$psi = runif (1, pars$min.psi, pars$max.psi)
+  pars$birth = runif (1, pars$min.birth, pars$max.birth)
+  pars$death = runif (1, pars$min.death, pars$max.death)
+  pars$ntaxa = round (runif (1, pars$min.ntaxa, pars$max.ntaxa))
+  pars
 }
 
-addEntry <- function (runlog, mpars) {
+addEntry <- function (runlog, pars) {
   ## Add an entry to runlog.csv
   counter <- nrow (read.csv (runlog))
   treefilename <- paste0 ('tree', counter, '.tre')
   parameters <- data.frame (treefilename,
-                            psi = mpars$psi,
-                            bias = mpars$bias,
-                            birth = mpars$birth,
-                            death = mpars$death,
-                            ntaxa = mpars$ntaxa)
+                            psi = pars$psi,
+                            bias = pars$bias,
+                            birth = pars$birth,
+                            death = pars$death,
+                            ntaxa = pars$ntaxa)
   write.table (parameters, runlog, sep = ',', append = TRUE,
                col.names = FALSE, row.names = FALSE)
   treefilename
 }
 
-iterateModel <- function (j, mpars, runlog, ...) {
+iterateModel <- function (j, pars, runlog, ...) {
   ## Iterate through models
   cat (paste0 ('\n... working on model [', j,'] of [',
-               mpars$n.model, ']'))
+               pars$n.model, ']'))
   # set parameters for iteration
-  mpars <- genParameters (mpars)
-  treefilename <- addEntry (runlog, mpars)
-  tree <- runEDBMM (birth = mpars$birth,
-                    death = mpars$death,
-                    stop.at = mpars$ntaxa,
-                    stop.by = mpars$stop.by,
-                    psi = mpars$psi,
-                    bias = mpars$bias,
+  pars <- genParameters (pars)
+  treefilename <- addEntry (runlog, pars)
+  tree <- runEDBMM (birth = pars$birth,
+                    death = pars$death,
+                    stop.at = pars$ntaxa,
+                    stop.by = pars$stop.by,
+                    psi = pars$psi,
+                    bias = pars$bias,
                     fossils = FALSE, record = FALSE)
   write.tree (tree, file = file.path (dirname (runlog),
                                       treefilename))
 }
 
-iterateAnalysis <- function (i) {
-  ## Iterate through analyses
-  cat ('\n--------------------------------')
-  cat (paste0 ('\n          Analysis [', i, ']'))
-  cat ('\n--------------------------------\n')
-  runlog <- dirSetup (names (analysis.parameters)[i])
-  mpars <- analysis.parameters[[i]]
-  m_ply (.data = data.frame (j = 1:mpars$n.model),
-         .fun = iterateModel, mpars, runlog)
-}
-
 ## Run
-m_ply (.data = data.frame (i = 1:length (analysis.parameters)),
-       .fun = iterateAnalysis)
+runlog <- dirSetup (name)
+m_ply (.data = data.frame (j = 1:pars$n.model),
+       .fun = iterateModel, pars, runlog)

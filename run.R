@@ -34,7 +34,6 @@ analysis.2 <- list (n.model = 1000, seed = 2,
                     min.psi = -1, max.psi = 1,
                     reference = TRUE, iterations = 100)
 analysis.parameters <- list (analysis_1 = analysis.1, analysis_2 = analysis.2)
-rm (analysis.1, analysis.2)
 # if there isn't a results folder, create one
 if (!file.exists ('results')) {
   dir.create ('results')
@@ -59,15 +58,27 @@ for (i in 1:length (analysis.parameters)) {
   }
 }
 
-## Process
-cat ('######################################\n')
-cat ('          Model stage ....\n')
-cat ('######################################\n\n')
-source (file.path ('stages', 'model.R'), print.eval = TRUE)
-cat ('######################################\n')
-cat ('          Compare stage ....\n')
-cat ('######################################\n\n')
-source (file.path ('stages','compare.R'), print.eval = TRUE)
+## Iteration function
+iterateAnalyses <- function (i) {
+  # analysis parameters
+  name <- names (analysis.parameters)[i]
+  pars <- analysis.parameters[[i]]
+  cat ('######################################\n')
+  cat (paste0 ('\n          Analysis [', name, '], [', i, '/', length (analysis.parameters),']'))
+  cat ('######################################\n\n')
+  cat ('\n--------------------------------')
+  cat ('          Model stage ....\n')
+  cat ('\n--------------------------------\n')
+  source (file.path ('stages', 'model.R'), print.eval = TRUE, local = TRUE)
+  cat ('\n--------------------------------')
+  cat ('          Compare stage ....\n')
+  cat ('\n--------------------------------\n')
+  source (file.path ('stages','compare.R'), print.eval = TRUE, local = TRUE)
+}
+
+## Run
+m_ply (.data = data.frame (i = 1:length (analysis.parameters)),
+       .fun = iterateAnalyses)
 
 ## Timestamp
 cat (paste0 ('\nrun.R finished at [', Sys.time (), ']'))
