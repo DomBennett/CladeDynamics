@@ -19,21 +19,14 @@
 cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 
 ## Analysis parameter declarations
-analysis.1 <- list (n.model = 100, seed = 2,
-                    max.birth = 5, min.birth = 1.1,
-                    max.death = 1, min.death = 1,
-                    bias = 'FP', stop.by = 'n',
-                    max.ntaxa = 200, min.ntaxa = 50,
-                    min.psi = -1, max.psi = 1,
-                    reference = TRUE, iterations = 100)
 analysis.2 <- list (n.model = 1000, seed = 2,
                     max.birth = 5, min.birth = 1.1,
                     max.death = 1, min.death = 1,
                     bias = 'FP', stop.by = 'n',
                     max.ntaxa = 200, min.ntaxa = 50,
-                    min.psi = -1, max.psi = 1,
+                    min.psi = -1.5, max.psi = 1,
                     reference = TRUE, iterations = 100)
-analysis.parameters <- list (analysis_1 = analysis.1, analysis_2 = analysis.2)
+analysis.parameters <- list (analysis_2 = analysis.2)
 # if there isn't a results folder, create one
 if (!file.exists ('results')) {
   dir.create ('results')

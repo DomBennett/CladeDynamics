@@ -6,7 +6,7 @@
 # Poisson because this is what a normal ED distribution would look like in an unbalanced tree
 eds <- sort (rpois (100, 1) + rnorm (100, mean = 1, sd = 0.1))
 # a vector of strengths for calculating probability
-ed.strength <- seq (-1, 1, 0.5)
+ed.strength <- seq (-1.5, 1, 0.5)
 colours <- rainbow (length (ed.strength), alpha = 0.7)
 plot (x = c (min (eds), max (eds)), y = c (0, max (eds)/sum(eds)),
       col = NULL, ylab = "Diversification Probabilty",
