@@ -18,6 +18,9 @@
 ## Timestamp
 cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 
+## Library
+library (plyr)
+
 ## Analysis parameter declarations
 analysis.2 <- list (n.model = 1000, seed = 2,
                     max.birth = 5, min.birth = 1.1,
