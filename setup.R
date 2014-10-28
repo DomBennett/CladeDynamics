@@ -10,7 +10,7 @@ cat (paste0 ('\nsetup.R started at [', Sys.time (), ']'))
 
 ## Parameters
 use.chronos <- FALSE # make trees ultrametric?
-subsample <- 10 # if numeric, take only subsample of trees for download
+subsample <- 100 # if numeric, take only subsample of trees for download
 tree.dist <- 100 # the number of trees in a distribution for a polytomous tree
 min.taxa <- 50 # the minimum tree size to be downloaded
 max.taxa <- 200 # the maximum tree size to be downloaded
