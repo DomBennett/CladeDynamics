@@ -1,0 +1,1312 @@
+
+setup.R started at [2014-10-21 01:21:31]
+--------------------------------
+          Download
+--------------------------------
+Loading required package: ape
+[1] TRUE
+
+Searching suitable trees ....http://purl.org/phylo/treebase/phylows/tree/find?query=tb.type.tree=Consensus%20or%20tb.type.tree=Single&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+14661 resources found matching query
+http://treebase.org/treebase-web/top/oai?verb=ListRecords&metadataPrefix=oai_dc&all=T00:00:00Z
+
+[4327] matching trees in TreeBase ....
+.... min size [50]
+.... mean size [113]
+.... max size [2957]
+.... taking [100] subsample
+Downloading trees ....
+.... tree [1]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=57622&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [2]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=65948&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [3]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=3197&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [4]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=9269&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [5]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=6522&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [6]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=5114&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [7]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=6035&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [8]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=3216&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [9]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=73428&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [10]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=9095&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [11]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=6275&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [12]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=55353&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [13]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2320&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [14]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=949&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [15]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=1089&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [16]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=6219&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [17]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=6159&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [18]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2701&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [19]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=68018&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [20]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=31211&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [21]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=47415&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [22]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=5483&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [23]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=50253&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [24]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2054&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [25]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=47372&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [26]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=1755&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [27]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=66035&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [28]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=55921&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [29]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=46496&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [30]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=5838&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [31]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=5722&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [32]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=1421&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [33]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=329&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [34]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2660&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [35]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2593&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [36]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=349&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [37]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=950&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [38]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=54952&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [39]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=52844&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [40]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=3958&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [41]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=49477&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [42]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=67333&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [43]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=20679&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [44]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=5886&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [45]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=50968&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [46]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=59034&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [47]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=5887&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [48]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=356&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [49]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=63595&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [50]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=21529&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [51]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=1887&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [52]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4889&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [53]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=6057&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [54]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=29824&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [55]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=910&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [56]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2318&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [57]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=9492&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [58]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=1693&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [59]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4592&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [60]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=965&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [61]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=49223&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [62]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=47743&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [63]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=75504&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [64]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=57249&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [65]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2958&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [66]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2475&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [67]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=1087&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [68]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4647&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [69]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=3792&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [70]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=60937&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [71]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=47093&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [72]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=75072&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [73]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=5468&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [74]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=50457&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [75]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=6041&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [76]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=78128&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [77]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=25446&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [78]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=3887&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [79]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2400&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [80]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4801&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [81]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=6644&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [82]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=31205&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [83]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=31455&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [84]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=47130&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [85]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=3675&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [86]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=46476&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [87]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=50399&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [88]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=57633&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [89]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4104&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [90]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4607&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [91]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4095&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [92]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=47933&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [93]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4498&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [94]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=5883&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [95]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=27437&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [96]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=1750&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [97]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=4043&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [98]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=2348&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [99]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=66791&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+.... tree [100]
+http://purl.org/phylo/treebase/phylows/tree/find?query=tb.identifier.tree=76769&format=rss1&recordSchema=tree
+Query resolved, looking at each matching resource...
+1 resources found matching query
+Attempting try 1
+Looking for nexus files...
+Tree read in successfully
+dropped 0 objects
+
+Stage complete, downloaded [100] trees
+--------------------------------
+          Parsing
+--------------------------------
+Loading required package: methods
+Loading required package: plyr
+Loading required package: RJSONIO
+Loading required package: stringr
+
+Working on [data/raw_trees/treebase/13444.tre] [1/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/14604.tre] [2/100]
+Working on [data/raw_trees/treebase/2222.tre] [3/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10507.tre] [4/100]
+Working on [data/raw_trees/treebase/10045.tre] [5/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/2017.tre] [6/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10132.tre] [7/100]
+Working on [data/raw_trees/treebase/2252.tre] [8/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/15611.tre] [9/100]
+Working on [data/raw_trees/treebase/10492.tre] [10/100]
+Working on [data/raw_trees/treebase/9935.tre] [11/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/13077.tre] [12/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1450.tre] [13/100]
+Working on [data/raw_trees/treebase/1506.tre] [14/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/2076.tre] [15/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10151.tre] [16/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10058.tre] [17/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1768.tre] [18/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/14945.tre] [19/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11267.tre] [20/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11664.tre] [21/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/2248.tre] [22/100]
+Working on [data/raw_trees/treebase/12128.tre] [23/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1305.tre] [24/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11700.tre] [25/100]
+Working on [data/raw_trees/treebase/1140.tre] [26/100]
+Working on [data/raw_trees/treebase/14616.tre] [27/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/13216.tre] [28/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11618.tre] [29/100]
+Working on [data/raw_trees/treebase/1067.tre] [30/100]
+Working on [data/raw_trees/treebase/893.tre] [31/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/299.tre] [32/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1672.tre] [33/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1743.tre] [34/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1656.tre] [35/100]
+Working on [data/raw_trees/treebase/1876.tre] [36/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1725.tre] [37/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/12861.tre] [38/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/12715.tre] [39/100]
+Working on [data/raw_trees/treebase/798.tre] [40/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/12088.tre] [41/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/13368.tre] [42/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10711.tre] [43/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/2247.tre] [44/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11936.tre] [45/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/13082.tre] [46/100]
+Working on [data/raw_trees/treebase/1956.tre] [47/100]
+Working on [data/raw_trees/treebase/14253.tre] [48/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10863.tre] [49/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1227.tre] [50/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10119.tre] [51/100]
+Working on [data/raw_trees/treebase/11241.tre] [52/100]
+Working on [data/raw_trees/treebase/1490.tre] [53/100]
+Working on [data/raw_trees/treebase/10580.tre] [54/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1104.tre] [55/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1523.tre] [56/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1731.tre] [57/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/12037.tre] [58/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11768.tre] [59/100]
+Working on [data/raw_trees/treebase/15950.tre] [60/100]
+Working on [data/raw_trees/treebase/13353.tre] [61/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1987.tre] [62/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1556.tre] [63/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/2075.tre] [64/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1593.tre] [65/100]
+Working on [data/raw_trees/treebase/726.tre] [66/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/13920.tre] [67/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11681.tre] [68/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/13970.tre] [69/100]
+Working on [data/raw_trees/treebase/2239.tre] [70/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/12173.tre] [71/100]
+Working on [data/raw_trees/treebase/9997.tre] [72/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/16426.tre] [73/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10949.tre] [74/100]
+Working on [data/raw_trees/treebase/784.tre] [75/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1509.tre] [76/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1783.tre] [77/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/10011.tre] [78/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11350.tre] [79/100]
+Working on [data/raw_trees/treebase/674.tre] [80/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11610.tre] [81/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/12257.tre] [82/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/997.tre] [83/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1533.tre] [84/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/995.tre] [85/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11828.tre] [86/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1612.tre] [87/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/2246.tre] [88/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/11174.tre] [89/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1126.tre] [90/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/903.tre] [91/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/1457.tre] [92/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/13703.tre] [93/100]
+.... converting to distribution
+Working on [data/raw_trees/treebase/16190.tre] [94/100]
+.... converting to distribution
+Working on [data/raw_trees/literature/pyron.tre] [95/100]
+Working on [data/raw_trees/literature/durka.tre] [96/100]
+.... converting to distribution
+Working on [data/raw_trees/literature/danforth.tre] [97/100]
+.... converting to distribution
+Working on [data/raw_trees/literature/bininda.tre] [98/100]
+.... converting to distribution
+Working on [data/raw_trees/literature/jetz.tre] [99/100]
+Working on [data/raw_trees/literature/wiegmann.tre] [100/100]
+.... converting to distribution
+Stage complete, parsed [100] trees
+--------------------------------
+          Precalculation
+--------------------------------
+Loading required package: MASS
+Loading required package: mvtnorm
+
+Reading in trees and packing for target size ....
+.... working on [13444.tre] [1/100]
+.... working on [14604.tre] [2/100]
+.... working on [2222.tre] [3/100]
+.... working on [10507.tre] [4/100]
+.... working on [10045.tre] [5/100]
+.... working on [2017.tre] [6/100]
+.... working on [10132.tre] [7/100]
+.... working on [2252.tre] [8/100]
+.... working on [15611.tre] [9/100]
+.... working on [10492.tre] [10/100]
+.... working on [9935.tre] [11/100]
+.... working on [13077.tre] [12/100]
+.... working on [1450.tre] [13/100]
+.... working on [1506.tre] [14/100]
+.... working on [2076.tre] [15/100]
+.... working on [10151.tre] [16/100]
+.... working on [10058.tre] [17/100]
+.... working on [1768.tre] [18/100]
+.... working on [14945.tre] [19/100]
+.... working on [11267.tre] [20/100]
+.... working on [11664.tre] [21/100]
+.... working on [2248.tre] [22/100]
+.... working on [12128.tre] [23/100]
+.... working on [1305.tre] [24/100]
+.... working on [11700.tre] [25/100]
+.... working on [1140.tre] [26/100]
+.... working on [14616.tre] [27/100]
+.... working on [13216.tre] [28/100]
+.... working on [11618.tre] [29/100]
+.... working on [1067.tre] [30/100]
+.... working on [893.tre] [31/100]
+.... working on [299.tre] [32/100]
+.... working on [1672.tre] [33/100]
+.... working on [1743.tre] [34/100]
+.... working on [1656.tre] [35/100]
+.... working on [1876.tre] [36/100]
+.... working on [1725.tre] [37/100]
+.... working on [12861.tre] [38/100]
+.... working on [12715.tre] [39/100]
+.... working on [798.tre] [40/100]
+.... working on [12088.tre] [41/100]
+.... working on [13368.tre] [42/100]
+.... working on [10711.tre] [43/100]
+.... working on [2247.tre] [44/100]
+.... working on [11936.tre] [45/100]
+.... working on [13082.tre] [46/100]
+.... working on [1956.tre] [47/100]
+.... working on [14253.tre] [48/100]
+.... working on [10863.tre] [49/100]
+.... working on [1227.tre] [50/100]
+.... working on [10119.tre] [51/100]
+.... working on [11241.tre] [52/100]
+.... working on [1490.tre] [53/100]
+.... working on [10580.tre] [54/100]
+.... working on [1104.tre] [55/100]
+.... working on [1523.tre] [56/100]
+.... working on [1731.tre] [57/100]
+.... working on [12037.tre] [58/100]
+.... working on [11768.tre] [59/100]
+.... working on [15950.tre] [60/100]
+.... working on [13353.tre] [61/100]
+.... working on [1987.tre] [62/100]
+.... working on [1556.tre] [63/100]
+.... working on [2075.tre] [64/100]
+.... working on [1593.tre] [65/100]
+.... working on [726.tre] [66/100]
+.... working on [13920.tre] [67/100]
+.... working on [11681.tre] [68/100]
+.... working on [13970.tre] [69/100]
+.... working on [2239.tre] [70/100]
+.... working on [12173.tre] [71/100]
+.... working on [9997.tre] [72/100]
+.... working on [16426.tre] [73/100]
+.... working on [10949.tre] [74/100]
+.... working on [784.tre] [75/100]
+.... working on [1509.tre] [76/100]
+.... working on [1783.tre] [77/100]
+.... working on [10011.tre] [78/100]
+.... working on [11350.tre] [79/100]
+.... working on [674.tre] [80/100]
+.... working on [11610.tre] [81/100]
+.... working on [12257.tre] [82/100]
+.... working on [997.tre] [83/100]
+.... working on [1533.tre] [84/100]
+.... working on [995.tre] [85/100]
+.... working on [11828.tre] [86/100]
+.... working on [1612.tre] [87/100]
+.... working on [2246.tre] [88/100]
+.... working on [11174.tre] [89/100]
+.... working on [1126.tre] [90/100]
+.... working on [903.tre] [91/100]
+.... working on [1457.tre] [92/100]
+.... working on [13703.tre] [93/100]
+.... working on [16190.tre] [94/100]
+.... working on [pyron.tre] [95/100]
+.... working on [durka.tre] [96/100]
+.... working on [danforth.tre] [97/100]
+.... working on [bininda.tre] [98/100]
+.... working on [jetz.tre] [99/100]
+.... working on [wiegmann.tre] [100/100]
+Calculating tree stats for sets of trees ....
+.... working on set [1/100]
+.... working on set [2/100]
+.... working on set [3/100]
+.... working on set [4/100]
+.... working on set [5/100]
+.... working on set [6/100]
+.... working on set [7/100]
+.... working on set [8/100]
+.... working on set [9/100]
+.... working on set [10/100]
+.... working on set [11/100]
+.... working on set [12/100]
+.... working on set [13/100]
+.... working on set [14/100]
+.... working on set [15/100]
+.... working on set [16/100]
+.... working on set [17/100]
+.... working on set [18/100]
+.... working on set [19/100]
+.... working on set [20/100]
+.... working on set [21/100]
+.... working on set [22/100]
+.... working on set [23/100]
+.... working on set [24/100]
+.... working on set [25/100]
+.... working on set [26/100]
+.... working on set [27/100]
+.... working on set [28/100]
+.... working on set [29/100]
+.... working on set [30/100]
+.... working on set [31/100]
+.... working on set [32/100]
+.... working on set [33/100]
+.... working on set [34/100]
+.... working on set [35/100]
+.... working on set [36/100]
+.... working on set [37/100]
+.... working on set [38/100]
+.... working on set [39/100]
+.... working on set [40/100]
+.... working on set [41/100]
+.... working on set [42/100]
+.... working on set [43/100]
+.... working on set [44/100]
+.... working on set [45/100]
+.... working on set [46/100]
+.... working on set [47/100]
+.... working on set [48/100]
+.... working on set [49/100]
+.... working on set [50/100]
+.... working on set [51/100]
+.... working on set [52/100]
+.... working on set [53/100]
+.... working on set [54/100]
+.... working on set [55/100]
+.... working on set [56/100]
+.... working on set [57/100]
+.... working on set [58/100]
+.... working on set [59/100]
+.... working on set [60/100]
+.... working on set [61/100]
+.... working on set [62/100]
+.... working on set [63/100]
+.... working on set [64/100]
+.... working on set [65/100]
+.... working on set [66/100]
+.... working on set [67/100]
+.... working on set [68/100]
+.... working on set [69/100]
+.... working on set [70/100]
+.... working on set [71/100]
+.... working on set [72/100]
+.... working on set [73/100]
+.... working on set [74/100]
+.... working on set [75/100]
+.... working on set [76/100]
+.... working on set [77/100]
+.... working on set [78/100]
+.... working on set [79/100]
+.... working on set [80/100]
+.... working on set [81/100]
+.... working on set [82/100]
+.... working on set [83/100]
+.... working on set [84/100]
+.... working on set [85/100]
+.... working on set [86/100]
+.... working on set [87/100]
+.... working on set [88/100]
+.... working on set [89/100]
+.... working on set [90/100]
+.... working on set [91/100]
+.... working on set [92/100]
+.... working on set [93/100]
+.... working on set [94/100]
+.... working on set [95/100]
+.... working on set [96/100]
+.... working on set [97/100]
+.... working on set [98/100]
+.... working on set [99/100]
+.... working on set [100/100]
+Stage complete, calculated for [100] tree sets
+setup.R finished at [2014-10-25 01:17:33]

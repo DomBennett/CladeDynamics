@@ -1,0 +1,26 @@
+
+run.R started at [2014-10-28 11:01:21]######################################
+          Model stage ....
+######################################
+
+######################################
+          Compare stage ....
+######################################
+
+Loading required package: methods
+Loading required package: ape
+Loading required package: plyr
+Loading required package: RJSONIO
+Loading required package: stringr
+Loading required package: MASS
+Loading required package: mvtnorm
+
+--------------------------------
+          Analysis [1]
+--------------------------------
+
+Reading in data ...
+Calculating tree stats ...
+Compare to real trees ...
+Plotting ...Error: object 'metadata' not found
+Execution halted
