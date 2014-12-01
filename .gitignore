@@ -3,3 +3,7 @@
 .Rhistory
 .RData
 *.gif
+
+# data
+/1_data
+/results

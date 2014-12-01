@@ -7,8 +7,8 @@ source (file.path ('tools', 'model_tools.R'))
 source (file.path ('tools', 'clade_tools.R'))
 
 ## Model trees
-t.stop <- 20
-sample <- t.stop*.01
+t.stop <- 50
+sample <- t.stop*.1
 seed.tree <- compute.brlen (rtree (100))
 seed.tree$tip.label <- paste0 ('t', 1:getSize (seed.tree))
 seed.tree$node.label <- paste0 ('n', 1:seed.tree$Nnode)
