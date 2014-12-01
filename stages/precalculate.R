@@ -55,8 +55,12 @@ cat ('\nCalculating tree stats for sets of trees ....')
 for (set in trees) {
   cat (paste0 ('\n.... working on set [', counter + 1,
                '/', length (trees),']'))
-  stats <- calcTreeShapeStats (set, iterations = iterations,
-                               reference = reference)
+  stats <- try (expr= {calcTreeShapeStats (set, iterations = iterations,
+                               reference = reference)}, silent = TRUE)
+  if (class (stats) == 'try-error') {
+    cat (paste0 ('\n.... skipping [', counter+1, '] the following error was encountered:\n', attr(stats, 'condition')))
+    next
+  }
   # extract the mean value of the set
   colless.stat <- c (colless.stat, stats['mean.colless.stat'][[1]])
   sackin.stat <- c (sackin.stat, stats['mean.sackin.stat'][[1]])
