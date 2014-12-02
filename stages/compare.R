@@ -68,8 +68,7 @@ calcStats <- function (trees, metadata, iterations, reference,
 compare <- function (stats, real.stats) {
   res <- data.frame ()
   window.size <- 0.5
-  stat.names <- c ('colless.stat', 'sackin.stat', 'iprime.stat',
-                   'gamma.stat', 'tc.stat')
+  stat.names <- c ('colless', 'sackin', 'gamma', 'tci')
   for (i in 1:length (stat.names)) {
     diff <- windowAnalysis (stats[ ,stat.names[i]],
                             real.stats[ ,stat.names[i]],
@@ -114,7 +113,8 @@ filename <- paste0 ('min', pars$min.ntaxa, '_max', pars$max.ntaxa, '.Rd')
 load (file.path (data.dir, filename))
 trees <- readTrees (metadata, res.dir, runlog)
 cat ('\nCalculating tree stats ...')
-stats <- calcStats (trees, metadata, pars$iterations, pars$reference, res.dir)
+stats <- calcTreeStats(trees)
+stats <- cbind (metadata, stats)
 cat ('\nCompare to real trees ...')
 res <- compare (stats, real.stats)
 cat ('\nPlotting ...')

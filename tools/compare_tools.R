@@ -10,127 +10,24 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
-.calcTreeShapeStats <- function (tree, reference = TRUE, iterations = 100) {
-  ## Hidden workhorse function for calcTreeShapeStats
-  calcTopologyStats <- function (tree) {
-    calcStats <- function (tree) {
-      # first convert tree to treeshape object
-      ts.tree <- as.treeshape (tree)
-      # summed abs difference between sister clades
-      colless.stat <- colless (ts.tree)
-      # summed number of ancestors for each tip
-      sackin.stat <- sackin (ts.tree)
-      # fusco test requires creation of a dataframe
-      tree$node.label <- NULL
-      tree.data <- data.frame (sp = tree$tip.label, nspp =
-                                 rep (1, length (tree$tip.label)))
-      tree.data <- comparative.data (phy = tree, dat = tree.data,
-                                     names.col = sp)
-      tree.fusco.res <- fusco.test (tree.data, rich = nspp,
-                                    randomise.Iprime = FALSE)
-      iprime.stat <- tree.fusco.res$mean.Iprime
-      data.frame (colless.stat = colless.stat, sackin.stat = sackin.stat,
-            iprime.stat = iprime.stat)
-    }
-    if (is.binary.phylo (tree)[1] == TRUE) {
-      return (unlist (calcStats (tree)))
+calcTreeStats <- function (trees) {
+  engine <- function (i) {
+    tree <- trees[[i]]
+    # imbalance stats
+    ts.tree <- as.treeshape (tree)
+    colless.stat <- colless (ts.tree, 'yule')
+    sackin.stat <- sackin (ts.tree, 'yule')
+    # branching stats
+    if (is.null (tree$edge.length)) {
+      gamma.stat <- tci.stat <- NA
     } else {
-      # run multi2di iterations times, calc stats and take means
-      run <- function (i) {
-        calcStats (multi2di (tree))
-      }
-      res <- mdply (.data = data.frame (i = 1:iterations), .fun = run)[ ,-1]
-      return (colMeans (res))
+      gamma.stat <- gammaStat (tree)
+      tci.stat <- sum (cophenetic (tree))
     }
+    data.frame (colless = colless.stat, sackin = sackin.stat,
+                gamma = gamma.stat, tci = tci.stat)
   }
-  calcBranchingStats <- function (tree) {
-    if (!is.null (tree$edge.length)) {
-      if (is.ultrametric (tree)) {
-        # set tree age to 1
-        tree.age <- getAge (tree, node = length (tree$tip.label) + 1)
-        tree$edge.length <- tree$edge.length/tree.age
-        # gamma stat
-        gamma.stat <- gammaStat (tree)
-        # total cophenetic distance
-        tc.stat <- sum (cophenetic (tree))
-        return (c ('tc.stat' = tc.stat, 'gamma.stat' = gamma.stat))
-      }
-    }
-    c ('tc.stat' = NA, 'gamma.stat' = NA)
-  }
-  calcReference <- function (n) {
-    # Calculate equivalent values for a distribution of Yule trees
-    #  and return means
-    .calc <- function (i) {
-      ## TODO: Yule reference takes a long time, find alternative
-      reference <- sim.bdtree (b = 1, d = 0, n = n, stop = 'taxa')
-      c (calcTopologyStats (reference), calcBranchingStats (reference))
-    }
-    res <- mdply (.data = data.frame (i = 1:iterations), .fun = .calc)
-    colMeans (res[ ,-1])
-  }
-  # calculate topology and branching stats
-  stats <- c (calcTopologyStats (tree), calcBranchingStats (tree))
-  if (reference) {
-    ref.stats <- calcReference (getSize (tree))
-    # divide stats by ref stats (except for gamma)
-    bool <- names (stats) != 'gamma.stat'
-    stats[bool] <- stats[bool]/ref.stats[bool]
-  }
-  as.list (stats)
-}
-
-calcTreeShapeStats <- function (tree, reference = TRUE,
-                                iterations = 100) {
-  ## Calculates a variety of tree shape statistics.
-  ##  If reference is TRUE compares to stats generated
-  ##  for an equally sized Yule tree.
-  if (class (tree) == 'multiPhylo' | class (tree) == 'list') {
-    stats <- list (colless.stat = NULL, sackin.stat = NULL,
-                   iprime.stat = NULL, gamma.stat = NULL,
-                   tc.stat = NULL)
-    eachTree <- function (i) {
-      res <- .calcTreeShapeStats (tree[[i]], reference = reference,
-                                  iterations = iterations)
-      for (each in names (stats)) {
-        stats[[each]] <<- c (stats[[each]],
-                             res[[each]])
-      }
-    }
-    m_ply (.data = data.frame (i = 1:length (tree)),
-           .fun = eachTree)
-    # find means and standard deviations
-    for (each in names (stats)) {
-      mean.res <- mean (stats[[each]], na.rm = TRUE)
-      sd.res <- sd (stats[[each]], na.rm = TRUE)
-      res <- list (mean.res, sd.res)
-      names (res) <- c (paste0 ('mean.', each),
-                        paste0 ('sd.', each))
-      stats <- c (stats, res)
-    }
-    return (stats)
-  } else {
-    return (.calcTreeShapeStats (tree, reference = reference,
-                                 iterations = iterations))
-  }
-}
-
-extractStat <- function (simulated.tree.stats, stat.name) {
-  ## Extract a stat from the simulated.tree.stats list
-  ## Return a vector/list of stats in order that they appear in
-  ##  list.
-  if (grepl ('(mean|sd)', stat.name)) {
-    res <- rep (NA, length (simulated.tree.stats))
-    for (i in 1:length (simulated.tree.stats)) {
-      res[i] <- simulated.tree.stats[[i]][[stat.name]]
-    }
-  } else {
-    res <- list ()
-    for (i in 1:length (simulated.tree.stats)) {
-      res <- c (res, list (simulated.tree.stats[[i]][[stat.name]]))
-    }
-  }
-  res
+  mdply (.data = data.frame (i = 1:length (trees)), .fun = engine)
 }
 
 drawCorresPoints <- function (model, distribution) {

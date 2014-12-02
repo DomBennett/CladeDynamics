@@ -49,28 +49,24 @@ names (trees) <- study.names
 
 ## Calculate
 counter <- 0
-colless.stat <- sackin.stat <- iprime.stat <-
-  gamma.stat <- tc.stat <- NULL
+colless <- sackin <- gamma <- tci <- NULL
 cat ('\nCalculating tree stats for sets of trees ....')
 for (set in trees) {
   cat (paste0 ('\n.... working on set [', counter + 1,
                '/', length (trees),']'))
-  stats <- try (expr= {calcTreeShapeStats (set, iterations = iterations,
-                               reference = reference)}, silent = TRUE)
+  stats <- try (expr= {calcTreeStats (set)}, silent = TRUE)
   if (class (stats) == 'try-error') {
     cat (paste0 ('\n.... skipping [', counter+1, '] the following error was encountered:\n', attr(stats, 'condition')))
     next
   }
-  # extract the mean value of the set
-  colless.stat <- c (colless.stat, stats['mean.colless.stat'][[1]])
-  sackin.stat <- c (sackin.stat, stats['mean.sackin.stat'][[1]])
-  iprime.stat <- c (iprime.stat, stats['mean.iprime.stat'][[1]])
-  gamma.stat <- c (gamma.stat, stats['mean.gamma.stat'][[1]])
-  tc.stat <- c (tc.stat, stats['mean.tc.stat'][[1]])
+  # extract mean stats of the set
+  colless <- c (colless, mean (stats[ ,'colless'], na.rm = TRUE))
+  sackin <- c (sackin, mean (stats[ ,'sackin'], na.rm = TRUE))
+  gamma <- c (gamma, mean (stats[ ,'gamma'], na.rm = TRUE))
+  tci <- c (tci, mean (stats[ ,'tci'], na.rm = TRUE))
   counter <- counter + 1
 }
-real.stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
-                                  gamma.stat, tc.stat)
+real.stats <- data.frame (colless, sackin, gamma, tci)
 real.stats <- cbind (treeinfo, real.stats)
 
 ## Save
