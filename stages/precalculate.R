@@ -29,7 +29,10 @@ trees <- list ()
 study.names <- NULL
 cat ('\nReading in trees and packing for target size ....')
 for (i in 1:nrow (treeinfo.master)) {
-  tree.file <- treeinfo.master[i,'filename']
+  tree.file <- file.path (input.dir, treeinfo.master[i,'filename'])
+  if (!file.exists (tree.file)) {
+    next
+  }
   cat (paste0 ('\n.... working on [', tree.file,
                '] [', i, '/', nrow (treeinfo.master),']'))
   # read in
