@@ -87,20 +87,48 @@ plotResults <- function (res, stats, res.dir, metadata) {
   # plot distributions differences
   p <- ggplot (res, aes (mid, diff))
   print (p + geom_point (aes (colour = stat)))
-  # plot stats against strength
-  stat.names <- c ('colless.stat', 'sackin.stat', 'iprime.stat',
-                   'gamma.stat', 'tc.stat')
+  # plot psi and stat
+  stat.names <- c ('colless', 'sackin', 'gamma', 'tci')
+  par (mfrow = c (2,2), mar = c (3, 5, 0.5, 0.5))
+  y <- metadata$psi
   for (each in stat.names) {
-    x <- stats[ ,each]
-    y <- metadata$psi
-    plot (x = x, y = y, ylab = expression (psi),
-          xlab = paste0 ('Tree stat: [', each, ']'), pch = 19,
-          col = rainbow (3, alpha = 0.8)[3])
-    model <- lm (y ~ x)
+    plot (x = stats[ ,each], y = y, ylab = expression (psi), pch = 19,
+          col = rainbow (3, alpha = 0.8)[3], cex.lab = 3, cex = 3, xlab = '',
+          cex.axis = 2)
+    model <- lm (y ~ stats[ ,each])
     abline (model)
   }
   closeDevices ()
 }
+
+pca <- function (stats, real.stats) {
+  input <- rbind (stats, real.stats)
+  pca.res <- prcomp (input[ ,c ('gamma', 'tci', 'sackin', 'colless')],
+                     scale. = TRUE, center = TRUE)
+  pca.x <- as.data.frame(pca.res$x[!is.na (input$psi), ])
+  pca.x.real <- as.data.frame(pca.res$x[is.na (input$psi), ])
+  pca.rot <- as.data.frame (pca.res$rotation)
+  prop.var <- round (sapply (pca.res$sdev^2,
+                             function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
+  names (prop.var) <- colnames (pca.rot)
+  comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
+  for (comp in comparisons) {
+    p <- ggplot (pca.x, aes_string (x = comp[1], y = comp[2])) +
+      geom_point (aes (colour = input$psi[!is.na (input$psi)])) +
+      scale_colour_gradient2 (low = "red", high = "blue", name = expression(psi)) +
+      geom_point (data = pca.x.real, colour = 'black', shape = 15) +
+      xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
+      ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
+      theme_bw ()
+    print (p)
+    rm (p)
+    plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
+         ylab = comp[2], cex = 0.5, pch = 19)
+    text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
+          rownames (pca.rot[comp[1]]), adj = 1)
+  }
+}
+
 
 ## Run
 res.dir <- file.path ('results', name)
@@ -119,3 +147,4 @@ cat ('\nCompare to real trees ...')
 res <- compare (stats, real.stats)
 cat ('\nPlotting ...')
 plotResults (res, stats, res.dir, metadata)
+pca (stats, real.stats)
