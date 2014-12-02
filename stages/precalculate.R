@@ -36,7 +36,7 @@ for (i in 1:nrow (treeinfo.master)) {
   cat (paste0 ('\n.... working on [', tree.file,
                '] [', i, '/', nrow (treeinfo.master),']'))
   # read in
-  tree <- read.tree (file.path (input.dir, tree.file))
+  tree <- read.tree (tree.file)
   # pack into a multiphylo of right sized trees
   tree <- pack (tree, min.n = min.taxa, max.n = max.taxa)
   if (!is.null (tree)) {
