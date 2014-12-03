@@ -107,7 +107,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
     extant.tips <- which (!tree$tip.label %in% extinct)
     # time passed is 1/length (extant.tips) -- so that
     #  births and deaths are scaled to 1 unit of branch length
-    time.passed <- (birth + death)/length (extant.tips)
+    time.passed <- 1/length (extant.tips)
     # find tip edges for all extant tips
     tip.edges <- which (tree$edge[ ,2] %in% extant.tips)
     # extant edges grow by 1/length (extant.tips)
