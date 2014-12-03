@@ -102,8 +102,13 @@ plotResults <- function (res, stats, res.dir, metadata) {
 }
 
 pca <- function (stats, real.stats) {
-  input <- rbind (stats, real.stats)
-  pca.res <- prcomp (input[ ,c ('gamma', 'tci', 'sackin', 'colless')],
+  pdf (file.path (res.dir, 'pca.pdf'))
+  # remove any that aren't ultrametric or rate.smooted
+  real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
+  real.stats$psi <- NA
+  cols <- c ('psi', 'colless', 'sackin', 'tci', 'gamma')
+  input <- rbind (stats[ ,cols], real.stats[ ,cols])
+  pca.res <- prcomp (input[,cols[-1]],
                      scale. = TRUE, center = TRUE)
   pca.x <- as.data.frame(pca.res$x[!is.na (input$psi), ])
   pca.x.real <- as.data.frame(pca.res$x[is.na (input$psi), ])
@@ -127,6 +132,7 @@ pca <- function (stats, real.stats) {
     text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
           rownames (pca.rot[comp[1]]), adj = 1)
   }
+  closeDevices ()
 }
 
 
