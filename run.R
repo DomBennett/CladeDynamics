@@ -29,7 +29,7 @@ analysis.3 <- list (n.model = 100, seed = 2,
                     max.ntaxa = 500, min.ntaxa = 50,
                     min.psi = -1.5, max.psi = 1,
                     iterations = 100)
-analysis.parameters <- list (analysis_2 = analysis.2)
+analysis.parameters <- list (analysis_3 = analysis.3)
 # if there isn't a results folder, create one
 if (!file.exists ('results')) {
   dir.create ('results')
