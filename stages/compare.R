@@ -106,8 +106,8 @@ pca <- function (stats, real.stats) {
   # remove any that aren't ultrametric or rate.smooted
   real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
   real.stats$psi <- NA
-  cols <- c ('psi', 'colless', 'sackin', 'tci', 'gamma')
-  input <- rbind (stats[ ,cols], real.stats[ ,cols])
+  cols <- c ('psi', 'colless', 'sackin', 'tci')#, 'tci', 'gamma')
+  input <- rbind (stats[ ,cols], real.stats[-over25,cols])
   pca.res <- prcomp (input[,cols[-1]],
                      scale. = TRUE, center = TRUE)
   pca.x <- as.data.frame(pca.res$x[!is.na (input$psi), ])
@@ -118,13 +118,15 @@ pca <- function (stats, real.stats) {
   names (prop.var) <- colnames (pca.rot)
   comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
   for (comp in comparisons) {
+    psize <- 10
     p <- ggplot (pca.x, aes_string (x = comp[1], y = comp[2])) +
-      geom_point (aes (colour = input$psi[!is.na (input$psi)])) +
-      scale_colour_gradient2 (low = "red", high = "blue", name = expression(psi)) +
-      geom_point (data = pca.x.real, colour = 'black', shape = 15) +
+      geom_point (aes (colour = input$psi[!is.na (input$psi)]), size = psize) +
+      scale_colour_gradient2 (low = "red", high = "blue", name = expression(psi),
+                              guide = guide_legend(keywidth = 5, keyheight = 5)) +
+      geom_point (data = pca.x.real, colour = 'black', shape = 15, size = psize) +
       xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
       ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
-      theme_bw ()
+      theme_bw (base_size=48)
     print (p)
     rm (p)
     plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
@@ -143,7 +145,7 @@ cat ('\nReading in data ...')
 # get metadata
 metadata <- read.csv (runlog, stringsAsFactors = FALSE)
 # load pre-calculated natural tree stats
-filename <- paste0 ('min', pars$min.ntaxa, '_max', pars$max.ntaxa, '.Rd')
+filename <- paste0 ('min', pars$min.ntaxa, '_max', pars$max.ntaxa, '_latest', '.Rd')
 load (file.path (data.dir, filename))
 trees <- readTrees (metadata, res.dir, runlog)
 cat ('\nCalculating tree stats ...')
