@@ -107,7 +107,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
     extant.tips <- which (!tree$tip.label %in% extinct)
     # time passed is 1/length (extant.tips) -- so that
     #  births and deaths are scaled to 1 unit of branch length
-    time.passed <- 1/length (extant.tips)
+    time.passed <- branch.growth/length (extant.tips)
     # find tip edges for all extant tips
     tip.edges <- which (tree$edge[ ,2] %in% extant.tips)
     # extant edges grow by 1/length (extant.tips)
@@ -155,7 +155,7 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
     if (add.bool) {
       add ()
     } else {
-      n.extant <- length (tree$tip.label) - length (extinct)
+      n.extant <- getSize (tree) - length (extinct)
       if (n.extant > 2) {
         # only drop species if there are more than
         # two species in a tree, this might create edge
@@ -180,6 +180,8 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
   }
   # set n and t to zero
   n <- t <- 0
+  # calculate branch growth
+  branch.growth <- 1/(birth + death)
   # set tree as seed.tree
   tree <- seed.tree
   # expected stop message
