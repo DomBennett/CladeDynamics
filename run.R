@@ -12,6 +12,10 @@
 # bias -- what type of ED? 'PE', 'ES' or 'FP'
 # min.psi -- min power determing the effect of the bias
 # max.psi -- max power determing the effect of the bias
+# min.sig -- min power determing the effect on speciation
+# max.sig -- max power determing the effect on speciation
+# min.eps -- min power determing the effect on extinction
+# max.eps -- max power determing the effect on extinction
 # reference -- normalise shape stats with a Yule reference?
 # iterations -- n trees in Yule distribution if reference is True
 
@@ -22,12 +26,14 @@ cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 library (plyr)
 
 ## Analysis parameter declarations
-analysis.3 <- list (n.model = 100, seed = 2,
+analysis.3 <- list (n.model = 1000, seed = 2,
                     max.birth = 50, min.birth = 1.1,
                     max.death = 1, min.death = 1,
                     bias = 'FP', stop.by = 'n',
                     max.ntaxa = 500, min.ntaxa = 50,
-                    min.psi = -1.5, max.psi = 1,
+                    min.psi = -1, max.psi = 1,
+                    min.sig = -1, max.sig = 1,
+                    min.eps = -1, max.eps = 1,
                     iterations = 100)
 analysis.parameters <- list (analysis_3 = analysis.3)
 # if there isn't a results folder, create one

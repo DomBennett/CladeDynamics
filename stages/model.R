@@ -7,13 +7,14 @@ source (file.path ('tools', 'model_tools.R'))
 
 ## Parameters
 if (!exists ('pars')) {
-  print ('here')
-  pars <- list (n.model = 2, seed = 2,
+  pars <- list (n.model = 10, seed = 2,
                 max.birth = 5, min.birth = 1.1,
                 max.death = 1, min.death = 1,
                 bias = 'FP', stop.by = 'n',
-                max.ntaxa = 200, min.ntaxa = 50,
+                max.ntaxa = 500, min.ntaxa = 50,
                 min.psi = -1, max.psi = 1,
+                min.sig = -1, max.sig = 1,
+                min.eps = -1, max.eps = 1,
                 reference = TRUE, iterations = 100)
   name <- 'testset'
 }
@@ -29,8 +30,8 @@ dirSetup <- function (analysis.name) {
   if (file.exists (runlog)) {
     file.remove (runlog)
   }
-  headers <- data.frame ('treefilename', 'psi', 'bias',
-                         'birth', 'death','ntaxa')
+  headers <- data.frame ('treefilename', 'psi', 'sig', 'eps',
+                         'bias', 'birth', 'death','ntaxa')
   write.table (headers, runlog, sep = ',',
                row.names = FALSE, col.names = FALSE)
   runlog
@@ -39,6 +40,8 @@ dirSetup <- function (analysis.name) {
 genParameters <- function (pars) {
   ## Generate parameters for model itreation
   pars$psi = runif (1, pars$min.psi, pars$max.psi)
+  pars$sig = runif (1, pars$min.sig, pars$max.sig)
+  pars$eps = runif (1, pars$min.eps, pars$max.eps)
   pars$birth = runif (1, pars$min.birth, pars$max.birth)
   pars$death = runif (1, pars$min.death, pars$max.death)
   pars$ntaxa = round (runif (1, pars$min.ntaxa, pars$max.ntaxa))
@@ -51,6 +54,8 @@ addEntry <- function (runlog, pars) {
   treefilename <- paste0 ('tree', counter, '.tre')
   parameters <- data.frame (treefilename,
                             psi = pars$psi,
+                            sig = pars$sig,
+                            eps = pars$eps,
                             bias = pars$bias,
                             birth = pars$birth,
                             death = pars$death,
@@ -72,6 +77,8 @@ iterateModel <- function (j, pars, runlog, ...) {
                     stop.at = pars$ntaxa,
                     stop.by = pars$stop.by,
                     psi = pars$psi,
+                    sig = pars$sig,
+                    eps = pars$eps,
                     bias = pars$bias,
                     fossils = FALSE, record = FALSE)
   write.tree (tree, file = file.path (dirname (runlog),

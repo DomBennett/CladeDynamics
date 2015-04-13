@@ -1,6 +1,6 @@
 ## 17/06/2014
 ## D.J. Bennett
-## Tools for MRMM trees
+## Tools for EDBRM trees
 
 ## Deps
 library (MoreTreeTools)
@@ -11,7 +11,7 @@ seedTree <- function (n, age) {
   tree <- rtree (n)
   # add edge lengths
   tree <- compute.brlen (tree)
-  tree.age <- getAge (tree, node = length (tree$tip.label) + 1)
+  tree.age <- getAge (tree, node = length (tree$tip.label) + 1)$age
   # re-calculate edge lengths based on requested tree age
   tree$edge.length <- tree$edge.length/(tree.age/age)
   # add labels
@@ -19,24 +19,26 @@ seedTree <- function (n, age) {
   tree
 }
 
-runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
-                      seed.tree = NULL, bias = c ('FP', 'ES', 'PE'),
-                      psi = 1, record = FALSE,
-                      sample.at = stop.at*.1, fossils = FALSE,
-                      max.iteration = 10000, progress.bar = 'none') {
-  ## Wrapper function to allow recording of trees through time
-  ## Parameters
-  ##  birth - how many births per unit of branch length
-  ##  death - how many deaths per unit of branch length
-  ##  stop.at - what value to stop at
-  ##  stop.by - what to stop at time or taxa
-  ##  seed.tree - tree to start model with, else a random tree of 2 tips
-  ##  bias - what type of ED bias to use FP or PE
-  ##  psi - power modifier of ED bias
-  ##  record - return list of trees at specified sample points
-  ##  fossils - keep fossils in tree?
-  ##  max.iterations - maximum number of iterations to prevent inf looping
-  ##  progress.bar - plyr progress bar, record only
+runEDBMM <- function (birth, death, stop.at, stop.by=c ('n', 't'),
+                      seed.tree=NULL, bias=c ('FP', 'ES', 'PE'),
+                      psi=-1, sig=1, eps=1, record=FALSE,
+                      sample.at=stop.at*.1, fossils=FALSE,
+                      max.iteration=10000, progress.bar='none') {
+  # Wrapper function to allow recording of trees through time
+  # Parameters
+  #  birth - how many births per unit of branch length
+  #  death - how many deaths per unit of branch length
+  #  stop.at - what value to stop at
+  #  stop.by - what to stop at time or taxa
+  #  seed.tree - tree to start model with, else a random tree of 2 tips
+  #  bias - what type of ED bias to use FP or PE
+  #  psi - power modifier of ED bias
+  #  sig - power modifier of speciation bias
+  #  eps - power modifier of extinction bias
+  #  record - return list of trees at specified sample points
+  #  fossils - keep fossils in tree?
+  #  max.iterations - maximum number of iterations to prevent inf looping
+  #  progress.bar - plyr progress bar, record only
   bias <- match.arg (bias)
   stop.by <- match.arg (stop.by)
   if (is.null (seed.tree)) {
@@ -52,15 +54,15 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
   max.tip <- getSize (tree)
   if (!record) {
     results <- .runEDBMM (birth, death, stop.at, tree,
-               bias, psi, extinct, max.node,
-               max.tip, stop.by, fossils, max.iteration)
+                          bias, psi, sig, eps, extinct, max.node,
+                          max.tip, stop.by, fossils, max.iteration)
     return (results[['tree']])
   }
   iterations <- stop.at/sample.at # number of iterations
   trees <- list (tree) # collect trees
   runmodel <- function (i) {
     results <- .runEDBMM (birth, death, sample.at, tree,
-                          bias, psi, extinct, max.node,
+                          bias, psi, sig, eps, extinct, max.node,
                           max.tip, stop.by, fossils, max.iteration)
     tree <<- results[['tree']]
     max.node <<- results[['max.node']]
@@ -75,10 +77,10 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
 }
 
 .runEDBMM <- function (birth, death, stop.at, seed.tree,
-                      bias, psi, extinct, max.node,
-                      max.tip, stop.by, fossils, max.iteration) {
+                       bias, psi, sig, eps, extinct, max.node,
+                       max.tip, stop.by, fossils, max.iteration) {
   ## Grow tree using a markov model with diversification rates
-  ##  based on evolutionary distinctiveness (EDBMM)
+  ##  based on evolutionary distinctness (EDBMM)
   # Internal functions
   randomTip <- function (add = TRUE) {
     # Return a random tip based on bias and whether
@@ -95,9 +97,12 @@ runEDBMM <- function (birth, death, stop.at, stop.by = c ('n', 't'),
     probs <- .calcED (tree)
     # apply psi
     probs[ ,1] <- probs[ ,1]^psi
-    if (!add) {
-      # inverse probabilities if not adding
-      probs[ ,1] <- 1/probs[ ,1]
+    if (add) {
+      # apply sigma if adding
+      probs[ ,1] <- probs[ ,1]^sig
+    } else {
+      # apply epsilon if subtracting
+      probs[ ,1] <- probs[ ,1]^eps
     }
     # return a species name based on probs
     sample (rownames (probs), size = 1, prob = probs[ ,1])
