@@ -7,9 +7,9 @@ library (MoreTreeTools)
 
 ## Functions
 safeChronos <- function (tree, ...) {
-  ## Wrapper for chronos to handle unexpected errors
+  ## Wrapper for chronoMPL to handle unexpected errors
   ## see -- https://stat.ethz.ch/pipermail/r-sig-phylo/2014-April/003416.html
-  temp <- try (chronos (tree, ...), silent = TRUE)
+  temp <- try (chronoMPL (tree, ...), silent = TRUE)
   if (any (class (temp) == 'phylo')) {
     tree <- temp
   }
