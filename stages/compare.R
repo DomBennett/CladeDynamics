@@ -12,8 +12,10 @@ if (!exists ('pars')) {
                 max.birth = 5, min.birth = 1.1,
                 max.death = 1, min.death = 1,
                 bias = 'FP', stop.by = 'n',
-                max.ntaxa = 200, min.ntaxa = 50,
+                max.ntaxa = 500, min.ntaxa = 50,
                 min.psi = -1, max.psi = 1,
+                min.sig = -1, max.sig = 1,
+                min.eps = -1, max.eps = 1,
                 reference = TRUE, iterations = 100)
   name <- 'testset'
 }
@@ -107,7 +109,8 @@ pca <- function (stats, real.stats) {
   real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
   real.stats$psi <- NA
   cols <- c ('psi', 'colless', 'sackin', 'tci')#, 'tci', 'gamma')
-  input <- rbind (stats[ ,cols], real.stats[-over25,cols])
+  over25 <- real.stats$gamma > 25
+  input <- rbind (stats[ ,cols], real.stats[-over25, cols])
   pca.res <- prcomp (input[,cols[-1]],
                      scale. = TRUE, center = TRUE)
   pca.x <- as.data.frame(pca.res$x[!is.na (input$psi), ])
