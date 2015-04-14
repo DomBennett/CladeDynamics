@@ -29,7 +29,7 @@ dirSetup <- function (analysis.name) {
   if (file.exists (runlog)) {
     file.remove (runlog)
   }
-  headers <- data.frame ('treefilename', 'psi', 'sig', 'eps',
+  headers <- data.frame ('treefilename', 'sig', 'eps',
                          'bias', 'birth', 'death','ntaxa')
   write.table (headers, runlog, sep = ',',
                row.names = FALSE, col.names = FALSE)
