@@ -12,7 +12,6 @@ if (!exists ('pars')) {
                 max.death = 1, min.death = 1,
                 bias = 'FP', stop.by = 'n',
                 max.ntaxa = 500, min.ntaxa = 50,
-                min.psi = -1, max.psi = 1,
                 min.sig = -1, max.sig = 1,
                 min.eps = -1, max.eps = 1,
                 reference = TRUE, iterations = 100)
@@ -39,7 +38,6 @@ dirSetup <- function (analysis.name) {
 
 genParameters <- function (pars) {
   ## Generate parameters for model itreation
-  pars$psi = runif (1, pars$min.psi, pars$max.psi)
   pars$sig = runif (1, pars$min.sig, pars$max.sig)
   pars$eps = runif (1, pars$min.eps, pars$max.eps)
   pars$birth = runif (1, pars$min.birth, pars$max.birth)
@@ -53,7 +51,6 @@ addEntry <- function (runlog, pars) {
   counter <- nrow (read.csv (runlog))
   treefilename <- paste0 ('tree', counter, '.tre')
   parameters <- data.frame (treefilename,
-                            psi = pars$psi,
                             sig = pars$sig,
                             eps = pars$eps,
                             bias = pars$bias,
@@ -76,7 +73,6 @@ iterateModel <- function (j, pars, runlog, ...) {
                     death = pars$death,
                     stop.at = pars$ntaxa,
                     stop.by = pars$stop.by,
-                    psi = pars$psi,
                     sig = pars$sig,
                     eps = pars$eps,
                     bias = pars$bias,

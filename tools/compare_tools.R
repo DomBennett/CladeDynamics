@@ -10,37 +10,6 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
-getAge <- function (tree, node = 'all') {
-  run <- function (node) {
-    # function for calculating age of node
-    term.node <- length (tree$tip.label) + 1
-    # if it's the root node, return tree.age
-    if (term.node == node) {
-      return (tree.age)
-    }
-    # if it's a tip return 0
-    if (node < length (tree$tip.label) & is.ultrametric (tree)) {
-      return (0)
-    }
-    # else find all its edge.lengths and subtract from tree.age
-    edges <- c ()
-    while (node != term.node) {
-      edges <- c (edges, which (tree$edge[ ,2] == node))
-      node <- tree$edge[tree$edge[ ,2] == node, 1]
-    }
-    return (tree.age - sum (tree$edge.length[edges]))
-  }
-  tree.age <- max (diag (vcv.phylo (tree)))
-  if (node != 'all') {
-    return (run (node))
-  }
-  # else node == all, run on all nodes
-  nodes <- 1:(length (tree$tip.label) + tree$Nnode)
-  res <- mdply (.data = data.frame (node = nodes), .fun = run)
-  colnames (res)[2] <- 'age'
-  res
-}
-
 calcTreeStats <- function (trees) {
   engine <- function (i) {
     tree <- trees[[i]]

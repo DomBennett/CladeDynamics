@@ -10,8 +10,6 @@
 # birth -- how many births per unit of branch length?
 # death -- how many deaths per unit of branch length?
 # bias -- what type of ED? 'PE', 'ES' or 'FP'
-# min.psi -- min power determing the effect of the bias
-# max.psi -- max power determing the effect of the bias
 # min.sig -- min power determing the effect on speciation
 # max.sig -- max power determing the effect on speciation
 # min.eps -- min power determing the effect on extinction
@@ -31,7 +29,6 @@ analysis.3 <- list (n.model = 1000, seed = 2,
                     max.death = 1, min.death = 1,
                     bias = 'FP', stop.by = 'n',
                     max.ntaxa = 500, min.ntaxa = 50,
-                    min.psi = -1, max.psi = 1,
                     min.sig = -1, max.sig = 1,
                     min.eps = -1, max.eps = 1,
                     iterations = 100)

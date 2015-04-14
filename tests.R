@@ -56,27 +56,14 @@ test_that ('runEDBMM(record=TRUE) works ...', {
   expect_that (getSize (tree[[3]]), equals (22))
 })
 context ('Testing compare tools ...')
-test_that ('calcTreeShapeStates([basic]) works ...', {
-  test.trees <- list ()
-  for (i in 1:5) {
-    test.tree <- stree (64, 'balanced')
-    test.tree <- compute.brlen (test.tree)
-    test.trees <- c (test.trees, list (test.tree))
-  }
-  res <- calcTreeShapeStats (test.trees, iterations = 1)
-  # colless test should be 0 for balanced trees
-  expect_that (res[['mean.colless.stat']], equals (0))
-})
-test_that ('extractStat([basic]) works ...', {
-  # create test simulated list
-  simulated.tree.stats <-
-    list ('1' = list (mean = 1, sd = 1, stat = c (1,1,1,1)),
-          '0' = list (mean = 1, sd = 1, stat = c (1,1,1,1)),
-          '-1' = list (mean = 1, sd = 1, stat = c (1,1,1,1)))
-  res1 <- extractStat (simulated.tree.stats, 'mean')
-  expect_that (res1, equals (c (1,1,1)))
-  res2 <- extractStat (simulated.tree.stats, 'stat')
-  expect_that (unlist (res2), equals (rep (1, 12)))
+test_that ('calcTreeStats([basic]) works ...', {
+  balanced.tree <- compute.brlen (stree (64, 'balanced'))
+  unbalanced.tree <- compute.brlen (stree (64, 'left'))
+  balanced.res <- calcTreeStats (list (balanced.tree))
+  unbalanced.res <- calcTreeStats (list (unbalanced.tree))
+  # colless should be lower for balanced tree
+  expect_less_than (balanced.res[['colless']],
+                    unbalanced.res[['colless']])
 })
 context ('Testing parse tools ...')
 test_that ('convertToDist([basic]) works ...', {
@@ -88,11 +75,11 @@ test_that ('convertToDist([basic]) works ...', {
 test_that ('safeChronos([basic]) works ...', {
   # create a simple non-ultrametric tree
   tree <- rtree (10)
-  res1 <- safeChronos (tree, lambda = 1, quiet = TRUE)
+  res1 <- safeChronos (tree)
   expect_that (is.ultrametric (res1), is_true ())
   # create a simple tree without branch lengths
   tree <- stree (10)
-  res2 <- safeChronos (tree, lambda = 1, quiet = TRUE)
+  res2 <- safeChronos (tree)
   expect_that (is.ultrametric (res2), throws_error ())
 })
 context ('Testing precalculate tools ...')
