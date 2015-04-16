@@ -24,15 +24,16 @@ cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 library (plyr)
 
 ## Analysis parameter declarations
-analysis.3 <- list (n.model = 1000, seed = 2,
-                    max.birth = 50, min.birth = 1.1,
+analysis.4 <- list (n.model = 1000, seed = 2,
+                    max.birth = 2, min.birth = 2,
                     max.death = 1, min.death = 1,
                     bias = 'FP', stop.by = 'n',
                     max.ntaxa = 500, min.ntaxa = 50,
                     min.sig = -1, max.sig = 1,
                     min.eps = -1, max.eps = 1,
+                    reference = TRUE,
                     iterations = 100)
-analysis.parameters <- list (analysis_3 = analysis.3)
+analysis.parameters <- list (analysis_4 = analysis.4)
 # if there isn't a results folder, create one
 if (!file.exists ('results')) {
   dir.create ('results')
@@ -72,7 +73,7 @@ iterateAnalyses <- function (i) {
   cat ('\n--------------------------------')
   cat ('          Compare stage ....\n')
   cat ('\n--------------------------------\n')
-  source (file.path ('stages','compare.R'), print.eval = TRUE, local = TRUE)
+  #source (file.path ('stages','compare.R'), print.eval = TRUE, local = TRUE)
 }
 
 ## Run
