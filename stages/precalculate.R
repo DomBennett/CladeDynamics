@@ -11,7 +11,7 @@ if (!exists ('min.taxa')) {
   min.taxa <- 50
   max.taxa <- 200
   iterations <- 100
-  reference  <- FALSE
+  reference  <- TRUE
 }
 
 ## Dirs
