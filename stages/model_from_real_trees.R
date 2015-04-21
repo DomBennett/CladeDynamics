@@ -59,9 +59,10 @@ readInTrees <- function (treedir) {
   trees <- list ()
   for (i in 1:nrow(treeinfo)) {
     filename <- treeinfo$filename[i]
-    tree <- read.tree (file.path (treedir, filename))[[1]]
-    # rescale branch lengths to sum to 1
-    tree$edge.length <- tree$edge.length/sum (tree$edge.length)
+    tree <- read.tree (file.path (treedir, filename))
+    if (class (tree) == 'multiPhylo') {
+      tree <- tree[[1]]
+    }
     trees[filename] <- list (tree)
   }
   return(trees)
