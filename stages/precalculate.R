@@ -9,9 +9,7 @@ source (file.path ('tools', 'compare_tools.R'))
 ## Parameters
 if (!exists ('min.taxa')) {
   min.taxa <- 50
-  max.taxa <- 200
-  iterations <- 100
-  reference  <- TRUE
+  max.taxa <- 500
 }
 
 ## Dirs
@@ -52,7 +50,7 @@ names (trees) <- study.names
 
 ## Calculate
 counter <- 0
-colless <- sackin <- gamma <- tci <- NULL
+colless <- sackin <- psv <- gamma <- age <- pd <- NULL
 cat ('\nCalculating tree stats for sets of trees ....')
 for (set in trees) {
   cat (paste0 ('\n.... working on set [', counter + 1,
@@ -65,11 +63,13 @@ for (set in trees) {
   # extract mean stats of the set
   colless <- c (colless, mean (stats[ ,'colless'], na.rm = TRUE))
   sackin <- c (sackin, mean (stats[ ,'sackin'], na.rm = TRUE))
+  psv <- c (psv, mean (stats[ ,'psv'], na.rm = TRUE))
   gamma <- c (gamma, mean (stats[ ,'gamma'], na.rm = TRUE))
-  tci <- c (tci, mean (stats[ ,'tci'], na.rm = TRUE))
+  age <- c (age, mean (stats[ ,'age'], na.rm = TRUE))
+  pd <- c (pd, mean (stats[ ,'pd'], na.rm = TRUE))
   counter <- counter + 1
 }
-real.stats <- data.frame (colless, sackin, gamma, tci)
+real.stats <- data.frame (colless, sackin, psv, gamma, age, pd)
 real.stats <- cbind (treeinfo, real.stats)
 
 ## Save
