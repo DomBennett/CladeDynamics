@@ -364,6 +364,97 @@ plotNormalisedSuccess <- function (res, min.time.span = 5, min.size = 2) {
   }
 }
 
+compare <- function (stats, real.stats) {
+  res <- data.frame ()
+  window.size <- 0.5
+  stat.names <- c ('colless', 'sackin', 'gamma', 'tci')
+  for (i in 1:length (stat.names)) {
+    diff <- windowAnalysis (stats[ ,stat.names[i]],
+                            real.stats[ ,stat.names[i]],
+                            size = window.size,
+                            psi = stats[, 'psi'], incr = 0.1)
+    temp <- data.frame (diff, size = window.size,
+                        stat = stat.names[i])
+    res <- rbind (res, temp)
+  }
+  res <- na.omit (res)
+  res
+}
+
+plotResults <- function (res, stats, res.dir, metadata) {
+  pdf (file.path (res.dir, 'treestats_ED_strength.pdf'))
+  # plot distributions differences
+  p <- ggplot (res, aes (mid, diff))
+  print (p + geom_point (aes (colour = stat)))
+  # plot psi and stat
+  stat.names <- c ('colless', 'sackin', 'gamma', 'tci')
+  par (mfrow = c (2,2), mar = c (3, 5, 0.5, 0.5))
+  y <- metadata$psi
+  for (each in stat.names) {
+    plot (x = stats[ ,each], y = y, ylab = expression (psi), pch = 19,
+          col = rainbow (3, alpha = 0.8)[3], cex.lab = 3, cex = 3, xlab = '',
+          cex.axis = 2)
+    model <- lm (y ~ stats[ ,each])
+    abline (model)
+  }
+  closeDevices ()
+}
+
+
+pca <- function (stats, real.stats) {
+  pdf (file.path (res.dir, 'pca.pdf'))
+  # remove any that aren't ultrametric or rate.smooted
+  real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
+  real.stats <- real.stats[real.stats$ultra, ]
+  real.stats$sig <- NA
+  real.stats$eps <- NA
+  cols <- c ('sig', 'eps', 'colless', 'sackin', 'tci', 'gamma')
+  input <- rbind (stats[ ,cols], real.stats[, cols])
+  pca.res <- prcomp (input[,cols[-c(1,2)]],
+                     scale. = TRUE, center = TRUE)
+  pca.x <- as.data.frame(pca.res$x[!is.na (input$eps), ])
+  pca.x.real <- as.data.frame(pca.res$x[is.na (input$eps), ])
+  # get pca distances from real
+  quick <- function (x, real) {
+    min (abs (x - real))
+  }
+  # use min dist
+  stats$pc1.dists <- sapply (pca.x$PC1, quick, pca.x.real$PC1)
+  stats$pc2.dists <- sapply (pca.x$PC2, quick, pca.x.real$PC2)
+  stats$pc3.dists <- sapply (pca.x$PC3, quick, pca.x.real$PC3)
+  # use mean dist
+  stats$pc1.dists <- abs (pca.x$PC1 - mean.real['PC1'])
+  stats$pc2.dists <- abs (pca.x$PC2 - mean.real['PC2'])
+  stats$pc3.dists <- abs (pca.x$PC3 - mean.real['PC3'])
+  stats$PC1 <- pca.x$PC1
+  stats$PC2 <- pca.x$PC2
+  stats$PC3 <- pca.x$PC3
+  pca.rot <- as.data.frame (pca.res$rotation)
+  prop.var <- round (sapply (pca.res$sdev^2,
+                             function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
+  names (prop.var) <- colnames (pca.rot)
+  comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
+  for (comp in comparisons) {
+    psize <- 10
+    p <- ggplot (pca.x, aes_string (x = comp[1], y = comp[2])) +
+      geom_point (aes (colour = 'blue'), size = psize) +
+      #scale_colour_gradient2 (low = "red", high = "blue", name = expression(psi),
+      #                        guide = guide_legend(keywidth = 5, keyheight = 5)) +
+      geom_point (data = pca.x.real, colour = 'black', shape = 15, size = psize) +
+      xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
+      ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
+      theme_bw (base_size=48)
+    print (p)
+    rm (p)
+    plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
+         ylab = comp[2], cex = 0.5, pch = 19)
+    text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
+          rownames (pca.rot[comp[1]]), adj = 1)
+  }
+  closeDevices ()
+  return (pca.dists)
+}
+
 # context ('Testing analysis tools')
 # test_that ('plotSuccess([basic]) works ...', {
 #   # generate random clade data using Poisson dist
