@@ -10,6 +10,116 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
+pca <- function (stats, real.stats, stat.names, filename,
+                 ignore.chronos=TRUE) {
+  pdf (file.path (res.dir, filename), 24, 26)
+  # remove any that aren't ultrametric or rate.smooted
+  if (ignore.chronos) {
+    real.stats <- real.stats[real.stats$ultra, ]
+  } else {
+    real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
+  }
+  real.stats$sig <- NA
+  real.stats$eps <- NA
+  cols <- c ('sig', 'eps', stat.names)
+  input <- rbind (stats[ ,cols], real.stats[, cols])
+  pca.res <- prcomp (input[,cols[-c(1,2)]],
+                     scale. = TRUE, center = TRUE)
+  pca.x <- as.data.frame(pca.res$x[!is.na (input$eps), ])
+  pca.x$Scenario <- stats$scenario
+  pca.x.real <- as.data.frame(pca.res$x[is.na (input$eps), ])
+  pca.rot <- as.data.frame (pca.res$rotation)
+  prop.var <- round (sapply (pca.res$sdev^2,
+                             function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
+  names (prop.var) <- colnames (pca.rot)
+  comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
+  for (comp in comparisons) {
+    psize <- 10
+    p <- ggplot (pca.x, aes_string (x = comp[1], y = comp[2])) +
+      geom_point (aes (colour=Scenario), size=psize) +
+      geom_point (data = pca.x.real, colour = 'black', shape = 3, size = psize) +
+      xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
+      ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
+      theme_bw (base_size=48)
+    print (p)
+    rm (p)
+    plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
+         ylab = comp[2], cex = 0.5, pch = 19)
+    text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
+          rownames (pca.rot[comp[1]]), adj = 1)
+  }
+  closeDevices ()
+}
+
+readTrees <- function (metadata, res.dir, runlog) {
+  trees <- list ()
+  for (i in 1:nrow (metadata)) {
+    # read in tree
+    tree.dir <- file.path (res.dir, metadata$treefilename[i])
+    tree <- read.tree (tree.dir)
+    # make sure it isn't multiPhylo
+    if (class (tree) == 'multiPhylo') {
+      tree <- tree[[length (tree)]]
+    }
+    # then add to list
+    trees <- c (trees, list (tree))
+  }
+  trees
+}
+
+tilePlot <- function (stats, distances, grain=0.1, legend.title='d') {
+  # convert distances to Z-score
+  distances <- (distances - mean (distances)) / sd (distances)
+  # create d frame from stats
+  d <- data.frame (x=stats$eps, y=stats$sig, d=distances)
+  # create p.data containing coords for each tile
+  ps <- seq (-1 + grain, 1, grain)
+  p.data <- expand.grid (x=ps, y=ps)
+  p.data$d <- NA
+  # fille tiles with mean value
+  for (i in 1:nrow (p.data)) {
+    higher.x <- p.data[i, 'x']
+    lower.x <- p.data[i, 'x'] - grain
+    x.pull <- d$x > lower.x & d$x < higher.x
+    higher.y <- p.data[i, 'y']
+    lower.y <- p.data[i, 'y'] - grain
+    y.pull <- d$y > lower.y & d$y < higher.y
+    p.data[i, 'd'] <- mean (d$d[x.pull & y.pull])
+  }
+  p <- ggplot (p.data, aes (x, y)) + geom_tile (aes (fill=d)) +
+    scale_fill_gradient2(low='red', mid='white', high='blue', name=legend.title) +
+    labs (x=expression (epsilon), y=expression (sigma)) +
+    theme_bw() + theme (axis.title=element_text(size=25))
+  return (p)
+}
+
+getScenarios <- function (stats) {
+  stats$scenario <- NA
+  for (i in 1:nrow (stats)) {
+    if (stats$eps[i] > 0 & stats$sig[i] > 0) {
+      stats$scenario[i] <- 'Eph'
+    } else if (stats$eps[i] < 0 & stats$sig[i] > 0) {
+      stats$scenario[i] <- 'PF'
+    } else if (stats$eps[i] > 0 & stats$sig[i] < 0) {
+      stats$scenario[i] <- 'DE'
+    } else {
+      stats$scenario[i] <- 'Pan'
+    }
+  }
+  return(stats)
+}
+
+getEDs <- function (trees, scenarios) {
+  ed.values <- groups <- NULL
+  for (i in 1:length (trees)) {
+    res <- calcED(trees[[i]])[ ,1]
+    res <- (res - mean (res)) / sd (res)
+    ed.values <- append (ed.values, res)
+    groups <- append (groups, rep (scenarios[i], length (res)))
+  }
+  return (data.frame (ed.values, groups))
+}
+
 calcTreeStats <- function (trees) {
   engine <- function (i) {
     tree <- trees[[i]]
@@ -19,17 +129,24 @@ calcTreeStats <- function (trees) {
     sackin.stat <- sackin (ts.tree, 'yule')
     # branching stats
     if (is.null (tree$edge.length)) {
-      gamma.stat <- tci.stat <- NA
+      gamma.stat <- psv.stat <- age <- pd <- NA
     } else {
+      # get gamma
       gamma.stat <- gammaStat (tree)
-      # weight TCI by total branch length and number of tips
-      tci.stat <- sum (cophenetic (tree))/
-        sum (tree$edge.length)/length(tree$tip.label)
+      # to get PSV, create community matrix
+      samp <- matrix (rep (1, getSize (trees[[i]]) * 2), nrow=2)
+      colnames (samp) <- trees[[i]]$tip.label
+      psv.res <- psv (samp, trees[[i]])
+      psv.stat <- psv.res[1,1]
+      # get age
+      age <- getSize (tree, 'rtt')
+      # get pd
+      pd <- getSize (tree, 'pd')
     }
     data.frame (colless = colless.stat, sackin = sackin.stat,
-                gamma = gamma.stat, tci = tci.stat)
+                gamma = gamma.stat, psv = psv.stat, age, pd)
   }
-  mdply (.data = data.frame (i = 1:length (trees)), .fun = engine)
+  mdply (.data = data.frame (i = 1:length (trees)), .fun = engine)[, -1]
 }
 
 drawCorresPoints <- function (model, distribution) {

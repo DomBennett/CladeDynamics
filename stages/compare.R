@@ -1,161 +1,133 @@
 ## 16/07/2014
 ## D.J. Bennett
-## Comparing different model runs and natural trees
+## Comparing simulated and empirical trees
 
 ## Libraries
 source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'misc_tools.R'))
 
-## Parameters
-if (!exists ('pars')) {
-  pars <- list (n.model = 2, seed = 2,
-                max.birth = 5, min.birth = 1.1,
-                max.death = 1, min.death = 1,
-                bias = 'FP', stop.by = 'n',
-                max.ntaxa = 500, min.ntaxa = 50,
-                min.psi = -1, max.psi = 1,
-                min.sig = -1, max.sig = 1,
-                min.eps = -1, max.eps = 1,
-                reference = TRUE, iterations = 100)
-  name <- 'testset'
-}
-
 ## Dirs
 data.dir <- file.path ('data', 'treestats')
 
-## Functions
-readTrees <- function (metadata, res.dir, runlog) {
-  trees <- list ()
-  for (i in 1:nrow (metadata)) {
-    # read in tree
-    tree.dir <- file.path (res.dir, metadata$treefilename[i])
-    tree <- read.tree (tree.dir)
-    # make sure it isn't multiPhylo
-    if (class (tree) == 'multiPhylo') {
-      tree <- tree[[length (tree)]]
-    }
-    # then add to list
-    trees <- c (trees, list (tree))
-  }
-  trees
-}
+## Parameters
+analysis.name <- 'analysis_4'
+data.dir <- file.path ('data', 'treestats')
+empirical.file <- 'min50_max500.Rd'
 
-calcStats <- function (trees, metadata, iterations, reference,
-                       res.dir) {
-  # loop through each tree
-  tree.stats <- list ()
-  for (i in 1:length (trees)) {
-    temp.res <- list (calcTreeShapeStats (
-      trees[i], iterations = iterations, reference = reference))
-    tree.stats <- c (tree.stats, temp.res)
-  }
-  # write out
-  save (tree.stats, file = file.path (res.dir, 'shapestats.Rd'))
-  # TODO: rethink how the calcTreeShapeStats works to avoid this loop
-  colless.stat <- sackin.stat <- iprime.stat <- 
-    gamma.stat <- tc.stat <- rep (NA, length (tree.stats))
-  for (i in 1:length (tree.stats)) {
-    colless.stat[i] <- tree.stats[[i]][['colless.stat']]
-    sackin.stat[i] <- tree.stats[[i]][['sackin.stat']]
-    iprime.stat[i] <- tree.stats[[i]][['iprime.stat']]
-    gamma.stat[i] <- tree.stats[[i]][['gamma.stat']]
-    tc.stat[i] <- tree.stats[[i]][['tc.stat']]
-  }
-  stats <- data.frame (colless.stat, sackin.stat, iprime.stat,
-                       gamma.stat, tc.stat)
-  stats <- cbind (metadata, stats)
-  stats
-}
-
-compare <- function (stats, real.stats) {
-  res <- data.frame ()
-  window.size <- 0.5
-  stat.names <- c ('colless', 'sackin', 'gamma', 'tci')
-  for (i in 1:length (stat.names)) {
-    diff <- windowAnalysis (stats[ ,stat.names[i]],
-                            real.stats[ ,stat.names[i]],
-                            size = window.size,
-                            psi = stats[, 'psi'], incr = 0.1)
-    temp <- data.frame (diff, size = window.size,
-                        stat = stat.names[i])
-    res <- rbind (res, temp)
-  }
-  res <- na.omit (res)
-  res
-}
-
-plotResults <- function (res, stats, res.dir, metadata) {
-  pdf (file.path (res.dir, 'treestats_ED_strength.pdf'))
-  # plot distributions differences
-  p <- ggplot (res, aes (mid, diff))
-  print (p + geom_point (aes (colour = stat)))
-  # plot psi and stat
-  stat.names <- c ('colless', 'sackin', 'gamma', 'tci')
-  par (mfrow = c (2,2), mar = c (3, 5, 0.5, 0.5))
-  y <- metadata$psi
-  for (each in stat.names) {
-    plot (x = stats[ ,each], y = y, ylab = expression (psi), pch = 19,
-          col = rainbow (3, alpha = 0.8)[3], cex.lab = 3, cex = 3, xlab = '',
-          cex.axis = 2)
-    model <- lm (y ~ stats[ ,each])
-    abline (model)
-  }
-  closeDevices ()
-}
-
-pca <- function (stats, real.stats) {
-  pdf (file.path (res.dir, 'pca.pdf'))
-  # remove any that aren't ultrametric or rate.smooted
-  real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
-  real.stats$psi <- NA
-  cols <- c ('psi', 'colless', 'sackin', 'tci')#, 'tci', 'gamma')
-  over25 <- real.stats$gamma > 25
-  input <- rbind (stats[ ,cols], real.stats[-over25, cols])
-  pca.res <- prcomp (input[,cols[-1]],
-                     scale. = TRUE, center = TRUE)
-  pca.x <- as.data.frame(pca.res$x[!is.na (input$psi), ])
-  pca.x.real <- as.data.frame(pca.res$x[is.na (input$psi), ])
-  pca.rot <- as.data.frame (pca.res$rotation)
-  prop.var <- round (sapply (pca.res$sdev^2,
-                             function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
-  names (prop.var) <- colnames (pca.rot)
-  comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
-  for (comp in comparisons) {
-    psize <- 10
-    p <- ggplot (pca.x, aes_string (x = comp[1], y = comp[2])) +
-      geom_point (aes (colour = input$psi[!is.na (input$psi)]), size = psize) +
-      scale_colour_gradient2 (low = "red", high = "blue", name = expression(psi),
-                              guide = guide_legend(keywidth = 5, keyheight = 5)) +
-      geom_point (data = pca.x.real, colour = 'black', shape = 15, size = psize) +
-      xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
-      ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
-      theme_bw (base_size=48)
-    print (p)
-    rm (p)
-    plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
-         ylab = comp[2], cex = 0.5, pch = 19)
-    text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
-          rownames (pca.rot[comp[1]]), adj = 1)
-  }
-  closeDevices ()
-}
-
-
-## Run
-res.dir <- file.path ('results', name)
+## Input and generation
+res.dir <- file.path ('results', analysis.name)
 runlog <- file.path (res.dir, 'runlog.csv')
-cat ('\nReading in data ...')
 # get metadata
-metadata <- read.csv (runlog, stringsAsFactors = FALSE)
-# load pre-calculated natural tree stats
-filename <- paste0 ('min', pars$min.ntaxa, '_max', pars$max.ntaxa, '_latest', '.Rd')
-load (file.path (data.dir, filename))
-trees <- readTrees (metadata, res.dir, runlog)
-cat ('\nCalculating tree stats ...')
-stats <- calcTreeStats(trees)
-stats <- cbind (metadata, stats)
-cat ('\nCompare to real trees ...')
-res <- compare (stats, real.stats)
-cat ('\nPlotting ...')
-plotResults (res, stats, res.dir, metadata)
-pca (stats, real.stats)
+metadata <- read.csv (runlog, stringsAsFactors=FALSE)
+if (!file.exists (file.path (res.dir, 'stats.Rd'))) {
+  # get simulated trees and calc stats
+  trees <- readTrees (metadata, res.dir, runlog)
+  stats <- calcTreeStats(trees)
+  stats <- cbind (metadata, stats)
+  stats <- getScenarios(stats)
+  ed.values <- getEDs (trees, stats$scenario)
+  save (stats, ed.values, file=file.path (res.dir, 'stats.Rd'))
+} else {
+  load (file.path (res.dir, 'stats.Rd'))
+}
+# load pre-calculated empirical tree stats -- real.stats and real.ed.values
+load (file.path (data.dir, empirical.file))
+
+# Table 3
+# colless
+tapply (stats$colless, stats$scenario, mean, na.rm=TRUE)
+tapply (stats$colless, stats$scenario, sd, na.rm=TRUE)
+sapply (real.stats$colless, mean, na.rm=TRUE)
+sapply (real.stats$colless, sd, na.rm=TRUE)
+# sackin
+tapply (stats$sackin, stats$scenario, mean, na.rm=TRUE)
+tapply (stats$sackin, stats$scenario, sd, na.rm=TRUE)
+sapply (real.stats$sackin, mean, na.rm=TRUE)
+sapply (real.stats$sackin, sd, na.rm=TRUE)
+# gamma
+tapply (stats$gamma, stats$scenario, mean, na.rm=TRUE)
+tapply (stats$gamma, stats$scenario, sd, na.rm=TRUE)
+sapply (real.stats$gamma, mean, na.rm=TRUE)
+sapply (real.stats$gamma, sd, na.rm=TRUE)
+# PSV
+tapply (stats$psv, stats$scenario, mean, na.rm=TRUE)
+tapply (stats$psv, stats$scenario, sd, na.rm=TRUE)
+mean (real.stats$psv, na.rm=TRUE)
+sd (real.stats$psv, na.rm=TRUE)
+# age
+tapply (stats$age, stats$scenario, mean, na.rm=TRUE)
+tapply (stats$age, stats$scenario, sd, na.rm=TRUE)
+tapply (real$age, stats$ul, mean, na.rm=TRUE)
+tapply (stats$age, stats$ul, sd, na.rm=TRUE)
+
+## Figures
+# sanity check
+stat.names <- c ("colless", "sackin", "psv", "gamma",
+                 "age", "pd", 'ntaxa')
+pdf(file.path (res.dir, 'sanity_checks.pdf'))
+for (stat.name in stat.names) {
+  hist (stats[, stat.name], xlab=stat.name, main='Simulated')
+  hist (real.stats[, stat.name], xlab=stat.name, main='Empirical')
+}
+dev.off ()
+
+# figure 3 -- Z-scores for simulated trees
+# TODO -- use split screen
+pdf (file.path (res.dir, 'figure_3.pdf'), width=8)
+p <- tilePlot (stats, stats$colless, legend.title='Colless, Z-score')
+print (p)
+p <- tilePlot (stats, stats$sackin, legend.title='Sackin, Z-score')
+print (p)
+p <- tilePlot (stats, stats$gamma, legend.title='Gamma, Z-score')
+print (p)
+p <- tilePlot (stats, stats$psv, legend.title='PSV, Z-score')
+print (p)
+p <- tilePlot (stats, stats$age, legend.title='Age, Z-score')
+print (p)
+dev.off ()
+
+# figure 4 -- distances to real trees
+pdf (file.path (res.dir, 'figure_4.pdf'), width=8)
+distances <- abs (stats$colless - mean (real.stats$colless, na.rm=TRUE))
+p <- tilePlot (stats, distances, legend.title='Colless, Z-score')
+print (p)
+distances <- abs (stats$sackin - mean (real.stats$sackin, na.rm=TRUE))
+p <- tilePlot (stats, distances, legend.title='Sackin, Z-score')
+print (p)
+distances <- abs (stats$gamma - mean (real.stats$gamma, na.rm=TRUE))
+p <- tilePlot (stats, distances, legend.title='Gamma, Z-score')
+print (p)
+distances <- abs (stats$psv - mean (real.stats$psv, na.rm=TRUE))
+p <- tilePlot (stats, distances, legend.title='PSV, Z-score')
+print (p)
+dev.off ()
+
+# figure 5 -- correlation between sig and imbalance
+pdf (file.path (res.dir, 'figure_5.pdf'))
+p <- ggplot (stats, aes (x=sig, y=colless))
+p <- p + geom_point () + stat_smooth (method='lm') +
+  ylab ('Colless') + xlab (expression (sigma)) +
+  theme_bw ()
+print (p)
+p <- ggplot (stats, aes (x=sig, y=sackin))
+p <- p + geom_point () + stat_smooth (method='lm') +
+  ylab ('Sackin') + xlab (expression (sigma)) +
+  theme_bw ()
+dev.off ()
+
+# figure 6 -- ED distributions
+pdf (file.path (res.dir, 'figure_6.pdf'))
+#ed.data <- rbind (ed.values, real.ed.values)  # TODO
+ed.data <- ed.values
+# TODO -- plot each of the scenarios with real EDs
+p <- ggplot (ed.data, aes (x=ed.values, fill=groups))
+p <- p + geom_density (alpha=0.5) + xlab ('ED, Z-score') + theme_bw()
+print (p)
+dev.off ()
+
+# figure 7 -- PCA
+stat.names <- c ("colless", "sackin", "psv")
+pca (stats, real.stats, stat.names, 'figure7_withoutchronos.pdf',
+     ignore.chronos=TRUE)
+pca (stats, real.stats, stat.names, 'figure7_withchronos.pdf',
+     ignore.chronos=FALSE)
