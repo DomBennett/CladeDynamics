@@ -12,7 +12,7 @@ library (ggplot2)
 
 pca <- function (stats, real.stats, stat.names, filename,
                  ignore.chronos=TRUE) {
-  pdf (file.path (res.dir, filename), 24, 26)
+  pdf (file.path (res.dir, filename), width=9, height=7)
   # remove any that aren't ultrametric or rate.smooted
   if (ignore.chronos) {
     real.stats <- real.stats[real.stats$ultra, ]
@@ -32,15 +32,35 @@ pca <- function (stats, real.stats, stat.names, filename,
   prop.var <- round (sapply (pca.res$sdev^2,
                              function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
   names (prop.var) <- colnames (pca.rot)
+  # plot means
+  res <- data.frame (pca.res$x)
+  res$Scenario <- c (stats$scenario, rep ('Emprical', nrow (real.stats)))
+  res <- ddply (res, .variables=.(Scenario),
+                .fun=summarize, PC1.mean = mean (PC1, na.rm = TRUE),
+                PC1.se = sd (PC1, na.rm = TRUE) / sqrt (length (PC1)),
+                PC2.mean = mean (PC2, na.rm = TRUE),
+                PC2.se = sd (PC2, na.rm = TRUE) / sqrt (length (PC2)))
+  limitsx <- aes (colour = Scenario, xmax = PC1.mean + PC1.se,
+                 xmin = PC1.mean - PC1.se)
+  limitsy <- aes (colour = Scenario, ymax = PC2.mean + PC2.se,
+                  ymin = PC2.mean - PC2.se)
+  p <- ggplot (res, aes (x=PC1.mean, y=PC2.mean))
+  p <- p + geom_point (aes (colour=Scenario)) +
+    geom_errorbar(limitsy, width=0.2) +
+    geom_errorbarh(limitsx, width=0.2) +
+    xlab (paste0 ('PC1', " (", prop.var['PC1'], ")")) +
+    ylab (paste0 ('PC2', " (", prop.var['PC2'], ")")) +
+    theme_bw ()
+  print (p)
+  # plot all points
   comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
   for (comp in comparisons) {
-    psize <- 10
     p <- ggplot (pca.x, aes_string (x = comp[1], y = comp[2])) +
-      geom_point (aes (colour=Scenario), size=psize) +
-      geom_point (data = pca.x.real, colour = 'black', shape = 3, size = psize) +
+      geom_point (aes (colour=Scenario)) +
+      geom_point (data = pca.x.real, colour = 'black', shape = 3) +
       xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
       ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
-      theme_bw (base_size=48)
+      theme_bw ()
     print (p)
     rm (p)
     plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],

@@ -37,28 +37,28 @@ load (file.path (data.dir, empirical.file))
 # colless
 tapply (stats$colless, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$colless, stats$scenario, sd, na.rm=TRUE)
-sapply (real.stats$colless, mean, na.rm=TRUE)
-sapply (real.stats$colless, sd, na.rm=TRUE)
+mean (real.stats$colless, na.rm=TRUE)
+sd (real.stats$colless, na.rm=TRUE)
 # sackin
 tapply (stats$sackin, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$sackin, stats$scenario, sd, na.rm=TRUE)
-sapply (real.stats$sackin, mean, na.rm=TRUE)
-sapply (real.stats$sackin, sd, na.rm=TRUE)
+mean (real.stats$sackin, na.rm=TRUE)
+sd (real.stats$sackin, na.rm=TRUE)
 # gamma
 tapply (stats$gamma, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$gamma, stats$scenario, sd, na.rm=TRUE)
-sapply (real.stats$gamma, mean, na.rm=TRUE)
-sapply (real.stats$gamma, sd, na.rm=TRUE)
+mean (real.stats$gamma, na.rm=TRUE)
+sd (real.stats$gamma, na.rm=TRUE)
 # PSV
 tapply (stats$psv, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$psv, stats$scenario, sd, na.rm=TRUE)
-mean (real.stats$psv, na.rm=TRUE)
-sd (real.stats$psv, na.rm=TRUE)
+tapply (real.stats$psv, real.stats$ul, mean, na.rm=TRUE)
+tapply (real.stats$psv, real.stats$ul, sd, na.rm=TRUE)
 # age
 tapply (stats$age, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$age, stats$scenario, sd, na.rm=TRUE)
-tapply (real$age, stats$ul, mean, na.rm=TRUE)
-tapply (stats$age, stats$ul, sd, na.rm=TRUE)
+tapply (real.stats$age, real.stats$ul, mean, na.rm=TRUE)
+tapply (real.stats$age, real.stats$ul, sd, na.rm=TRUE)
 
 ## Figures
 # sanity check
@@ -72,7 +72,6 @@ for (stat.name in stat.names) {
 dev.off ()
 
 # figure 3 -- Z-scores for simulated trees
-# TODO -- use split screen
 pdf (file.path (res.dir, 'figure_3.pdf'), width=8)
 p <- tilePlot (stats, stats$colless, legend.title='Colless, Z-score')
 print (p)
@@ -113,10 +112,25 @@ p <- ggplot (stats, aes (x=sig, y=sackin))
 p <- p + geom_point () + stat_smooth (method='lm') +
   ylab ('Sackin') + xlab (expression (sigma)) +
   theme_bw ()
+print (p)
 dev.off ()
 
-# figure 6 -- ED distributions
+# figure 6 -- correlation between eps and loading for simulations of negative sig
 pdf (file.path (res.dir, 'figure_6.pdf'))
+p <- ggplot (stats[stats$sig < 0, ], aes (x=eps, y=psv))
+p <- p + geom_point () + stat_smooth (method='lm') +
+  ylab ('PSV') + xlab (expression (epsilon)) +
+  theme_bw ()
+print (p)
+p <- ggplot (stats[stats$sig < 0, ], aes (x=eps, y=gamma))
+p <- p + geom_point () + stat_smooth (method='lm') +
+  ylab (expression (gamma)) + xlab (expression (epsilon)) +
+  theme_bw ()
+print (p)
+dev.off ()
+
+# figure 7 -- ED distributions
+pdf (file.path (res.dir, 'figure_7.pdf'))
 #ed.data <- rbind (ed.values, real.ed.values)  # TODO
 ed.data <- ed.values
 # TODO -- plot each of the scenarios with real EDs
@@ -125,9 +139,9 @@ p <- p + geom_density (alpha=0.5) + xlab ('ED, Z-score') + theme_bw()
 print (p)
 dev.off ()
 
-# figure 7 -- PCA
+# figure 8 -- PCA
 stat.names <- c ("colless", "sackin", "psv")
-pca (stats, real.stats, stat.names, 'figure7_withoutchronos.pdf',
+pca (stats, real.stats, stat.names, 'figure8_withoutchronos.pdf',
      ignore.chronos=TRUE)
-pca (stats, real.stats, stat.names, 'figure7_withchronos.pdf',
+pca (stats, real.stats, stat.names, 'figure8_withchronos.pdf',
      ignore.chronos=FALSE)
