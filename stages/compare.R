@@ -5,6 +5,7 @@
 ## Libraries
 source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'misc_tools.R'))
+library (outliers)
 
 ## Dirs
 data.dir <- file.path ('data', 'treestats')
@@ -33,6 +34,30 @@ if (!file.exists (file.path (res.dir, 'stats.Rd'))) {
 # load pre-calculated empirical tree stats -- real.stats and real.ed.values
 load (file.path (data.dir, empirical.file))
 
+# Do chronos UL and non-chrons UL trees differ in gamma?
+# Do we have any outliers?
+grubbs.test (real.stats$gamma[!is.na (real.stats$gamma)])  # yes ...
+# identify 95% cutoff and remove loading stats
+cutoff <- quantile (real.stats$gamma[!is.na (real.stats$gamma)], probs = c (0.95))
+real.stats$psv[real.stats$gamma >= cutoff] <- NA
+real.stats$gamma[real.stats$gamma >= cutoff] <- NA
+
+# Quick stats
+# how many polys?
+sum (real.stats$poly) *100 /nrow(real.stats)
+# how many with bls?
+sum (real.stats$bl) *100 /nrow(real.stats)
+# when were they published?
+mean (real.stats$date)
+sd (real.stats$date)
+# how many tips?
+mean (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+sd (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+# is there a difference betwee our ultrametric trees and published ones?
+x <- real.stats$gamma[real.stats$ul]
+y <- real.stats$gamma[!real.stats$ul]
+t.test (x, y)
+
 # Table 3
 # colless
 tapply (stats$colless, stats$scenario, mean, na.rm=TRUE)
@@ -47,6 +72,8 @@ sd (real.stats$sackin, na.rm=TRUE)
 # gamma
 tapply (stats$gamma, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$gamma, stats$scenario, sd, na.rm=TRUE)
+tapply (real.stats$gamma, real.stats$ul, mean, na.rm=TRUE)
+tapply (real.stats$gamma, real.stats$ul, sd, na.rm=TRUE)
 mean (real.stats$gamma, na.rm=TRUE)
 sd (real.stats$gamma, na.rm=TRUE)
 # PSV
@@ -54,6 +81,8 @@ tapply (stats$psv, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$psv, stats$scenario, sd, na.rm=TRUE)
 tapply (real.stats$psv, real.stats$ul, mean, na.rm=TRUE)
 tapply (real.stats$psv, real.stats$ul, sd, na.rm=TRUE)
+mean (real.stats$psv, na.rm=TRUE)
+sd (real.stats$psv, na.rm=TRUE)
 # age
 tapply (stats$age, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$age, stats$scenario, sd, na.rm=TRUE)
@@ -103,11 +132,13 @@ dev.off ()
 
 # figure 5 -- correlation between sig and imbalance
 pdf (file.path (res.dir, 'figure_5.pdf'))
+cor (stats$colless, stats$sig)
 p <- ggplot (stats, aes (x=sig, y=colless))
 p <- p + geom_point () + stat_smooth (method='lm') +
   ylab ('Colless') + xlab (expression (sigma)) +
   theme_bw ()
 print (p)
+cor (stats$sackin, stats$sig)
 p <- ggplot (stats, aes (x=sig, y=sackin))
 p <- p + geom_point () + stat_smooth (method='lm') +
   ylab ('Sackin') + xlab (expression (sigma)) +
@@ -117,11 +148,13 @@ dev.off ()
 
 # figure 6 -- correlation between eps and loading for simulations of negative sig
 pdf (file.path (res.dir, 'figure_6.pdf'))
+cor (stats$psv[stats$sig < 0], stats$eps[stats$sig < 0])
 p <- ggplot (stats[stats$sig < 0, ], aes (x=eps, y=psv))
 p <- p + geom_point () + stat_smooth (method='lm') +
   ylab ('PSV') + xlab (expression (epsilon)) +
   theme_bw ()
 print (p)
+cor (stats$gamma[stats$sig < 0], stats$eps[stats$sig < 0])
 p <- ggplot (stats[stats$sig < 0, ], aes (x=eps, y=gamma))
 p <- p + geom_point () + stat_smooth (method='lm') +
   ylab (expression (gamma)) + xlab (expression (epsilon)) +

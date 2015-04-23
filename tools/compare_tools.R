@@ -19,6 +19,7 @@ pca <- function (stats, real.stats, stat.names, filename,
   } else {
     real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
   }
+  real.stats <- real.stats[!is.na (real.stats$gamma), ]
   real.stats$sig <- NA
   real.stats$eps <- NA
   cols <- c ('sig', 'eps', stat.names)
