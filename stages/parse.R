@@ -135,7 +135,7 @@ for (i in 1:length (tree.files)) {
   # if not ultrametric make it (if I can)
   if (use.chronos && bl.bool && !ultra.bool) {
     cat ('\n.... using chronos')
-    tree <- safeChronos (tree, lambda = 1, quiet = TRUE)
+    tree <- safeChronos (tree)
     if (is.ultrametric (tree)) {
       class (tree) <- 'phylo'
       tempinfo['chronos'] <- TRUE
