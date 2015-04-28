@@ -22,6 +22,7 @@ if (!file.exists (output.dir)) {
 ## Input
 treeinfo.master <- read.csv (file.path (input.dir,
                                         'treeinfo.csv'))
+treeinfo.master <- treeinfo.master[1:10, ]
 treeinfo <- data.frame ()
 trees <- list ()
 study.names <- NULL
@@ -50,23 +51,25 @@ names (trees) <- study.names
 
 ## Calculate
 counter <- 0
-colless <- sackin <- psv <- gamma <- age <- pd <- NULL
+colless <- sackin <- psv <- gamma <- age <- pd <- rep (NA, length (trees))
 cat ('\nCalculating tree stats for sets of trees ....')
-for (set in trees) {
-  cat (paste0 ('\n.... working on set [', counter + 1,
+for (i in 1:length (trees)) {
+  set <- trees[[i]]
+  cat (paste0 ('\n.... working on set [', i,
                '/', length (trees),']'))
   stats <- try (expr= {calcTreeStats (set)}, silent = TRUE)
   if (class (stats) == 'try-error') {
-    cat (paste0 ('\n.... skipping [', counter+1, '] the following error was encountered:\n', attr(stats, 'condition')))
+    cat (paste0 ('\n.... skipping [', counter+1, '] the following error was encountered:\n',
+                 attr(stats, 'condition')))
     next
   }
   # extract mean stats of the set
-  colless <- c (colless, mean (stats[ ,'colless'], na.rm = TRUE))
-  sackin <- c (sackin, mean (stats[ ,'sackin'], na.rm = TRUE))
-  psv <- c (psv, mean (stats[ ,'psv'], na.rm = TRUE))
-  gamma <- c (gamma, mean (stats[ ,'gamma'], na.rm = TRUE))
-  age <- c (age, mean (stats[ ,'age'], na.rm = TRUE))
-  pd <- c (pd, mean (stats[ ,'pd'], na.rm = TRUE))
+  colless[i] <- mean (stats[ ,'colless'], na.rm = TRUE)
+  sackin[i] <- mean (stats[ ,'sackin'], na.rm = TRUE)
+  psv[i] <- mean (stats[ ,'psv'], na.rm = TRUE)
+  gamma[i] <- mean (stats[ ,'gamma'], na.rm = TRUE)
+  age[i] <- mean (stats[ ,'age'], na.rm = TRUE)
+  pd[i] <- mean (stats[ ,'pd'], na.rm = TRUE)
   counter <- counter + 1
 }
 real.stats <- data.frame (colless, sackin, psv, gamma, age, pd)
