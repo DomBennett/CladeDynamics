@@ -11,7 +11,7 @@ library (outliers)
 data.dir <- file.path ('data', 'treestats')
 
 ## Parameters
-analysis.name <- 'analysis_4'
+analysis.name <- 'analysis_5'
 data.dir <- file.path ('data', 'treestats')
 empirical.file <- 'min50_max500.Rd'
 
@@ -41,6 +41,9 @@ grubbs.test (real.stats$gamma[!is.na (real.stats$gamma)])  # yes ...
 cutoff <- quantile (real.stats$gamma[!is.na (real.stats$gamma)], probs = c (0.95))
 real.stats$psv[real.stats$gamma >= cutoff] <- NA
 real.stats$gamma[real.stats$gamma >= cutoff] <- NA
+cutoff <- quantile (real.stats$gamma[!is.na (real.stats$gamma)], probs = c (0.05))
+real.stats$psv[real.stats$gamma <= cutoff] <- NA
+real.stats$gamma[real.stats$gamma <= cutoff] <- NA
 
 # Quick stats
 # how many polys?
@@ -174,7 +177,14 @@ dev.off ()
 
 # figure 8 -- PCA
 stat.names <- c ("colless", "sackin", "psv")
-pca (stats, real.stats, stat.names, 'figure8_withoutchronos.pdf',
+filtered <- filter (stats, grain=0.1)
+#TODO: handle real stats with psvs over 1,
+# TODO: find a better way of measuring the variance
+pca (filtered, real.stats, stat.names, 'figure8_withoutchronos.pdf',
      ignore.chronos=TRUE)
-pca (stats, real.stats, stat.names, 'figure8_withchronos.pdf',
+pca (filtered, real.stats[real.stats$psv < 1, ], stat.names, 'figure8_withchronos.pdf',
+     ignore.chronos=FALSE)
+pca2 (stats, real.stats, stat.names, 'figure8_grains_withoutchronos.pdf',
+     ignore.chronos=TRUE)
+pca2 (stats, real.stats[real.stats$psv < 1, ], stat.names, 'figure8_grains_withchronos.pdf',
      ignore.chronos=FALSE)

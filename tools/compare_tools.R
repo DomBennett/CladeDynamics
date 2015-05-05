@@ -10,6 +10,98 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
+pca2 <- function (stats, real.stats, stat.names, filename,
+                 ignore.chronos=TRUE) {
+  addDistances <- function (pc.sim) {
+    getDist <- function (exp.sig, exp.eps) {
+      abs (pc.sim$sig - exp.sig) + abs (pc.sim$eps - exp.eps)
+    }
+    # panchronic
+    pc.sim$Pan.dist <- getDist(exp.sig=-1, exp.eps=-1)
+    # dead-end
+    pc.sim$DE.dist <- getDist(exp.sig=-1, exp.eps=1)
+    # ephemeral
+    pc.sim$Eph.dist <- getDist(exp.sig=1, exp.eps=1)
+    # fuse
+    pc.sim$PF.dist <- getDist(exp.sig=1, exp.eps=-1)
+    pc.sim
+  }
+  getGrains <- function (stats, distances, grain=0.1) {
+    # create d frame from stats
+    d <- data.frame (eps=stats$eps, sig=stats$sig, d=distances)
+    # create grains containing coords for each tile
+    ps <- seq (-1 + grain, 1, grain)
+    grains <- expand.grid (eps=ps, sig=ps)
+    # fille tiles with mean value
+    for (i in 1:nrow (grains)) {
+      higher.eps <- grains[i, 'eps']
+      lower.eps <- grains[i, 'eps'] - grain
+      eps.pull <- d$eps > lower.eps & d$eps < higher.eps
+      higher.sig <- grains[i, 'sig']
+      lower.sig <- grains[i, 'sig'] - grain
+      sig.pull <- d$sig > lower.sig & d$sig < higher.sig
+      grains[i, 'mean'] <- mean (d$d[eps.pull & sig.pull])
+      grains[i, 'se'] <- sd (d$d[eps.pull & sig.pull], na.rm = TRUE) /
+        sqrt (length (d$d[eps.pull & sig.pull]))
+    }
+    return (grains)
+  }
+  pdf (file.path (res.dir, filename), width=9, height=7)
+  # remove any that aren't ultrametric or rate.smooted
+  if (ignore.chronos) {
+    real.stats <- real.stats[real.stats$ultra, ]
+  } else {
+    real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
+  }
+  # do PCA
+  real.stats <- real.stats[!is.na (real.stats$gamma), ]
+  real.stats$sig <- NA
+  real.stats$eps <- NA
+  cols <- c ('sig', 'eps', stat.names)
+  input <- rbind (stats[ ,cols], real.stats[, cols])
+  pca.res <- prcomp (input[,cols[-c(1,2)]],
+                     scale. = TRUE, center = TRUE)
+  pca.x.sim <- as.data.frame(pca.res$x[!is.na (input$eps), ])
+  pca.x.real <- as.data.frame(pca.res$x[is.na (input$eps), ])
+  pca.rot <- as.data.frame (pca.res$rotation)
+  prop.var <- round (sapply (pca.res$sdev^2,
+                             function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
+  names (prop.var) <- colnames (pca.rot)
+  # get grains
+  pc1.sim <- getGrains (stats, pca.x.sim$PC1, grain=0.1)
+  pc2.sim <- getGrains (stats, pca.x.sim$PC2, grain=0.1)
+  pc.sim <- data.frame (eps=pc1.sim$eps, sig=pc1.sim$sig,
+                        pc1.mean=pc1.sim$mean, pc1.se=pc1.sim$se,
+                        pc2.mean=pc2.sim$mean, pc2.se=pc2.sim$se)
+  # add real stats
+  pc.real <- data.frame (pc1.mean = mean (pca.x.real$PC1),
+                         pc2.mean = mean (pca.x.real$PC2),
+                         pc1.se = sd (pca.x.real$PC1) /
+                           sqrt (length (pca.x.real$PC1)),
+                         pc2.se = sd (pca.x.real$PC2) /
+                           sqrt (length (pca.x.real$PC2)),
+                         Pan.dist=NA, Eph.dist=NA, PF.dist=NA,
+                         DE.dist=NA, eps=NA, sig=NA)
+  pc.sim <- addDistances(pc.sim)
+  res <- rbind (pc.sim, pc.real)
+  limitsx <- aes (xmax = pc1.mean + pc1.se,
+                  xmin = pc1.mean - pc1.se)
+  limitsy <- aes (ymax = pc2.mean + pc2.se,
+                  ymin = pc2.mean - pc2.se)
+  for (e in c ('Pan.dist', 'Eph.dist', 'PF.dist', 'DE.dist')) {
+    p <- ggplot (res, aes_string (x='pc1.mean', y='pc2.mean', colour=e))
+    p <- p + geom_point () +
+      geom_errorbar(limitsy, width=0.2) +
+      geom_errorbarh(limitsx, width=0.2) +
+      scale_colour_gradient2 (mid='red', high='blue', na.value='black') +
+      xlab (paste0 ('Imbalance - PC1', " (", prop.var['PC1']*100, "%)")) +
+      ylab (paste0 ('Loading - PC2', " (", prop.var['PC2']*100, "%)")) +
+      theme_bw ()
+    print (p)
+  }
+  closeDevices ()
+}
+
 pca <- function (stats, real.stats, stat.names, filename,
                  ignore.chronos=TRUE) {
   pdf (file.path (res.dir, filename), width=9, height=7)
@@ -49,8 +141,8 @@ pca <- function (stats, real.stats, stat.names, filename,
   p <- p + geom_point (aes (colour=Scenario)) +
     geom_errorbar(limitsy, width=0.2) +
     geom_errorbarh(limitsx, width=0.2) +
-    xlab (paste0 ('PC1', " (", prop.var['PC1'], ")")) +
-    ylab (paste0 ('PC2', " (", prop.var['PC2'], ")")) +
+    xlab (paste0 ('Imbalance - PC1', " (", prop.var['PC1']*100, "%)")) +
+    ylab (paste0 ('Loading - PC2', " (", prop.var['PC2']*100, "%)")) +
     theme_bw ()
   print (p)
   # plot all points
@@ -125,6 +217,64 @@ getScenarios <- function (stats) {
       stats$scenario[i] <- 'DE'
     } else {
       stats$scenario[i] <- 'Pan'
+    }
+  }
+  return(stats)
+}
+
+filter <- function (stats, grain=0.1) {
+  max <- 1 - grain
+  drop <- NULL
+  for (i in 1:nrow (stats)) {
+    if (abs (stats$eps[i]) < max | abs (stats$sig[i]) < max) {
+      drop <- c (drop, i)
+    }
+  }
+  return(stats[-drop, ])
+}
+
+sexdectants <- function (stats) {
+  check <- function (min.eps, max.eps, min.sig, max.sig) {
+    eps.bool <- stats$eps[i] >= min.eps & stats$eps[i] <= max.eps
+    sig.bool <- stats$sig[i] >= min.sig & stats$sig[i] <= max.sig
+    return (eps.bool & sig.bool)
+  }
+  stats$sexdectant <- NA
+  for (i in 1:nrow (stats)) {
+    if (check (min.eps=0, max.eps=0.5, min.sig=0, max.sig=0.5)) {
+      stats$sexdectant[i] <- 'Eph00'
+    } else if (check (min.eps=0, max.eps=0.5, min.sig=0.5, max.sig=1)) {
+      stats$sexdectant[i] <- 'Eph01'
+    } else if (check (min.eps=0.5, max.eps=1, min.sig=0, max.sig=0.5)) {
+      stats$sexdectant[i] <- 'Eph10'
+    } else if (check (min.eps=0.5, max.eps=1, min.sig=0.5, max.sig=1)) {
+      stats$sexdectant[i] <- 'Eph11'
+    } else if (check (min.eps=0, max.eps=0.5, min.sig=-1, max.sig=-0.5)) {
+      stats$sexdectant[i] <- 'DE00'
+    } else if (check (min.eps=0, max.eps=0.5, min.sig=-0.5, max.sig=0)) {
+      stats$sexdectant[i] <- 'DE01'
+    } else if (check (min.eps=0.5, max.eps=1, min.sig=-1, max.sig=-0.5)) {
+      stats$sexdectant[i] <- 'DE10'
+    } else if (check (min.eps=0.5, max.eps=1, min.sig=-0.5, max.sig=0)) {
+      stats$sexdectant[i] <- 'DE11'
+    } else if (check (min.eps=-1, max.eps=-0.5, min.sig=0, max.sig=0.5)) {
+      stats$sexdectant[i] <- 'PF00'
+    } else if (check (min.eps=-1, max.eps=-0.5, min.sig=0.5, max.sig=1)) {
+      stats$sexdectant[i] <- 'PF01'
+    } else if (check (min.eps=-0.5, max.eps=0, min.sig=0, max.sig=0.5)) {
+      stats$sexdectant[i] <- 'PF10'
+    } else if (check (min.eps=-0.5, max.eps=0, min.sig=0.5, max.sig=1)) {
+      stats$sexdectant[i] <- 'PF11'
+    } else if (check (min.eps=-1, max.eps=-0.5, min.sig=-1, max.sig=-0.5)) {
+      stats$sexdectant[i] <- 'Pan00'
+    } else if (check (min.eps=-1, max.eps=-0.5, min.sig=-0.5, max.sig=0)) {
+      stats$sexdectant[i] <- 'Pan01'
+    } else if (check (min.eps=-0.5, max.eps=0, min.sig=-1, max.sig=-0.5)) {
+      stats$sexdectant[i] <- 'Pan10'
+    } else if (check (min.eps=-0.5, max.eps=0, min.sig=-0.5, max.sig=0)) {
+      stats$sexdectant[i] <- 'Pan11'
+    } else {
+      warning ('Eps and Sig values out of expected range, NAs produced.')
     }
   }
   return(stats)
