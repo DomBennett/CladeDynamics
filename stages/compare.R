@@ -12,36 +12,26 @@ data.dir <- file.path ('data', 'treestats')
 
 ## Parameters
 analysis.name <- 'analysis_5'
+res.dir <- file.path ('results', analysis.name)
 data.dir <- file.path ('data', 'treestats')
 empirical.file <- 'min50_max500.Rd'
 
 ## Input and generation
-res.dir <- file.path ('results', analysis.name)
-runlog <- file.path (res.dir, 'runlog.csv')
-# get metadata
-metadata <- read.csv (runlog, stringsAsFactors=FALSE)
-if (!file.exists (file.path (res.dir, 'stats.Rd'))) {
-  # get simulated trees and calc stats
-  trees <- readTrees (metadata, res.dir, runlog)
-  stats <- calcTreeStats(trees)
-  stats <- cbind (metadata, stats)
-  stats <- getScenarios(stats)
-  ed.values <- getEDs (trees, stats$scenario)
-  save (stats, ed.values, file=file.path (res.dir, 'stats.Rd'))
-} else {
-  load (file.path (res.dir, 'stats.Rd'))
-}
+stats <- readIn (analysis.name)
 # load pre-calculated empirical tree stats -- real.stats and real.ed.values
 load (file.path (data.dir, empirical.file))
+
+# remove any funny results
+real.stats$psv[real.stats$psv > 1] <- NA
 
 # Do chronos UL and non-chrons UL trees differ in gamma?
 # Do we have any outliers?
 grubbs.test (real.stats$gamma[!is.na (real.stats$gamma)])  # yes ...
 # identify 95% cutoff and remove loading stats
-cutoff <- quantile (real.stats$gamma[!is.na (real.stats$gamma)], probs = c (0.95))
+cutoff <- quantile (real.stats$gamma[!is.na (real.stats$gamma)], probs = c (0.975))
 real.stats$psv[real.stats$gamma >= cutoff] <- NA
 real.stats$gamma[real.stats$gamma >= cutoff] <- NA
-cutoff <- quantile (real.stats$gamma[!is.na (real.stats$gamma)], probs = c (0.05))
+cutoff <- quantile (real.stats$gamma[!is.na (real.stats$gamma)], probs = c (0.025))
 real.stats$psv[real.stats$gamma <= cutoff] <- NA
 real.stats$gamma[real.stats$gamma <= cutoff] <- NA
 
@@ -178,13 +168,22 @@ dev.off ()
 # figure 8 -- PCA
 stat.names <- c ("colless", "sackin", "psv")
 filtered <- filter (stats, grain=0.1)
-#TODO: handle real stats with psvs over 1,
-# TODO: find a better way of measuring the variance
 pca (filtered, real.stats, stat.names, 'figure8_withoutchronos.pdf',
      ignore.chronos=TRUE)
-pca (filtered, real.stats[real.stats$psv < 1, ], stat.names, 'figure8_withchronos.pdf',
+pca (filtered, real.stats, stat.names, 'figure8_withchronos.pdf',
      ignore.chronos=FALSE)
 pca2 (stats, real.stats, stat.names, 'figure8_grains_withoutchronos.pdf',
      ignore.chronos=TRUE)
-pca2 (stats, real.stats[real.stats$psv < 1, ], stat.names, 'figure8_grains_withchronos.pdf',
+pca2 (stats, real.stats, stat.names, 'figure8_grains_withchronos.pdf',
      ignore.chronos=FALSE)
+
+# figure 9 -- looking at PCA of extreme scenarios only
+extreme <- rbind (readIn ('Pan'), readIn ('Eph'),
+                  readIn ('DE'), readIn ('PF'))
+pca (extreme, real.stats, stat.names, 'figure9_withoutchronos.pdf',
+     ignore.chronos=TRUE)
+pca (extreme, real.stats, stat.names, 'figure9_withchronos.pdf',
+     ignore.chronos=FALSE)
+
+# Table 3. test what proportion overlaps with real
+extreme$psv

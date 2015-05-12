@@ -10,6 +10,25 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
+readIn <- function (analysis.name) {
+  res.dir <- file.path ('results', analysis.name)
+  runlog <- file.path (res.dir, 'runlog.csv')
+  # get metadata
+  metadata <- read.csv (runlog, stringsAsFactors=FALSE)
+  if (!file.exists (file.path (res.dir, 'stats.Rd'))) {
+    # get simulated trees and calc stats
+    trees <- readTrees (metadata, res.dir, runlog)
+    stats <- calcTreeStats(trees)
+    stats <- cbind (metadata, stats)
+    stats <- getScenarios(stats)
+    ed.values <- getEDs (trees, stats$scenario)
+    save (stats, ed.values, file=file.path (res.dir, 'stats.Rd'))
+  } else {
+    load (file.path (res.dir, 'stats.Rd'))
+  }
+  return (stats)
+}
+
 pca2 <- function (stats, real.stats, stat.names, filename,
                  ignore.chronos=TRUE) {
   addDistances <- function (pc.sim) {
