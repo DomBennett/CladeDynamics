@@ -24,16 +24,31 @@ cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 library (plyr)
 
 ## Analysis parameter declarations
-analysis.4 <- list (n.model = 1000, seed = 2,
-                    max.birth = 2, min.birth = 2,
-                    max.death = 1, min.death = 1,
-                    bias = 'FP', stop.by = 'n',
-                    max.ntaxa = 500, min.ntaxa = 50,
-                    min.sig = -1, max.sig = 1,
-                    min.eps = -1, max.eps = 1,
-                    reference = TRUE,
-                    iterations = 100)
-analysis.parameters <- list (analysis_4 = analysis.4)
+pan <- list (n.model = 1000, seed = 2,
+            max.birth = 2, min.birth = 2,
+            max.death = 1, min.death = 1,
+            bias = 'FP', stop.by = 'n',
+            max.ntaxa = 500, min.ntaxa = 50,
+            min.sig = -1, max.sig = -1,
+            min.eps = -1, max.eps = -1,
+            reference = TRUE,
+            iterations = 100)
+pf <- pan  # four separate runs for the different scenarios
+pf$min.sig <- 1
+pf$max.sig <- 1
+pf$min.eps <- -1
+pf$max.eps <- -1
+de <- pan
+de$min.sig <- -1
+de$max.sig <- -1
+de$min.eps <- 1
+de$max.eps <- 1
+eph <- pan
+eph$min.sig <- 1
+eph$max.sig <- 1
+eph$min.eps <- 1
+eph$max.eps <- 1
+analysis.parameters <- list (pan=pan, pf=pf, de=de, eph=eph)
 # if there isn't a results folder, create one
 if (!file.exists ('results')) {
   dir.create ('results')
