@@ -21,8 +21,26 @@ stats <- readIn (analysis.name)
 # load pre-calculated empirical tree stats -- real.stats and real.ed.values
 load (file.path (data.dir, empirical.file))
 
-# remove any funny results
-real.stats$psv[real.stats$psv > 1] <- NA
+# Quick stats
+# how many polys?
+sum (real.stats$poly) *100 /nrow(real.stats)
+# how many with bls?
+sum (real.stats$bl) *100 /nrow(real.stats)
+# when were they published?
+mean (real.stats$date)
+sd (real.stats$date)
+# how many tips?
+mean (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+sd (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+# how many are ultrametric?
+sum (real.stats$ul) * 100 / nrow (real.stats)
+# how many were made ultrametric?
+sum (real.stats$chronos) * 100 / nrow (real.stats)
+
+# remove branch results where psv is greater than 1 -- this is impossible!
+pull <- real.stats$psv > 1
+real.stats$psv[pull] <- NA
+real.stats$gamma[pull] <- NA
 
 # Do chronos UL and non-chrons UL trees differ in gamma?
 # Do we have any outliers?
@@ -35,20 +53,13 @@ cutoff <- quantile (real.stats$gamma[!is.na (real.stats$gamma)], probs = c (0.02
 real.stats$psv[real.stats$gamma <= cutoff] <- NA
 real.stats$gamma[real.stats$gamma <= cutoff] <- NA
 
-# Quick stats
-# how many polys?
-sum (real.stats$poly) *100 /nrow(real.stats)
-# how many with bls?
-sum (real.stats$bl) *100 /nrow(real.stats)
-# when were they published?
-mean (real.stats$date)
-sd (real.stats$date)
-# how many tips?
-mean (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
-sd (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+
 # is there a difference betwee our ultrametric trees and published ones?
 x <- real.stats$gamma[real.stats$ul]
 y <- real.stats$gamma[!real.stats$ul]
+t.test (x, y)
+x <- real.stats$psv[real.stats$ul]
+y <- real.stats$psv[!real.stats$ul]
 t.test (x, y)
 
 # Table 3
@@ -178,6 +189,7 @@ pca2 (stats, real.stats, stat.names, 'figure8_grains_withchronos.pdf',
      ignore.chronos=FALSE)
 
 # figure 9 -- looking at PCA of extreme scenarios only
+stat.names <- c ("colless", "sackin", "psv")
 extreme <- rbind (readIn ('Pan'), readIn ('Eph'),
                   readIn ('DE'), readIn ('PF'))
 pca (extreme, real.stats, stat.names, 'figure9_withoutchronos.pdf',
