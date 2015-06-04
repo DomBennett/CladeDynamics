@@ -114,7 +114,7 @@ pca2 <- function (stats, real.stats, stat.names, filename,
       geom_errorbarh(limitsx, width=0.2) +
       scale_colour_gradient2 (mid='red', high='blue', na.value='black') +
       xlab (paste0 ('Imbalance - PC1', " (", prop.var['PC1']*100, "%)")) +
-      ylab (paste0 ('Loading - PC2', " (", prop.var['PC2']*100, "%)")) +
+      ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
       theme_bw ()
     print (p)
   }
@@ -131,6 +131,8 @@ pca <- function (stats, real.stats, stat.names, filename,
     real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
   }
   real.stats <- real.stats[!is.na (real.stats$gamma), ]
+  real.stats <- real.stats[!is.na (real.stats$psv), ]
+  print (nrow (real.stats))
   real.stats$sig <- NA
   real.stats$eps <- NA
   cols <- c ('sig', 'eps', stat.names)
@@ -161,7 +163,7 @@ pca <- function (stats, real.stats, stat.names, filename,
     geom_errorbar(limitsy, width=0.2) +
     geom_errorbarh(limitsx, width=0.2) +
     xlab (paste0 ('Imbalance - PC1', " (", prop.var['PC1']*100, "%)")) +
-    ylab (paste0 ('Loading - PC2', " (", prop.var['PC2']*100, "%)")) +
+    ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
     theme_bw ()
   print (p)
   # plot all points
