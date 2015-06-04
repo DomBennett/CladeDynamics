@@ -64,12 +64,16 @@ for (i in 1:length (tiplabels)) {
     names <- sample (names, 100)
   }
   res <- taxaResolve (names)  # resolve names
-  phyla <- getRank (res, 'phylum')
-  phylum <- getMostCommon (phyla)  # get most common name
-  classes <- getRank (res, 'class')
-  class <- getMostCommon (classes)
-  orders <- getRank (res, 'order')
-  order <- getMostCommon (orders)
+  if (!all (is.na (res$name.string))) {
+    phyla <- getRank (res, 'phylum')
+    phylum <- getMostCommon (phyla)  # get most common name
+    classes <- getRank (res, 'class')
+    class <- getMostCommon (classes)
+    orders <- getRank (res, 'order')
+    order <- getMostCommon (orders)
+  } else {
+    phylum <- class <- order <- NA
+  }
   row.element <- data.frame (treefile=treefiles[i], phylum=phylum,
                              class=class, order=order)
   taxoinfo <- rbind (taxoinfo, row.element)
