@@ -52,6 +52,11 @@ for (i in 1:length (treefiles)) {
 }
 cat ('\nDone.')
 
+# COUNT NAMES
+all.names <- unlist (tiplabels)
+all.names <- unique (all.names)
+cat ('\n[', length (all.names), '] unique names.', sep='')
+
 # RESOLVE NAMES
 cat ('\nResolving ....')
 taxoinfo <- data.frame (treefile=NA, phylum=NA, class=NA,
