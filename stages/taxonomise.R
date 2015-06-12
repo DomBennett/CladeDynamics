@@ -25,7 +25,7 @@ getRank <- function (taxa.res, rank) {
 }
 
 getMostCommon <- function (line.rank) {
-  line.rank <- names (sort (table (line.rank)))[1]
+  line.rank <- names (sort (table (line.rank), TRUE))[1]
   if (is.null (line.rank)) {
     return (NA)
   }
@@ -83,6 +83,7 @@ for (i in 1:length (tiplabels)) {
                              class=class, order=order)
   taxoinfo <- rbind (taxoinfo, row.element)
 }
+taxoinfo <- taxoinfo[-1, ]
 cat ('\nDone.')
 
 # OUTPUT
