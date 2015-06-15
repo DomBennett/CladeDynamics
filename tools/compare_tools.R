@@ -10,6 +10,44 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
+getErr <- function (values) {
+  # return 95% confidence error
+  qnorm(0.975,df=length(values)-1)*sd(values)/sqrt(length(values))
+}
+
+dropOutliers <- function (stats, stat.name, signif=0.1^10) {
+  # Use Grubb's test to identify outlier and remove them
+  counter <- 0
+  while (TRUE) {
+    # do we have any outliers?
+    test.res <- grubbs.test (stats[!is.na (stats[ ,stat.name]), stat.name])
+    if (test.res$p.value < signif) {
+      # identify value furtheest from the mean and make NA
+      diff.to.mean <- abs (mean (stats[ ,stat.name], na.rm=TRUE) - stats[ ,stat.name])
+      max.diff <- which (max (diff.to.mean, na.rm=TRUE) == diff.to.mean)
+      stats[max.diff,stat.name] <- NA
+      counter <- counter + 1
+    } else {
+      # otherwise break out
+      break
+    }
+  }
+  cat ('\nDropped [', counter, ']', sep='')
+  return(stats)
+}
+
+ggBoxplot <- function (plot.data, group, dist.metric, ylab, min.trees=20) {
+  instances <- table (plot.data[ ,group])
+  common.names <- names (instances[instances > min.trees])
+  common <- plot.data[plot.data[, group] %in% common.names, ]
+  p <- ggplot (common, aes_string (group, dist.metric))
+  p <- p + geom_boxplot (aes_string (fill = group)) +
+    ylab (ylab) + theme_bw () +
+    theme (axis.text.x = element_blank(), axis.title.x = element_blank(),
+           text=element_text(size=25), legend.title=element_blank())
+  print (p)
+}
+
 readIn <- function (analysis.name) {
   res.dir <- file.path ('results', analysis.name)
   runlog <- file.path (res.dir, 'runlog.csv')
@@ -35,14 +73,27 @@ pca2 <- function (stats, real.stats, stat.names, filename,
     getDist <- function (exp.sig, exp.eps) {
       abs (pc.sim$sig - exp.sig) + abs (pc.sim$eps - exp.eps)
     }
+    getScenario <- function (dist, name) {
+      for (i in 1:nrow (pc.sim)) {
+        if (pc.sim[i, dist] < 1) {
+          pc.sim$scenario[i] <- name
+        }
+      }
+      pc.sim
+    }
+    pc.sim$scenario <- NA
     # panchronic
     pc.sim$Pan.dist <- getDist(exp.sig=-1, exp.eps=-1)
+    pc.sim <- getScenario ('Pan.dist', 'Pan')
     # dead-end
     pc.sim$DE.dist <- getDist(exp.sig=-1, exp.eps=1)
+    pc.sim <- getScenario ('DE.dist', 'DE')
     # ephemeral
     pc.sim$Eph.dist <- getDist(exp.sig=1, exp.eps=1)
+    pc.sim <- getScenario ('Eph.dist', 'Eph')
     # fuse
     pc.sim$PF.dist <- getDist(exp.sig=1, exp.eps=-1)
+    pc.sim <- getScenario ('PF.dist', 'PF')
     pc.sim
   }
   getGrains <- function (stats, distances, grain=0.1) {
@@ -74,6 +125,9 @@ pca2 <- function (stats, real.stats, stat.names, filename,
   }
   # do PCA
   real.stats <- real.stats[!is.na (real.stats$gamma), ]
+  real.stats <- real.stats[!is.na (real.stats$psv), ]
+  real.stats <- real.stats[!is.na (real.stats$sackin), ]
+  real.stats <- real.stats[!is.na (real.stats$colless), ]
   real.stats$sig <- NA
   real.stats$eps <- NA
   cols <- c ('sig', 'eps', stat.names)
@@ -95,23 +149,21 @@ pca2 <- function (stats, real.stats, stat.names, filename,
   # add real stats
   pc.real <- data.frame (pc1.mean = mean (pca.x.real$PC1),
                          pc2.mean = mean (pca.x.real$PC2),
-                         pc1.se = sd (pca.x.real$PC1) /
-                           sqrt (length (pca.x.real$PC1)),
-                         pc2.se = sd (pca.x.real$PC2) /
-                           sqrt (length (pca.x.real$PC2)),
+                         pc1.err = getErr (pca.x.real$PC1),
+                         pc2.err = getErr (pca.x.real$PC2),
                          Pan.dist=NA, Eph.dist=NA, PF.dist=NA,
-                         DE.dist=NA, eps=NA, sig=NA)
+                         DE.dist=NA, eps=NA, sig=NA, scenario='empirical')
   pc.sim <- addDistances(pc.sim)
   res <- rbind (pc.sim, pc.real)
-  limitsx <- aes (xmax = pc1.mean + pc1.se,
-                  xmin = pc1.mean - pc1.se)
-  limitsy <- aes (ymax = pc2.mean + pc2.se,
-                  ymin = pc2.mean - pc2.se)
+  limitsx <- aes (xmax = pc1.mean + pc1.err,
+                  xmin = pc1.mean - pc1.err)
+  limitsy <- aes (ymax = pc2.mean + pc2.err,
+                  ymin = pc2.mean - pc2.err)
   for (e in c ('Pan.dist', 'Eph.dist', 'PF.dist', 'DE.dist')) {
     p <- ggplot (res, aes_string (x='pc1.mean', y='pc2.mean', colour=e))
     p <- p + geom_point () +
-      geom_errorbar(limitsy, width=0.2) +
-      geom_errorbarh(limitsx, width=0.2) +
+      geom_errorbar(limitsy, width=0) +
+      geom_errorbarh(limitsx, width=0) +
       scale_colour_gradient2 (mid='red', high='blue', na.value='black') +
       xlab (paste0 ('Imbalance - PC1', " (", prop.var['PC1']*100, "%)")) +
       ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
@@ -119,6 +171,7 @@ pca2 <- function (stats, real.stats, stat.names, filename,
     print (p)
   }
   closeDevices ()
+  return (res)
 }
 
 pca <- function (stats, real.stats, stat.names, filename,
@@ -132,6 +185,8 @@ pca <- function (stats, real.stats, stat.names, filename,
   }
   real.stats <- real.stats[!is.na (real.stats$gamma), ]
   real.stats <- real.stats[!is.na (real.stats$psv), ]
+  real.stats <- real.stats[!is.na (real.stats$sackin), ]
+  real.stats <- real.stats[!is.na (real.stats$colless), ]
   print (nrow (real.stats))
   real.stats$sig <- NA
   real.stats$eps <- NA
@@ -166,9 +221,13 @@ pca <- function (stats, real.stats, stat.names, filename,
     ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
     theme_bw ()
   print (p)
+  combined <- pca.x.real
+  combined$Scenario <- 'Empirical'
+  combined <- rbind (pca.x, combined)
   # plot all points
   comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
   for (comp in comparisons) {
+    # points + errorbars
     p <- ggplot (pca.x, aes_string (x = comp[1], y = comp[2])) +
       geom_point (aes (colour=Scenario)) +
       geom_point (data = pca.x.real, colour = 'black', shape = 3) +
@@ -181,6 +240,10 @@ pca <- function (stats, real.stats, stat.names, filename,
          ylab = comp[2], cex = 0.5, pch = 19)
     text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
           rownames (pca.rot[comp[1]]), adj = 1)
+    # densities
+    p <- ggplot (combined, aes_string (x = comp[1], y = comp[2])) +
+      geom_density2d(aes (colour=Scenario), stat_bin=1) + theme_bw()
+    print (p)
   }
   closeDevices ()
 }
