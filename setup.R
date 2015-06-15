@@ -15,13 +15,14 @@ tree.dist <- 100 # the number of trees in a distribution for a polytomous tree
 min.taxa <- 50 # the minimum tree size to be downloaded
 max.taxa <- 500 # the maximum tree size to be downloaded
 overwrite <- FALSE # delete all existing parsed trees and run again
+ncpus <- 6  # number of processes for running parse in parallel
 
 ## Process
 # download
 cat ('\n--------------------------------')
 cat (paste0 ('\n          Download'))
 cat ('\n--------------------------------\n')
-source (file.path ('stages', 'download.R'), print.eval = TRUE)
+#source (file.path ('stages', 'download.R'), print.eval = TRUE)
 # parse
 cat ('\n--------------------------------')
 cat (paste0 ('\n          Parsing'))

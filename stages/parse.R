@@ -3,6 +3,8 @@
 ## Parse raw trees (lit and tb trees): make ultrametric and dichotomous
 
 ## Libraries
+library (foreach)
+library (doMC)
 source (file.path ('tools', 'parse_tools.R'))
 
 ## Functions
@@ -23,10 +25,12 @@ getTreeFiles <- function (dirs) {
 ## Parameters
 if (!exists ('tree.dist')) {
   tree.dist <- 1 # how many trees in a dichotomous distribution?
-  use.chronos <- FALSE # use chronos to make trees ultrametric?
+  use.chronos <- TRUE # use chronos to make trees ultrametric?
   overwrite <- FALSE
-  subsample <- 100
+  subsample <- 10
+  ncpus <- 2
 }
+registerDoMC (ncpus)
 
 ## Dirs
 treebase.dir <- file.path ('data', 'raw_trees',
@@ -98,8 +102,7 @@ metadata$ultra <- FALSE # original tree was ultrametric
 metadata$chronos <- FALSE # made ultrametric by chronos
 
 ## Parse
-counter <- 0
-for (i in 1:length (tree.files)) {
+counter <- foreach (i=1:length (tree.files)) %dopar% {
   tempinfo <- metadata[i, ]
   # suppress add.terminal warnings
   tree <- suppressWarnings (read.tree (tree.files[i]))
@@ -110,60 +113,60 @@ for (i in 1:length (tree.files)) {
     tempinfo['multi'] <- TRUE
   }
   # ensure we have a tree
-  if (class (tree) != 'phylo') {
-    next
-  }
-  # does it have branch lengths?
-  bl.bool <- !is.null (tree$edge.length) &&
-    all (!is.na (tree$edge.length))
-  if (!bl.bool) {
-    # make sure if any edgelenths are NA,
-    #  edgelenghts are removed
-    tree$edge.length <- NULL
-    tempinfo['bl'] <- FALSE
-  }
-  # is it ultrametric?
-  ultra.bool <- bl.bool && is.ultrametric (tree)
-  if (ultra.bool) {
-    tempinfo['ultra'] <- TRUE
-  }
-  # is it polytomous?
-  poly.bool <- getSize (tree) != (tree$Nnode + 1)
-  # print progress
-  cat (paste0 ('\nWorking on [', tree.files[i],
-               '] [', i, '/', length (tree.files),']'))
-  # if not ultrametric make it (if I can)
-  if (use.chronos && bl.bool && !ultra.bool) {
-    cat ('\n.... using chronos')
-    tree <- safeChronos (tree)
-    if (is.ultrametric (tree)) {
-      class (tree) <- 'phylo'
-      tempinfo['chronos'] <- TRUE
+  if (class (tree) == 'phylo') {
+    # does it have branch lengths?
+    bl.bool <- !is.null (tree$edge.length) &&
+      all (!is.na (tree$edge.length))
+    if (!bl.bool) {
+      # make sure if any edgelenths are NA,
+      #  edgelenghts are removed
+      tree$edge.length <- NULL
+      tempinfo['bl'] <- FALSE
     }
-  }
-  # if polytomous, convert to a distribution
-  if (poly.bool) {
-    cat ('\n.... converting to distribution')
-    tempinfo['poly'] <- TRUE
-    tree <- try (convertToDist (tree), silent = TRUE)
+    # is it ultrametric?
+    ultra.bool <- bl.bool && is.ultrametric (tree)
+    if (ultra.bool) {
+      tempinfo['ultra'] <- TRUE
+    }
+    # is it polytomous?
+    poly.bool <- getSize (tree) != (tree$Nnode + 1)
+    # print progress
+    cat (paste0 ('\nWorking on [', tree.files[i],
+                 '] [', i, '/', length (tree.files),']'))
+    # if not ultrametric make it (if I can)
+    if (use.chronos && bl.bool && !ultra.bool) {
+      cat ('\n.... using chronos')
+      tree <- safeChronos (tree)
+      if (is.ultrametric (tree)) {
+        class (tree) <- 'phylo'
+        tempinfo['chronos'] <- TRUE
+      }
+    }
+    # if polytomous, convert to a distribution
+    if (poly.bool) {
+      cat ('\n.... converting to distribution')
+      tempinfo['poly'] <- TRUE
+      tree <- try (convertToDist (tree), silent = TRUE)
+    }
     if (class (tree) == 'try-error') {
       cat (paste0 ('\n.... error occurred: [', tree, ']'))
       cat ('....\n moving to next tree')
-      next
+    } else {
+      # convert to multiPhylo before adding to trees
+      if (any (class (tree) != 'multiPhylo')) {
+        tree <- list (tree)
+        class (tree) <- 'multiPhylo'
+      }
+      # write out
+      write.tree (tree, file.path (
+        output.dir, tempinfo[['filename']]))
+      # save details
+      write.table (tempinfo, parse.log, sep = ',',
+                   append = TRUE, col.names = FALSE,
+                   row.names = FALSE)
+      1
     }
   }
-  # convert to multiPhylo before adding to trees
-  if (any (class (tree) != 'multiPhylo')) {
-    tree <- list (tree)
-    class (tree) <- 'multiPhylo'
-  }
-  # write out
-  write.tree (tree, file.path (
-    output.dir, tempinfo[['filename']]))
-  # save details
-  write.table (tempinfo, parse.log, sep = ',',
-               append = TRUE, col.names = FALSE,
-               row.names = FALSE)
-  counter <- counter + 1
 }
+counter <- sum (unlist (counter))
 cat (paste0 ('\nStage complete, parsed [', counter,'] trees'))
