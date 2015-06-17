@@ -6,7 +6,27 @@
 library (MoreTreeTools)
 
 # FUNCTION
-getRank <- function (taxa.res, rank) {
+resolve <- function (names) {
+  # resolve names using the most commmon taxonomic databases
+  datasources <- c (1, 3, 4, 11, 12)
+  # Catalogue of life, ITIS, NCBI, GBIF and EOL
+  res <- taxaResolve (names, datasource=datasources[1])
+  for (d in datasources[-1]) {
+    if (all (!is.na (res$search.name))) {
+      break
+    }
+    names <- names[is.na (res$search.name)]
+    temp.res <- taxaResolve (names, datasource=d)
+    if (all (is.na (res$search.name))) {
+      res <- temp.res
+    } else {
+      res <- rbind (res[!is.na (res$search.name), ], temp.res)
+    }
+  }
+  res
+}
+
+getRank <- function (taxa.res, rank, additional=NULL) {
   .do <- function (i) {
     ranks <- ranks[[i]]
     lines <- lines[[i]]
@@ -21,7 +41,13 @@ getRank <- function (taxa.res, rank) {
   }
   ranks <- strsplit (taxa.res$rank, '\\|')
   lines <- strsplit (taxa.res$lineage, '\\|')
-  mdply (.data=data.frame(i=1:nrow(taxa.res)), .fun=.do)[ ,2]
+  res <- mdply (.data=data.frame(i=1:nrow(taxa.res)), .fun=.do)[ ,2]
+  if (all (is.na (res)) & !is.null (additional)) {
+    # if no names were resolved at rank, use additional info
+    taxa.res <- resolve (additional)
+    res <- getRank (taxa.res, rank)
+  }
+  res
 }
 
 getMostCommon <- function (line.rank) {
@@ -68,14 +94,14 @@ for (i in 1:length (tiplabels)) {
     # only use a subset if many names
     names <- sample (names, 100)
   }
-  res <- taxaResolve (names)  # resolve names
+  res <- resolve (names)  # resolve names
   if (!all (is.na (res$name.string))) {
-    phyla <- getRank (res, 'phylum')
-    phylum <- getMostCommon (phyla)  # get most common name
-    classes <- getRank (res, 'class')
-    class <- getMostCommon (classes)
-    orders <- getRank (res, 'order')
+    orders <- getRank (res, 'order') # get most common name
     order <- getMostCommon (orders)
+    classes <- getRank (res, 'class', order)
+    class <- getMostCommon (classes)
+    phyla <- getRank (res, 'phylum', c (order, class))
+    phylum <- getMostCommon (phyla)
   } else {
     phylum <- class <- order <- NA
   }
