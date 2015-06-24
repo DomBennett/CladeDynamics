@@ -3,7 +3,7 @@
 ## Model trees using EDBMM
 
 ## Libraries
-source (file.path ('tools', 'model_tools.R'))
+library (MoreTreeTools)
 
 ## Parameters
 if (!exists ('pars')) {
