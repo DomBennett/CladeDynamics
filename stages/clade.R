@@ -13,7 +13,8 @@ library (MoreTreeTools)
 ## Parameters
 if (!exists ('pars')) {
   name <- 'analysis_5'
-  runtime <- 2
+  runtime <- 2  # how much longer than the original tree
+  sample.rate <- 0.01  # sample rate
   ncpus <- 8
 }
 registerDoMC (ncpus)
@@ -23,7 +24,7 @@ wd <- file.path ('results', name)
 
 ## Input
 runlog <- read.csv (file.path (wd, 'runlog.csv'),
-                    stringsAsFactors=FALSE)[1:2,]
+                    stringsAsFactors=FALSE)
 
 ## Generate clades
 cat ('\nGenerating clades for [', name, '] trees ....', sep='')
@@ -36,7 +37,7 @@ counter <- foreach (i=1:nrow (runlog)) %dopar% {
   age <- getSize (tree, 'rtt')
   t.stop <- age*runtime
   # sample every 0.1 times
-  sample <- t.stop*.1
+  sample <- t.stop*sample.rate
   # rename tip labels and node labels to avoid shared names
   tree$tip.label <- paste0 ('t', 1:getSize (tree))
   tree$node.label <- paste0 ('n', 1:tree$Nnode)
