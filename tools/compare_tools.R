@@ -10,11 +10,6 @@ library (caper)
 library (geiger)
 library (ggplot2)
 
-getErr <- function (values) {
-  # return 95% confidence error
-  qnorm(0.975,df=length(values)-1)*sd(values)/sqrt(length(values))
-}
-
 dropOutliers <- function (stats, stat.name, signif=0.1^10) {
   # Use Grubb's test to identify outlier and remove them
   counter <- 0
@@ -147,18 +142,22 @@ pca2 <- function (stats, real.stats, stat.names, filename,
                         pc1.mean=pc1.sim$mean, pc1.se=pc1.sim$se,
                         pc2.mean=pc2.sim$mean, pc2.se=pc2.sim$se)
   # add real stats
+  pc1.se <- sd (pca.x.real$PC1, na.rm = TRUE) /
+    sqrt (length (pca.x.real$PC1))
+  pc2.se <- sd (pca.x.real$PC2, na.rm = TRUE) /
+    sqrt (length (pca.x.real$PC2))
   pc.real <- data.frame (pc1.mean = mean (pca.x.real$PC1),
                          pc2.mean = mean (pca.x.real$PC2),
-                         pc1.err = getErr (pca.x.real$PC1),
-                         pc2.err = getErr (pca.x.real$PC2),
+                         pc1.se = pc1.se,
+                         pc2.se = pc2.se,
                          Pan.dist=NA, Eph.dist=NA, PF.dist=NA,
                          DE.dist=NA, eps=NA, sig=NA, scenario='empirical')
   pc.sim <- addDistances(pc.sim)
   res <- rbind (pc.sim, pc.real)
-  limitsx <- aes (xmax = pc1.mean + pc1.err,
-                  xmin = pc1.mean - pc1.err)
-  limitsy <- aes (ymax = pc2.mean + pc2.err,
-                  ymin = pc2.mean - pc2.err)
+  limitsx <- aes (xmax = pc1.mean + pc1.se,
+                  xmin = pc1.mean - pc1.se)
+  limitsy <- aes (ymax = pc2.mean + pc2.se,
+                  ymin = pc2.mean - pc2.se)
   for (e in c ('Pan.dist', 'Eph.dist', 'PF.dist', 'DE.dist')) {
     p <- ggplot (res, aes_string (x='pc1.mean', y='pc2.mean', colour=e))
     p <- p + geom_point () +

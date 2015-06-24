@@ -157,8 +157,8 @@ p <- ggplot (real.stats, aes (factor (real.stats$phylum))) +
   theme (text=element_text(size=25))
 print (p)
 ggBoxplot (real.stats, 'phylum', 'sackin', 'Sackin')
-t.test (x=real.stats$sackin[real.stats$phylum == 'Streptophyta'],
-        y=real.stats$sackin[real.stats$phylum == 'Ascomycota'])
+# t.test (x=real.stats$sackin[real.stats$phylum == 'Streptophyta'],
+#         y=real.stats$sackin[real.stats$phylum == 'Ascomycota'])
 ggBoxplot (real.stats, 'phylum', 'colless', 'Colless')
 ggBoxplot (real.stats, 'phylum', 'gamma', expression(gamma))
 ggBoxplot (real.stats, 'phylum', 'psv', 'PSV')
@@ -283,17 +283,11 @@ dev.off ()
 # figure 8 -- PCA
 stat.names <- c ("colless", "sackin", "psv")
 filtered <- filter (stats, grain=0.1)
-pca (stats, real.stats, stat.names, 'figure8_withoutchronos.pdf',
-     ignore.chronos=TRUE)
-pca (stats, real.stats, stat.names, 'figure8_withchronos.pdf',
+pca (stats, real.stats, stat.names, 'figure8.pdf',
      ignore.chronos=FALSE)
-pca (filtered, real.stats, stat.names, 'figure8_filtered_withoutchronos.pdf',
-     ignore.chronos=TRUE)
-pca (filtered, real.stats, stat.names, 'figure8_filtered_withchronos.pdf',
+pca (filtered, real.stats, stat.names, 'figure8_filtered.pdf',
      ignore.chronos=FALSE)
-grains <- pca2 (stats, real.stats, stat.names, 'figure8_grains_withoutchronos.pdf',
-                ignore.chronos=TRUE)
-grains <- pca2 (stats, real.stats, stat.names, 'figure8_grains_withchronos.pdf',
+grains <- pca2 (stats, real.stats, stat.names, 'figure8_grains.pdf',
                 ignore.chronos=FALSE)
 
 # figure 10 -- tiles of pca res
@@ -314,10 +308,7 @@ print (p)
 stat.names <- c ("colless", "sackin", "psv")
 extreme <- rbind (readIn ('Pan'), readIn ('Eph'),
                   readIn ('DE'), readIn ('PF'))
-pca (extreme, real.stats, stat.names, 'figure9_withoutchronos.pdf',
-     ignore.chronos=TRUE)
-pca (extreme, real.stats, stat.names, 'figure9_withchronos.pdf',
+pca (extreme, real.stats, stat.names, 'figure9.pdf',
      ignore.chronos=FALSE)
 
 # Table 3. test what proportion overlaps with real
-#extreme$psv
