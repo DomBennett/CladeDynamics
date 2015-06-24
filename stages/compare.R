@@ -312,3 +312,36 @@ pca (extreme, real.stats, stat.names, 'figure9.pdf',
      ignore.chronos=FALSE)
 
 # Table 3. test what proportion overlaps with real
+
+
+## Clade analysis
+# add cg and cm stats to stats
+min.size <- 50
+stats$cg.mean <- stats$cm.mean <- stats$cg.sd <- stats$cm.sd <- NA
+clades.files <- sub ('\\.tre', '_clades.csv', stats$treefilename)
+cladestats.files <- sub ('\\.tre', '_clade_stats.csv', stats$treefilename)
+for (i in 1:nrow (stats)) {
+  if (!file.exists (file.path ('results', name,
+                               clades.files[i]))) {
+    next
+  }
+  clades <- read.csv (file.path ('results', name,
+                                 clades.files[i]))[,-1]
+  clade.stats <- read.csv (file.path ('results', name,
+                                      cladestats.files[i]))[,-1]
+  # filtering...
+  # ... ignore clades that started
+  clade.stats <- clade.stats[clade.stats$start != 1,]
+  # ... ignore clades that were still extant
+  clade.stats <- clade.stats[clade.stats$end != max (clade.stats$end),]
+  # ... only take clades over a certain size
+  clade.stats <- clade.stats[clade.stats$max.size > min.size, ]
+  # add to stats
+  stats$cg.mean[i] <- mean (clade.stats$cg, na.rm=TRUE)
+  stats$cg.sd[i] <- sd (clade.stats$cg, na.rm=TRUE)
+  stats$cm.mean[i] <- mean (clade.stats$cm, na.rm=TRUE)
+  stats$cm.sd[i] <- sd (clade.stats$cm, na.rm=TRUE)
+}
+# cg and cm by scenario
+tapply (stats$cm.mean, stats$scenario, mean, na.rm=TRUE)
+tapply (stats$cg.mean, stats$scenario, mean, na.rm=TRUE)

@@ -13,8 +13,8 @@ library (MoreTreeTools)
 ## Parameters
 if (!exists ('pars')) {
   name <- 'analysis_5'
-  runtime <- 1
-  ncpus <- 2
+  runtime <- 2
+  ncpus <- 8
 }
 registerDoMC (ncpus)
 
