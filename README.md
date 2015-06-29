@@ -14,6 +14,7 @@ in a tree-growth Markov model affects tree shape and clade dynamics.
   + `MoreTreeTools`
 * Optional
   + `test_that`
+  + `UNIX` -- for running parts in parallel
 
 ##Pipeline structure
 ###Scripts
