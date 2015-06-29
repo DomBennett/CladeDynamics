@@ -101,8 +101,10 @@ t.test (x=stats$gamma[stats$scenario=='DE'],
         y=stats$gamma[stats$scenario!='DE'],
         alternative='less')
 tapply (stats$gamma, stats$scenario, sd, na.rm=TRUE)
-tapply (real.stats$gamma, real.stats$ul, mean, na.rm=TRUE)
-tapply (real.stats$gamma, real.stats$ul, sd, na.rm=TRUE)
+tapply (real.stats$gamma, real.stats$ul | real.stats$chronos,
+        mean, na.rm=TRUE)
+tapply (real.stats$gamma, real.stats$ul | real.stats$chronos,
+        sd, na.rm=TRUE)
 real.res <- mean (real.stats$gamma, na.rm=TRUE)
 (res[1]*100/real.res)-100  # % lower DE gamma
 t.test (x=stats$gamma[stats$scenario=='DE'],
