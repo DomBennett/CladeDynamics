@@ -135,8 +135,8 @@ counter <- foreach (i=1:length (tree.files)) %dopar% {
                  '] [', i, '/', length (tree.files),']'))
     # if not ultrametric make it (if I can)
     if (use.chronos && bl.bool && !ultra.bool) {
-      cat ('\n.... using chronos')
-      tree <- safeChronos (tree)
+      cat ('\n.... using chronoMPL')
+      tree <- safeChronoMPL (tree)
       if (is.ultrametric (tree)) {
         class (tree) <- 'phylo'
         tempinfo['chronos'] <- TRUE
