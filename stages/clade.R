@@ -18,9 +18,26 @@ if (!exists ('pars')) {
   ncpus <- 8
 }
 registerDoMC (ncpus)
+overwrite <- FALSE
 
 ## Dirs
 wd <- file.path ('results', name)
+
+## Functions
+check <- function (outfile) {
+  # check if clade files already exist
+  clades.file <- file.path (wd, paste0 (outfile, '_clades.csv'))
+  clade.stats.file <- file.path (wd, paste0 (outfile, '_clade_stats.csv'))
+  res <- c ('cf'=clades.file, 'csf'=clade.stats.file)
+  if (overwrite) {
+    return (res)
+  }
+  if (file.exists (clades.file) & file.exists (clade.stats.file)) {
+    return (NA)
+  }
+  res
+}
+
 
 ## Input
 runlog <- read.csv (file.path (wd, 'runlog.csv'),
@@ -30,8 +47,13 @@ runlog <- read.csv (file.path (wd, 'runlog.csv'),
 cat ('\nGenerating clades for [', name, '] trees ....', sep='')
 counter <- foreach (i=1:nrow (runlog)) %dopar% {
   cat ('\n.... working on [', i, '] of [', nrow (runlog), ']', sep='')
-  # read in tree
   filename <- runlog$treefilename[i]
+  # check if its already been run
+  outfiles <- check (sub ('\\.tre', '', filename))
+  if (is.na (outfiles[1])) {
+    next
+  }
+  # read in tree
   tree <- read.tree (file.path (wd, filename))
   # get age and time to run for
   age <- getSize (tree, 'rtt')
@@ -60,9 +82,8 @@ counter <- foreach (i=1:nrow (runlog)) %dopar% {
   # calc stats
   clade.stats <- calcCladeStats (clades)
   # write out
-  outfile <- sub ('\\.tre', '', filename)
-  write.csv (clades, file.path (wd, paste0 (outfile, '_clades.csv')))
-  write.csv (clade.stats, file.path (wd, paste0 (outfile, '_clade_stats.csv')))
+  write.csv (clades, outfiles['cf'])
+  write.csv (clade.stats, outfiles['csf'])
   1
 }
 cat ('\nDone. Generated clade stats for [', sum (unlist (counter)),
