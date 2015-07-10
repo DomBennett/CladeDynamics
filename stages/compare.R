@@ -5,6 +5,7 @@
 ## Libraries
 source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'misc_tools.R'))
+source (file.path ('tools', 'clade_tools.R'))
 library (outliers)
 
 ## Dirs
@@ -319,17 +320,17 @@ pca (extreme, real.stats, stat.names, 'figure9.pdf',
 ## Clade analysis
 # add cg and cm stats to stats
 min.size <- 50
-stats$cg.mean <- stats$cm.mean <- stats$cg.sd <- stats$cm.sd <- NA
+stats$cg.mean <- stats$cm.mean <- stats$cg.sd <- stats$cm.sd <-
+  stats$clade.max <- stats$clade.n <- NA
+pan.clades <- de.clades <- data.frame (init.col=rep(NA, 100))
 clades.files <- sub ('\\.tre', '_clades.csv', stats$treefilename)
 cladestats.files <- sub ('\\.tre', '_clade_stats.csv', stats$treefilename)
 for (i in 1:nrow (stats)) {
-  if (!file.exists (file.path ('results', name,
+  if (!file.exists (file.path ('results', analysis.name,
                                clades.files[i]))) {
     next
   }
-  clades <- read.csv (file.path ('results', name,
-                                 clades.files[i]))[,-1]
-  clade.stats <- read.csv (file.path ('results', name,
+  clade.stats <- read.csv (file.path ('results', analysis.name,
                                       cladestats.files[i]))[,-1]
   # filtering...
   # ... ignore clades that started
@@ -343,7 +344,32 @@ for (i in 1:nrow (stats)) {
   stats$cg.sd[i] <- sd (clade.stats$cg, na.rm=TRUE)
   stats$cm.mean[i] <- mean (clade.stats$cm, na.rm=TRUE)
   stats$cm.sd[i] <- sd (clade.stats$cm, na.rm=TRUE)
+  if (length (clade.stats$max.size) == 0) {
+    stats$clade.max[i] <- 0
+  } else {
+    stats$clade.max[i] <- max (clade.stats$max.size)
+  }
+  stats$clade.n[i] <- nrow (clade.stats)
+  # collect extreme pan and de clades
+  if (stats$sig[i] < -0.5) {
+    # read in clades
+    clades <- read.csv (file.path ('results', analysis.name,
+                                   clades.files[i]))[,-1]
+    is <- colnames (clades) %in% clade.stats$name
+    if (stats$eps[i] < -0.5) {
+      pan.clades <- cbind (pan.clades, clades[1:100, is])
+    }
+    if (stats$eps[i] > 0.5) {
+      de.clades <- cbind (de.clades, clades[1:100, is])
+    }
+  }
 }
-# cg and cm by scenario
+# clade stats by scenario
 tapply (stats$cm.mean, stats$scenario, mean, na.rm=TRUE)
 tapply (stats$cg.mean, stats$scenario, mean, na.rm=TRUE)
+tapply (stats$clade.max, stats$scenario, mean, na.rm=TRUE)
+tapply (stats$clade.n, stats$scenario, mean, na.rm=TRUE)
+stats.reduced <- stats[!is.na(stats$cm.mean),]
+# plot clades
+plotNormalisedSuccess (pan.clades[,-1], min.size=50)
+plotNormalisedSuccess (de.clades[,-1], min.size=50, new.plot=FALSE, col='red')
