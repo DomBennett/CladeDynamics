@@ -1,3 +1,49 @@
+# load compare_tools first
+
+readInCladeStats <- function (stats, analysis.name,
+                              filter=TRUE, min.size=10) {
+  # search results path for Rd, else read in each csv
+  rdfile <- file.path ('results', analysis.name, 'clade_stats.Rd')
+  if (file.exists (rdfile)) {
+    load (rdfile)
+    return (clade.stats)
+  }
+  # plyr loop
+  .run <- function (i) {
+    if (file.exists (file.path ('results', analysis.name,
+                                 cladestats.files[i]))) {
+      part.clade.stats <- read.csv (file.path ('results', analysis.name,
+                                               cladestats.files[i]))[,-1]
+      part.clade.stats$sig <- stats$sig[i]
+      part.clade.stats$eps <- stats$eps[i]
+      if (filter) {
+        # ... ignore clades that started
+        part.clade.stats <- part.clade.stats[part.clade.stats$start != 1,]
+        # ... ignore clades that were still extant
+        part.clade.stats <- part.clade.stats[part.clade.stats$end != max (part.clade.stats$end),]
+        # ... only take clades over a certain size
+        part.clade.stats <- part.clade.stats[part.clade.stats$tot.size > min.size, ]
+      }
+      part.clade.stats <- getScenarios (part.clade.stats)
+      # bind+push
+      clade.stats <<- rbind (clade.stats, part.clade.stats)
+    }
+  }
+  # get all files
+  cladestats.files <- sub ('\\.tre', '_clade_stats.csv',
+                           stats$treefilename)
+  # template
+  clade.stats <- data.frame (name=NA, tot.size=NA,
+                             max.size=NA, time.span=NA,
+                             start=NA, end=NA, cm=NA, cg=NA,
+                             sig=NA, eps=NA, scenario=NA)
+  m_ply (.data=data.frame (i=1:nrow (stats)),
+         .fun=.run)
+  clade.stats <- clade.stats[-1, ]
+  save (clade.stats, file=rdfile)
+  return (clade.stats)
+}
+
 ## Clade analysis functions with tests (no longer part of pipeline 05/09/2014)
 findNonZeros <- function (element) {
   ## Find all results that are not zero

@@ -1,24 +1,26 @@
-## 16/07/2014
-## D.J. Bennett
-## Comparing simulated and empirical trees
+# 16/07/2014
+# D.J. Bennett
+# Comparing simulated and empirical trees -- Interactive script
 
-## Libraries
+# LIBS
 source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'misc_tools.R'))
 source (file.path ('tools', 'clade_tools.R'))
 library (outliers)
 
-## Dirs
+# DIRS
 data.dir <- file.path ('data', 'treestats')
 
-## Parameters
+# PARAMETERS
 analysis.name <- 'analysis_5'
 res.dir <- file.path ('results', analysis.name)
 data.dir <- file.path ('data', 'treestats')
 empirical.file <- 'min50_max500.Rd'
 
-## Input and generation
+# INPUT
 stats <- readIn (analysis.name)
+extreme <- rbind (readIn ('Pan'), readIn ('Eph'),
+                  readIn ('DE'), readIn ('PF'))
 # load pre-calculated empirical tree stats -- real.stats and real.ed.values
 load (file.path (data.dir, empirical.file))
 # add taxoinfo to real.stats
@@ -33,9 +35,13 @@ real.stats$order[match.is] <- taxoinfo$order
 real.stats$phylum[is.na (real.stats$phylum)] <- 'Unknown'
 real.stats$class[is.na (real.stats$class)] <- 'Unknown'
 real.stats$order[is.na (real.stats$order)] <- 'Unknown'
+# read in clades
+clade.stats <- readInCladeStats (stats, analysis.name)
 
-
-# Quick stats
+# QUICK STATS
+# how many tips?
+mean (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+sd (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
 # how many polys?
 sum (real.stats$poly)
 sum (real.stats$poly) *100 /nrow(real.stats)
@@ -45,9 +51,6 @@ sum (real.stats$bl) *100 /nrow(real.stats)
 # when were they published?
 mean (real.stats$date)
 sd (real.stats$date)
-# how many tips?
-mean (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
-sd (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
 # how many are ultrametric?
 sum (real.stats$ul)
 sum (real.stats$ul) * 100 / nrow (real.stats)
@@ -62,17 +65,19 @@ length (unique (real.stats$class)) - 1
 length (unique (real.stats$order)) - 1
 sum (real.stats$phylum == 'Unknown' & real.stats$class == 'Unknown' &
        real.stats$order == 'Unknown')
-
+unknowns <- which (real.stats$phylum == 'Unknown' & real.stats$class == 'Unknown' &
+         real.stats$order == 'Unknown')
+real.stats[unknowns, 'title']
 # remove all values where gravity metrics shouldn't have been calclated
 real.stats$gamma[!(real.stats$ul | real.stats$chronos)] <- NA
-sum (!is.na (real.stats$gamma))  # should be about 490
+sum (!is.na (real.stats$gamma))  # should be about 469
 
+# PARSE
 # remove branch results where psv is greater than 1 -- this is impossible!
 pull <- real.stats$psv > 1
 sum (pull)  # 34 lost
 real.stats$psv[pull] <- NA
 real.stats$gamma[pull] <- NA
-
 # Extremely conservative removal of outliers
 cat ('\nDropping outliers ....')
 real.stats <- dropOutliers (real.stats, 'sackin', signif=0.1^3)  # 11
@@ -84,24 +89,30 @@ hist (real.stats$gamma, main='Gamma')
 real.stats <- dropOutliers (real.stats, 'psv', signif=0.1^3)  # 0
 hist (real.stats$psv, main='PSV')
 
-# Table 3
+# TABLES
+# S2
 # colless
-tapply (stats$colless, stats$scenario, mean, na.rm=TRUE)
-tapply (stats$colless, stats$scenario, sd, na.rm=TRUE)
-mean (real.stats$colless, na.rm=TRUE)
-sd (real.stats$colless, na.rm=TRUE)
+round (tapply (stats$colless, stats$scenario, mean, na.rm=TRUE), 2)
+round (tapply (stats$colless, stats$scenario, sd, na.rm=TRUE) , 2)
+round (tapply (extreme$colless, extreme$scenario, mean, na.rm=TRUE), 2)
+round (tapply (extreme$colless, extreme$scenario, sd, na.rm=TRUE) , 2)
+round (mean (real.stats$colless, na.rm=TRUE), 2)
+round (sd (real.stats$colless, na.rm=TRUE), 2)
 # sackin
-tapply (stats$sackin, stats$scenario, mean, na.rm=TRUE)
-tapply (stats$sackin, stats$scenario, sd, na.rm=TRUE)
-mean (real.stats$sackin, na.rm=TRUE)
-sd (real.stats$sackin, na.rm=TRUE)
+round (tapply (stats$sackin, stats$scenario, mean, na.rm=TRUE), 2)
+round (tapply (stats$sackin, stats$scenario, sd, na.rm=TRUE), 2)
+round (tapply (extreme$sackin, extreme$scenario, mean, na.rm=TRUE), 2)
+round (tapply (extreme$sackin, extreme$scenario, sd, na.rm=TRUE) , 2)
+round (mean (real.stats$sackin, na.rm=TRUE), 2)
+round (sd (real.stats$sackin, na.rm=TRUE), 2)
 # gamma
 res <- tapply (stats$gamma, stats$scenario, mean, na.rm=TRUE)
 (res[1]*100/mean (res[2:4]))-100  # % lower DE gamma
 t.test (x=stats$gamma[stats$scenario=='DE'],
         y=stats$gamma[stats$scenario!='DE'],
         alternative='less')
-tapply (stats$gamma, stats$scenario, sd, na.rm=TRUE)
+round (res, 2)
+round (tapply (stats$gamma, stats$scenario, sd, na.rm=TRUE), 2)
 tapply (real.stats$gamma, real.stats$ul | real.stats$chronos,
         mean, na.rm=TRUE)
 tapply (real.stats$gamma, real.stats$ul | real.stats$chronos,
@@ -111,23 +122,27 @@ real.res <- mean (real.stats$gamma, na.rm=TRUE)
 t.test (x=stats$gamma[stats$scenario=='DE'],
         y=real.stats$gamma,
         alternative='less')
-sd (real.stats$gamma, na.rm=TRUE)
+round (tapply (extreme$gamma, extreme$scenario, mean, na.rm=TRUE), 2)
+round (tapply (extreme$gamma, extreme$scenario, sd, na.rm=TRUE) , 2)
+round (real.res, 2)
+round (sd (real.stats$gamma, na.rm=TRUE), 2)
 # PSV
-tapply (stats$psv, stats$scenario, mean, na.rm=TRUE)
-tapply (stats$psv, stats$scenario, sd, na.rm=TRUE)
-tapply (real.stats$psv, real.stats$ul, mean, na.rm=TRUE)
-tapply (real.stats$psv, real.stats$ul, sd, na.rm=TRUE)
-mean (real.stats$psv, na.rm=TRUE)
-sd (real.stats$psv, na.rm=TRUE)
+round (tapply (stats$psv, stats$scenario, mean, na.rm=TRUE), 2)
+round (tapply (stats$psv, stats$scenario, sd, na.rm=TRUE), 2)
+round (tapply (extreme$psv, extreme$scenario, mean, na.rm=TRUE), 2)
+round (tapply (extreme$psv, extreme$scenario, sd, na.rm=TRUE) , 2)
+round (mean (real.stats$psv, na.rm=TRUE), 2)
+round (sd (real.stats$psv, na.rm=TRUE), 2)
 # age
 res <- tapply (stats$age, stats$scenario, mean, na.rm=TRUE)
 (res[1]*100/mean (res[2:4]))-100  # % lower DE age
 t.test (x=stats$age[stats$scenario=='DE'],
         y=stats$age[stats$scenario!='DE'],
         alternative='less')
-tapply (stats$age, stats$scenario, sd, na.rm=TRUE)
-tapply (real.stats$age, real.stats$ul, mean, na.rm=TRUE)
-tapply (real.stats$age, real.stats$ul, sd, na.rm=TRUE)
+round (tapply (extreme$age, extreme$scenario, mean, na.rm=TRUE), 2)
+round (tapply (extreme$age, extreme$scenario, sd, na.rm=TRUE) , 2)
+round (res, 2)
+round (tapply (stats$age, stats$scenario, sd, na.rm=TRUE), 2)
 
 # Compare taxonomic groups
 # increasing variance between taxonomic groups the lower the taxonomic rank
@@ -147,7 +162,25 @@ var(psv.order, na.rm=TRUE)
 var (sackin.order)*100/var (sackin.phylum)  # 232% increase in Sackin
 var (psv.order, na.rm=TRUE)*100/var (psv.phylum, na.rm=TRUE)  # 127% increase in Sackin
 
-## Figures
+# Table S3 -- Clade analysis
+tapply (clade.stats$cm, clade.stats$scenario, mean, na.rm=TRUE)
+tapply (clade.stats$cm, clade.stats$scenario, sd, na.rm=TRUE)
+tapply (clade.stats$cg, clade.stats$scenario, mean, na.rm=TRUE)
+tapply (clade.stats$cg, clade.stats$scenario, sd, na.rm=TRUE)
+tapply (clade.stats$max.size, clade.stats$scenario, mean, na.rm=TRUE)
+tapply (clade.stats$max.size, clade.stats$scenario, sd, na.rm=TRUE)
+tapply (clade.stats$time.span, clade.stats$scenario, mean, na.rm=TRUE)
+tapply (clade.stats$time.span, clade.stats$scenario, sd, na.rm=TRUE)
+table (clade.stats$scenario)
+# correlations
+cor.test (clade.stats$tot.size, clade.stats$cm)
+cor.test (clade.stats$tot.size, clade.stats$cg)
+cor.test (clade.stats$cm, clade.stats$sig)
+cor.test (clade.stats$cg, clade.stats$sig)
+cor.test (clade.stats$cm, clade.stats$eps)
+cor.test (clade.stats$cg, clade.stats$eps)
+
+# FIGURES
 # taxonomic
 pdf (file.path (res.dir, 'taxonomic.pdf'), 14, 14)
 # phyla
@@ -157,7 +190,7 @@ sum (instances[1:5]) * 100 / sum(instances)  # 85%
 real.stats$phylum <- factor (real.stats$phylum, levels = names (instances))
 p <- ggplot (real.stats, aes (factor (real.stats$phylum))) +
   geom_bar() + coord_flip() + xlab ('Phylum') + ylab ('N. trees') +
-  theme (text=element_text(size=25))
+  theme (text=element_text(size=25)) + theme_bw ()
 print (p)
 ggBoxplot (real.stats, 'phylum', 'sackin', 'Sackin')
 # t.test (x=real.stats$sackin[real.stats$phylum == 'Streptophyta'],
@@ -193,8 +226,8 @@ for (stat.name in stat.names) {
 }
 dev.off ()
 
-# figure 3 -- Z-scores for simulated trees
-pdf (file.path (res.dir, 'figure_3.pdf'), width=8)
+# Z-scores for simulated trees
+pdf (file.path (res.dir, 'tp.pdf'), width=8)
 p <- tilePlot (stats, stats$colless, legend.title='Colless, Z-score')
 print (p)
 p <- tilePlot (stats, stats$sackin, legend.title='Sackin, Z-score')
@@ -207,8 +240,8 @@ p <- tilePlot (stats, stats$age, legend.title='Age, Z-score')
 print (p)
 dev.off ()
 
-# figure 4 -- distances to real trees
-pdf (file.path (res.dir, 'figure_4.pdf'), width=8)
+# distances to real trees
+pdf (file.path (res.dir, 'tp_dist_to_real.pdf'), width=8)
 distances <- abs (stats$colless - mean (real.stats$colless, na.rm=TRUE))
 p <- tilePlot (stats, distances, legend.title='Colless, Z-score')
 print (p)
@@ -223,8 +256,8 @@ p <- tilePlot (stats, distances, legend.title='PSV, Z-score')
 print (p)
 dev.off ()
 
-# figure 5 -- correlation between sig and imbalance
-pdf (file.path (res.dir, 'figure_5.pdf'))
+# correlation between sig and imbalance
+pdf (file.path (res.dir, 'corr_sig_balance.pdf'))
 cor (stats$colless, stats$sig)
 p <- ggplot (stats, aes (x=sig, y=colless))
 p <- p + geom_point () + stat_smooth (method='lm') +
@@ -257,8 +290,8 @@ pull <- stats$scenario == 'Eph'
 cor.test (stats$colless[pull], stats$psv[pull])
 
 
-# figure 6 -- correlation between eps and gravity for simulations of negative sig
-pdf (file.path (res.dir, 'figure_6.pdf'))
+# correlation between eps and gravity for simulations of negative sig
+pdf (file.path (res.dir, 'corr_eps_gravity.pdf'))
 cor (stats$psv[stats$sig < 0], stats$eps[stats$sig < 0])
 p <- ggplot (stats[stats$sig < 0, ], aes (x=eps, y=psv))
 p <- p + geom_point () + stat_smooth (method='lm') +
@@ -273,27 +306,18 @@ p <- p + geom_point () + stat_smooth (method='lm') +
 print (p)
 dev.off ()
 
-# figure 7 -- ED distributions
-# pdf (file.path (res.dir, 'figure_7.pdf'))
-# #ed.data <- rbind (ed.values, real.ed.values)  # TODO
-# ed.data <- ed.values
-# # TODO -- plot each of the scenarios with real EDs
-# p <- ggplot (ed.data, aes (x=ed.values, fill=groups))
-# p <- p + geom_density (alpha=0.5) + xlab ('ED, Z-score') + theme_bw()
-# print (p)
-# dev.off ()
-
-# figure 8 -- PCA
+# PCA
 stat.names <- c ("colless", "sackin", "psv")
 filtered <- filter (stats, grain=0.1)
-pca (stats, real.stats, stat.names, 'figure8.pdf',
+pca (stats, real.stats, stat.names, 'pca.pdf',
      ignore.chronos=FALSE)
-pca (filtered, real.stats, stat.names, 'figure8_filtered.pdf',
+pca (filtered, real.stats, stat.names, 'pca_filtered.pdf',
      ignore.chronos=FALSE)
-grains <- pca2 (stats, real.stats, stat.names, 'figure8_grains.pdf',
+grains <- pca2 (stats, real.stats, stat.names, 'pca_grains.pdf',
                 ignore.chronos=FALSE)
 
-# figure 10 -- tiles of pca res
+# Tiles of pca res
+pdf (file.path (res.dir, 'tp_pca.pdf'))
 real <- grains[nrow (grains), ]
 sim <- grains[-nrow (grains), ]
 d1 <- abs (real$pc1.mean - sim$pc1.mean)
@@ -306,70 +330,19 @@ p <- ggplot (sim, aes (x=eps, y=sig)) + geom_tile (aes (fill=d)) +
   labs (x=expression (epsilon), y=expression (sigma)) +
   theme_bw() + theme (axis.title=element_text(size=25))
 print (p)
+dev.off()
 
-# figure 9 -- looking at PCA of extreme scenarios only
+# Looking at PCA of extreme scenarios only
 stat.names <- c ("colless", "sackin", "psv")
-extreme <- rbind (readIn ('Pan'), readIn ('Eph'),
-                  readIn ('DE'), readIn ('PF'))
-pca (extreme, real.stats, stat.names, 'figure9.pdf',
+pca (extreme, real.stats, stat.names, 'pca_extreme.pdf',
      ignore.chronos=FALSE)
 
-# Table 3. test what proportion overlaps with real
-
-
-## Clade analysis
-# add cg and cm stats to stats
-min.size <- 50
-stats$cg.mean <- stats$cm.mean <- stats$cg.sd <- stats$cm.sd <-
-  stats$clade.max <- stats$clade.n <- NA
-pan.clades <- de.clades <- data.frame (init.col=rep(NA, 100))
-clades.files <- sub ('\\.tre', '_clades.csv', stats$treefilename)
-cladestats.files <- sub ('\\.tre', '_clade_stats.csv', stats$treefilename)
-for (i in 1:nrow (stats)) {
-  if (!file.exists (file.path ('results', analysis.name,
-                               clades.files[i]))) {
-    next
-  }
-  clade.stats <- read.csv (file.path ('results', analysis.name,
-                                      cladestats.files[i]))[,-1]
-  # filtering...
-  # ... ignore clades that started
-  clade.stats <- clade.stats[clade.stats$start != 1,]
-  # ... ignore clades that were still extant
-  clade.stats <- clade.stats[clade.stats$end != max (clade.stats$end),]
-  # ... only take clades over a certain size
-  clade.stats <- clade.stats[clade.stats$max.size > min.size, ]
-  # add to stats
-  stats$cg.mean[i] <- mean (clade.stats$cg, na.rm=TRUE)
-  stats$cg.sd[i] <- sd (clade.stats$cg, na.rm=TRUE)
-  stats$cm.mean[i] <- mean (clade.stats$cm, na.rm=TRUE)
-  stats$cm.sd[i] <- sd (clade.stats$cm, na.rm=TRUE)
-  if (length (clade.stats$max.size) == 0) {
-    stats$clade.max[i] <- 0
-  } else {
-    stats$clade.max[i] <- max (clade.stats$max.size)
-  }
-  stats$clade.n[i] <- nrow (clade.stats)
-  # collect extreme pan and de clades
-  if (stats$sig[i] < -0.5) {
-    # read in clades
-    clades <- read.csv (file.path ('results', analysis.name,
-                                   clades.files[i]))[,-1]
-    is <- colnames (clades) %in% clade.stats$name
-    if (stats$eps[i] < -0.5) {
-      pan.clades <- cbind (pan.clades, clades[1:100, is])
-    }
-    if (stats$eps[i] > 0.5) {
-      de.clades <- cbind (de.clades, clades[1:100, is])
-    }
-  }
-}
-# clade stats by scenario
-tapply (stats$cm.mean, stats$scenario, mean, na.rm=TRUE)
-tapply (stats$cg.mean, stats$scenario, mean, na.rm=TRUE)
-tapply (stats$clade.max, stats$scenario, mean, na.rm=TRUE)
-tapply (stats$clade.n, stats$scenario, mean, na.rm=TRUE)
-stats.reduced <- stats[!is.na(stats$cm.mean),]
-# plot clades
-plotNormalisedSuccess (pan.clades[,-1], min.size=50)
-plotNormalisedSuccess (de.clades[,-1], min.size=50, new.plot=FALSE, col='red')
+# clade analysis
+pdf (file.path (res.dir, 'clade_analysis.pdf'))
+pull <- !is.na (clade.stats$cm)
+p <- tilePlot (clade.stats[pull,], clade.stats$cm[pull], legend.title='CM, Z-score')
+print (p)
+pull <- !is.na (clade.stats$cg)
+p <- tilePlot (clade.stats[pull,], clade.stats$cg[pull], legend.title='CG, Z-score')
+print (p)
+dev.off()
