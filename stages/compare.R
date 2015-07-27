@@ -163,14 +163,18 @@ var (sackin.order)*100/var (sackin.phylum)  # 232% increase in Sackin
 var (psv.order, na.rm=TRUE)*100/var (psv.phylum, na.rm=TRUE)  # 127% increase in Sackin
 
 # Table S3 -- Clade analysis
-tapply (clade.stats$cm, clade.stats$scenario, mean, na.rm=TRUE)
-tapply (clade.stats$cm, clade.stats$scenario, sd, na.rm=TRUE)
-tapply (clade.stats$cg, clade.stats$scenario, mean, na.rm=TRUE)
-tapply (clade.stats$cg, clade.stats$scenario, sd, na.rm=TRUE)
-tapply (clade.stats$max.size, clade.stats$scenario, mean, na.rm=TRUE)
-tapply (clade.stats$max.size, clade.stats$scenario, sd, na.rm=TRUE)
-tapply (clade.stats$time.span, clade.stats$scenario, mean, na.rm=TRUE)
-tapply (clade.stats$time.span, clade.stats$scenario, sd, na.rm=TRUE)
+mean (clade.stats$cm, na.rm=TRUE)
+sd (clade.stats$cm, na.rm=TRUE)
+mean (clade.stats$cg, na.rm=TRUE)
+sd (clade.stats$cg, na.rm=TRUE)
+round (tapply (clade.stats$cm, clade.stats$scenario, mean, na.rm=TRUE), 4)
+round (tapply (clade.stats$cm, clade.stats$scenario, sd, na.rm=TRUE), 4)
+round (tapply (clade.stats$cg, clade.stats$scenario, mean, na.rm=TRUE), 4)
+round (tapply (clade.stats$cg, clade.stats$scenario, sd, na.rm=TRUE), 4)
+round (tapply (clade.stats$max.size, clade.stats$scenario, mean, na.rm=TRUE), 1)
+round (tapply (clade.stats$max.size, clade.stats$scenario, sd, na.rm=TRUE), 1)
+round (tapply (clade.stats$time.span, clade.stats$scenario, mean, na.rm=TRUE), 1)
+round (tapply (clade.stats$time.span, clade.stats$scenario, sd, na.rm=TRUE), 1)
 table (clade.stats$scenario)
 # correlations
 cor.test (clade.stats$tot.size, clade.stats$cm)
@@ -190,7 +194,7 @@ sum (instances[1:5]) * 100 / sum(instances)  # 85%
 real.stats$phylum <- factor (real.stats$phylum, levels = names (instances))
 p <- ggplot (real.stats, aes (factor (real.stats$phylum))) +
   geom_bar() + coord_flip() + xlab ('Phylum') + ylab ('N. trees') +
-  theme (text=element_text(size=25)) + theme_bw ()
+  theme_bw () + theme (text=element_text(size=25))
 print (p)
 ggBoxplot (real.stats, 'phylum', 'sackin', 'Sackin')
 # t.test (x=real.stats$sackin[real.stats$phylum == 'Streptophyta'],
