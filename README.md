@@ -16,17 +16,17 @@ Run the `install_deps.R` script to install all dependent packages automatically.
   + UNIX (but readily modifiable for Windows)
 * R version
   + 3+
-* R packages
-  + `plyr`
-  + `ape`
-  + `geiger`
-  + `apTreeshape`
-  + `ggplot2`
-  + `MoreTreeTools`
-  + `outliers`
-  + `doMC`
-  + `foreach`
-  + `test_that` (optional)
+* R packages (version used)
+  + `plyr` (1.8.1)
+  + `ape` (3.2)
+  + `geiger` (2.0.3)
+  + `apTreeshape` (1.4.5)
+  + `ggplot2` (1.0.0)
+  + `MoreTreeTools` (0.0.1)
+  + `outliers` (0.14)
+  + `doMC` (1.3.3, not for Windows)
+  + `foreach` (1.4.2)
+  + `test_that` (0.9.1, optional)
 
 **Directory structure**
 
