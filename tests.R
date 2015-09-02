@@ -44,14 +44,14 @@ test_that ('convertToDist([basic]) works ...', {
   res <- convertToDist (tree, 1)[[1]]
   expect_that (res$Nnode, equals (9))
 })
-test_that ('safeChronos([basic]) works ...', {
+test_that ('safeChronoMPL([basic]) works ...', {
   # create a simple non-ultrametric tree
   tree <- rtree (10)
-  res1 <- safeChronos (tree)
+  res1 <- safeChronoMPL (tree)
   expect_that (is.ultrametric (res1), is_true ())
   # create a simple tree without branch lengths
   tree <- stree (10)
-  res2 <- safeChronos (tree)
+  res2 <- safeChronoMPL (tree)
   expect_that (is.ultrametric (res2), throws_error ())
 })
 context ('Testing precalculate tools ...')
