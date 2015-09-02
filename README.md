@@ -68,10 +68,30 @@ trees:
 This reproduces all the results:
 
 1. Model trees according to parameters in `run.R`
-2. Compare results from modelled trees with statistics generated at setup.
+2. Calculate tree shape statistics
 
-N.B. the taxonomise and clade stages must be run separately, these are not part
-of the pipeline and are were post-hoc.
+In the this script you will need to specify the parameters in a list structure.
+For example the 10,000 trees analysis used in the publication was called
+analysis_5 and was simulated with this list object:
+
+```{R}
+analysis.5 <- list (n.model = 10000, seed = 2,
+                    max.birth = 2, min.birth = 2,
+                    max.death = 1, min.death = 1,
+                    bias = 'FP', stop.by = 'n',
+                    max.ntaxa = 500, min.ntaxa = 50,
+                    min.sig = -1, max.sig = 1,
+                    min.eps = -1, max.eps = 1,
+                    reference = TRUE,
+                    iterations = 100)
+```
+
+The results from this analysis were subsequently supplemented with
+results generated outside of the pipeline structure from an additional set of
+analyses looking at the extremes of the scenario parameter space (analysis
+  parameters in latest version of run.R) and with the results from the
+taxonomise and clade stages [first 1000 results]. All results described in the
+publication were then generated with the `compare.R` script.
 
 **Testing**
 
