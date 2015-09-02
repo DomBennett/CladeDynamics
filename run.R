@@ -86,9 +86,9 @@ iterateAnalyses <- function (i) {
   cat ('\n--------------------------------\n')
   source (file.path ('stages', 'model.R'), print.eval = TRUE, local = TRUE)
   cat ('\n--------------------------------')
-  cat ('          Compare stage ....\n')
+  cat ('          Calculate stage ....\n')
   cat ('\n--------------------------------\n')
-  #source (file.path ('stages','compare.R'), print.eval = TRUE, local = TRUE)
+  source (file.path ('stages','calculate.R'), print.eval = TRUE, local = TRUE)
 }
 
 ## Run
