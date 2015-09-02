@@ -1,65 +1,82 @@
-# Evolutionary Distinctiveness Biased Markov Modelling (EDBMM)
-An R pipeline for exploring how an evolutionary distinctiveness bias
-in a tree-growth Markov model affects tree shape and clade dynamics.
+# Evolutionary Distinctness Biased Markov Model (EDBMM)
 
-## System requirements
+An R pipeline for exploring how an evolutionary distinctness bias in a
+tree-growth Markov model affects tree shape and clade dynamics in order to test
+the reality of the living fossil.
+
+Data and results files are not provided in this repository, only the code is.
+The final set of files and folders used for publication can be found [here]().
+ (*Publication pending*)
+
+**System requirements**
+
+Run the `install_deps.R` script to install all dependent packages automatically.
+
+* OS
+  + UNIX (but readily modifiable for Windows)
 * R version
-  + 3.0.1+
-* Deps
+  + 3+
+* R packages
   + `plyr`
   + `ape`
   + `geiger`
   + `apTreeshape`
   + `ggplot2`
   + `MoreTreeTools`
-* Optional
-  + `test_that`
-  + `UNIX` -- for running parts in parallel
+  + `outliers`
+  + `doMC`
+  + `foreach`
+  + `test_that` (optional)
 
-##Pipeline structure
-###Scripts
-* `batch_run.R`: run all analyses
-* `run_analysis_1.R`: run analysis 1
-* `run_analysis_2.R`: run analysis 2
-* `run_analysis_3.R`: run analysis 3
-* `run_analysis_4.R`: run analysis 4
-* `run_tests.R`: run this script to test all custom functions using the test_that package
+**Directory structure**
 
-###Folders
-* data: contains real phylogenetic trees and their stats, see its README
-* original_results: the results as used in publication
-* tools: contains custom functions associated with each script
-* other: contains scripts for running pre-calculations, see its README
-* stages: scripts for running differents steps of the analysis pipeline
-* sanity_checks: scripts for testing assumptions and ideas are good
-* results: this folder will hold all the results generated for each analysis
-  + analysis_1
-  + analysis_2
-  + analysis_3
-  + analysis_4
+```
+-- data/
+---- raw_trees/
+------ literature/
+-------- [manually added]
+------ treebase/
+---- parsed_trees/
+---- treestats/
+-- stages/
+---- [all stage .R scripts]
+-- tools/
+---- [all tool .R scripts]
+-- results/
+----- [any folders named by analysis as specified in run.R]
+-- other/
+-- sanity_checks/
+```
 
-##Notes
-1. `MoreTreeTools` is not available from CRAN but can be installed with
-the package `devtools` via GitHub:
+**Pipeline**
 
-  ```{r}
-  library (devtools)
-  install_github ('DomBennett/MoreTreeTools')
-  ```
-  
-2. Results can be reproduce results it in an R session:
-  
-  ```{r}
-  source ('batch_run.R')
-  ```
-  
-  Or, via command-line:
-  
-  ```
-  Rscript batch_run.R
-  ```
-  
-3. The original results took ## hours and ## minutes to produce running on ...
+The pipeline works by calling either `setup.R` or `run.R`. These scripts call
+stage scripts which can be found in [`/stages`](https://github.com/DomBennett/Project-EDBMM/tree/master/stages).
+The stages scripts depend on custom functions found in the [`/tools`](https://github.com/DomBennett/Project-EDBMM/tree/master/tools) folder.
 
-##Author
-D.J.Bennett (ICL & ZSL)
+**setup.R**
+
+This phase of the pipeline sources and calculates statistics from empirical
+trees:
+
+1. Download trees from TreeBase
+2. Parse trees
+3. Calculate tree shape statistics
+
+**run.R**
+
+This reproduces all the results:
+
+1. Model trees according to parameters in `run.R`
+2. Compare results from modelled trees with statistics generated at setup.
+
+N.B. the taxonomise and clade stages must be run separately, these are not part
+of the pipeline and are were post-hoc.
+
+**Testing**
+
+Run `test.R` to make sure core functions are working.
+
+**Author**
+
+Dom Bennett
