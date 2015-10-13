@@ -11,3 +11,6 @@ temp*
 *log*
 *backup*
 *.tar.gz
+
+# execs
+*PATHd8*
