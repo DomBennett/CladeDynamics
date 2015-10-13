@@ -9,12 +9,12 @@
 cat (paste0 ('\nsetup.R started at [', Sys.time (), ']'))
 
 ## Parameters
-use.chronos <- TRUE # make trees ultrametric?
+rate.smooth <- c ('pathD8', 'chronoMPL', 'chronopl') # none, pathD8, chronoMPL, chronopl or vector
 subsample <- FALSE # if numeric, take only subsample of trees for download
 tree.dist <- 100 # the number of trees in a distribution for a polytomous tree
 min.taxa <- 50 # the minimum tree size to be downloaded
 max.taxa <- 500 # the maximum tree size to be downloaded
-overwrite <- FALSE # delete all existing parsed trees and run again
+overwrite <- TRUE # delete all existing parsed trees and run again
 ncpus <- 6  # number of processes for running parse in parallel
 
 ## Process
@@ -27,12 +27,17 @@ cat ('\n--------------------------------\n')
 cat ('\n--------------------------------')
 cat (paste0 ('\n          Parsing'))
 cat ('\n--------------------------------\n')
-source (file.path ('stages', 'parse.R'), print.eval = TRUE)
+# parse with multiple rate smoothers
+for (rate.smooth in rate.smooths) {
+  source (file.path ('stages', 'parse.R'), print.eval = TRUE)
+}
 # precalculate
 cat ('\n--------------------------------')
 cat (paste0 ('\n          Precalculation'))
 cat ('\n--------------------------------\n')
-source (file.path ('stages', 'precalculate.R'), print.eval = TRUE)
+for (rate.smooth in rate.smooths) {
+  source (file.path ('stages', 'precalculate.R'), print.eval = TRUE)
+}
 
 ## Timestamp
 cat (paste0 ('\nsetup.R finished at [', Sys.time (), ']'))

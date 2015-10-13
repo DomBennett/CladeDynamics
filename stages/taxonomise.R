@@ -59,7 +59,11 @@ getMostCommon <- function (line.rank) {
 }
 
 # DIRS
-input.dir <- file.path ('data', 'parsed_trees')
+# choose any of the parsed dirs
+pfolders <- list.files ('data')
+pfolders <- pfolders[sapply (pfolders, grepl,
+                     pattern='^parsed_trees_.*')]
+input.dir <- sample (pfolders, 1)
 output.dir <- file.path ('data', 'treestats')
 
 # INPUT
@@ -105,7 +109,8 @@ for (i in 1:length (tiplabels)) {
   } else {
     phylum <- class <- order <- NA
   }
-  row.element <- data.frame (treefile=treefiles[i], phylum=phylum,
+  row.element <- data.frame (treefile=treefiles[i],
+                             phylum=phylum,
                              class=class, order=order)
   taxoinfo <- rbind (taxoinfo, row.element)
 }

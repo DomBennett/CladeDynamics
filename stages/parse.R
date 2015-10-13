@@ -25,8 +25,8 @@ getTreeFiles <- function (dirs) {
 ## Parameters
 if (!exists ('tree.dist')) {
   tree.dist <- 1 # how many trees in a dichotomous distribution?
-  use.chronos <- TRUE # use chronos to make trees ultrametric?
-  overwrite <- FALSE
+  rate.smooth <- 'chronopl' # none, pathD8, chronoMPL or chronopl
+  overwrite <- TRUE
   subsample <- 10
   ncpus <- 2
 }
@@ -37,7 +37,7 @@ treebase.dir <- file.path ('data', 'raw_trees',
                            'treebase')
 literature.dir <- file.path ('data', 'raw_trees',
                              'literature')
-output.dir <- file.path ('data', 'parsed_trees')
+output.dir <- file.path ('data', paste0 ('parsed_trees_', rate.smooth))
 if (!file.exists (output.dir)) {
   dir.create (output.dir)
 }
@@ -66,7 +66,7 @@ if (!file.exists (parse.log)) {
                          "publisher", "author",
                          "title", "multi",
                          "poly", "bl", "ultra",
-                         "chronos")
+                         "rate.smooth")
   write.table (headers, parse.log, sep = ',',
                row.names = FALSE, col.names = FALSE)
 }
@@ -99,7 +99,7 @@ metadata$multi <- FALSE # part of a collection of trees
 metadata$poly <- FALSE # original tree was polytomous
 metadata$bl <- TRUE # original tree had branch lengths
 metadata$ultra <- FALSE # original tree was ultrametric
-metadata$chronos <- FALSE # made ultrametric by chronos
+metadata$rate.smooth <- FALSE # made ultrametric by rate.smooth
 
 ## Parse
 counter <- foreach (i=1:length (tree.files)) %dopar% {
@@ -134,12 +134,11 @@ counter <- foreach (i=1:length (tree.files)) %dopar% {
     cat (paste0 ('\nWorking on [', tree.files[i],
                  '] [', i, '/', length (tree.files),']'))
     # if not ultrametric make it (if I can)
-    if (use.chronos && bl.bool && !ultra.bool) {
-      cat ('\n.... using chronoMPL')
-      tree <- safeChronoMPL (tree)
+    if (rate.smooth != 'none' && bl.bool && !ultra.bool) {
+      tree <- runRateSmoother (tree, i=i, rsmoother=rate.smooth)
       if (is.ultrametric (tree)) {
         class (tree) <- 'phylo'
-        tempinfo['chronos'] <- TRUE
+        tempinfo['rate.smooth'] <- rate.smooth
       }
     }
     # if polytomous, convert to a distribution

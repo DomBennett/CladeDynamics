@@ -10,10 +10,11 @@ source (file.path ('tools', 'compare_tools.R'))
 if (!exists ('min.taxa')) {
   min.taxa <- 50
   max.taxa <- 500
+  rate.smooth <- 'pathD8'
 }
 
 ## Dirs
-input.dir <- file.path ('data', 'parsed_trees')
+input.dir <- file.path ('data', paste0 ('parsed_trees_', rate.smooth))
 output.dir <- file.path ('data', 'treestats')
 if (!file.exists (output.dir)) {
   dir.create (output.dir)
@@ -22,7 +23,6 @@ if (!file.exists (output.dir)) {
 ## Input
 treeinfo.master <- read.csv (file.path (input.dir,
                                         'treeinfo.csv'))
-treeinfo.master <- treeinfo.master[1:10, ]
 treeinfo <- data.frame ()
 trees <- list ()
 study.names <- NULL
@@ -76,6 +76,7 @@ real.stats <- data.frame (colless, sackin, psv, gamma, age, pd)
 real.stats <- cbind (treeinfo, real.stats)
 
 ## Save
-filename <- paste0 ('min', min.taxa, '_max', max.taxa, '.Rd')
+filename <- paste0 ('min', min.taxa, '_max', max.taxa, '_rs',
+                    rate.smooth, '.Rd')
 save (real.stats, file = file.path (output.dir, filename))
 cat (paste0 ('\nStage complete, calculated for [', counter,'] tree sets'))
