@@ -9,13 +9,13 @@
 cat (paste0 ('\nsetup.R started at [', Sys.time (), ']'))
 
 ## Parameters
-rate.smooth <- c ('pathD8', 'chronoMPL', 'chronopl') # none, pathD8, chronoMPL, chronopl or vector
+rate.smooths <- c ('pathD8', 'chronoMPL', 'chronopl') # none, pathD8, chronoMPL, chronopl or vector
 subsample <- FALSE # if numeric, take only subsample of trees for download
 tree.dist <- 100 # the number of trees in a distribution for a polytomous tree
 min.taxa <- 50 # the minimum tree size to be downloaded
 max.taxa <- 500 # the maximum tree size to be downloaded
 overwrite <- TRUE # delete all existing parsed trees and run again
-ncpus <- 6  # number of processes for running parse in parallel
+ncpus <- 8  # number of processes for running parse in parallel
 
 ## Process
 # download
