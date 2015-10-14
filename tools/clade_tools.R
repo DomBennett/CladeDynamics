@@ -18,7 +18,7 @@ readInCladeStats <- function (stats, analysis.name,
       part.clade.stats$eps <- stats$eps[i]
       if (filter) {
         # ... ignore clades that started
-        part.clade.stats <- part.clade.stats[part.clade.stats$start != 1,]
+        part.clade.stats <- part.clade.stats[part.clade.stats$start > 25,]
         # ... ignore clades that were still extant
         part.clade.stats <- part.clade.stats[part.clade.stats$end != max (part.clade.stats$end),]
         # ... only take clades over a certain size
@@ -30,10 +30,10 @@ readInCladeStats <- function (stats, analysis.name,
     }
   }
   # get all files
-  cladestats.files <- sub ('\\.tre', '_clade_stats.csv',
+  cladestats.files <- sub ('\\.tre', '_clade_ind_stats.csv',
                            stats$treefilename)
   # template
-  clade.stats <- data.frame (name=NA, tot.size=NA,
+  clade.stats <- data.frame (cid=NA, tot.size=NA,
                              max.size=NA, time.span=NA,
                              start=NA, end=NA, cm=NA, cg=NA,
                              sig=NA, eps=NA, scenario=NA)
