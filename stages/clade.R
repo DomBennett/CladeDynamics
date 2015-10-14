@@ -11,28 +11,38 @@ library (doMC)
 library (MoreTreeTools)
 
 ## Parameters
-if (!exists ('pars')) {
+if (!exists ('name')) {
   name <- 'analysis_5'
   runtime <- 2  # how much longer than the original tree
   sample.rate <- 0.01  # sample rate
-  ncpus <- 8
+  ncpus <- 2
+  overwrite <- FALSE
 }
 registerDoMC (ncpus)
-overwrite <- FALSE
 
 ## Dirs
-wd <- file.path ('results', name)
+input.dir <- file.path ('results', name)
+output.dir <- file.path (input.dir, 'clade_results')
+if (!file.exists (output.dir)) {
+  dir.create (output.dir)
+}
 
 ## Functions
 check <- function (outfile) {
   # check if clade files already exist
-  clades.file <- file.path (wd, paste0 (outfile, '_clades.csv'))
-  clade.stats.file <- file.path (wd, paste0 (outfile, '_clade_stats.csv'))
-  res <- c ('cf'=clades.file, 'csf'=clade.stats.file)
+  clades.file <- file.path (output.dir, paste0 (outfile, '_clades.csv'))
+  cladesi.file <- file.path (output.dir, paste0 (outfile, '_clades_ind.csv'))
+  clade.stats.file <- file.path (output.dir, paste0 (outfile, '_clade_stats.csv'))
+  cladei.stats.file <- file.path (output.dir, paste0 (outfile, '_clade_ind_stats.csv'))
+  trees.file <- file.path (output.dir, paste0 (outfile, '_recorded.rda'))
+  res <- c ('cf'=clades.file, 'csf'=clade.stats.file, 'trees'=trees.file,
+            'cfi'=cladesi.file, 'csfi'=cladei.stats.file)
   if (overwrite) {
     return (res)
   }
-  if (file.exists (clades.file) & file.exists (clade.stats.file)) {
+  if (file.exists (clades.file) & file.exists (clade.stats.file) &
+        file.exists (trees.file) & file.exists (cladesi.file) &
+        file.exists (cladei.stats.file)) {
     return (NA)
   }
   res
@@ -40,7 +50,7 @@ check <- function (outfile) {
 
 
 ## Input
-runlog <- read.csv (file.path (wd, 'runlog.csv'),
+runlog <- read.csv (file.path (input.dir, 'runlog.csv'),
                     stringsAsFactors=FALSE)
 
 ## Generate clades
@@ -51,14 +61,14 @@ counter <- foreach (i=1:nrow (runlog)) %dopar% {
   # check if its already been run
   outfiles <- check (sub ('\\.tre', '', filename))
   if (is.na (outfiles[1])) {
-    next
+    return (0)
   }
   # read in tree
-  tree <- read.tree (file.path (wd, filename))
+  tree <- read.tree (file.path (input.dir, filename))
   # get age and time to run for
   age <- getSize (tree, 'rtt')
   t.stop <- age*runtime
-  # sample every 0.1 times
+  # sample every sample rate times
   sample <- t.stop*sample.rate
   # rename tip labels and node labels to avoid shared names
   tree$tip.label <- paste0 ('t', 1:getSize (tree))
@@ -77,13 +87,19 @@ counter <- foreach (i=1:nrow (runlog)) %dopar% {
                      seed.tree=tree)
   # get clades from trees
   clades <- getCladeSuccess (trees)
+  clades.ind <- getCladeSuccess (trees, ind=TRUE)
+  # save trees as rda to keep nodelabels
+  save (trees, file=outfiles['trees'])
   # remove trees
   rm (trees)
   # calc stats
   clade.stats <- calcCladeStats (clades)
+  clade.ind.stats <- calcCladeStats (clades.ind)
   # write out
   write.csv (clades, outfiles['cf'])
   write.csv (clade.stats, outfiles['csf'])
+  write.csv (clades.ind, outfiles['cfi'])
+  write.csv (clade.ind.stats, outfiles['csfi'])
   1
 }
 cat ('\nDone. Generated clade stats for [', sum (unlist (counter)),
