@@ -65,6 +65,7 @@ pathD8 <- function (tree, i=1) {
   if (!is.ultrametric (tree)) {
     # Run pathd8 from system path
     # Use i to give unique name (optional)
+    tree$node.label <- NULL  # reduce error rate by removing node labels that may be non-regular
     infile <- paste0 ('temp_pathd8_', i, '_in.tre')
     outfile <- paste0 ('temp_pathd8_', i, '_out.tre')
     write.tree (tree, infile)
