@@ -71,9 +71,12 @@ pathD8 <- function (tree, i=1) {
     write.tree (tree, infile)
     system (paste0 ('./PATHd8 ', infile, ' ', outfile),
             ignore.stdout=TRUE)
-    tree <- read.tree (outfile)
+    res.tree <- try (suppressWarnings (read.tree (outfile)),
+                 silent=TRUE)
     system (paste0 ('rm ', infile, ' ', outfile))
-    tree <- tree[[1]]  # use d8 tree
+    if (class (res.tree) != 'try-error') {
+      tree <- res.tree[[1]]  # use d8 tree
+    }
   }
   tree
 }
