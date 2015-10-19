@@ -9,7 +9,7 @@ cat (paste0 ('\nrun.R started at [', Sys.time (), ']'))
 library (plyr)
 
 ## Load parameters
-parfile <- 'pandf.R'
+parfile <- 'hydra.R'
 source (file.path ('parameters', parfile))
 
 # if there isn't a results folder, create one

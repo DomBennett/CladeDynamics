@@ -7,6 +7,9 @@
 # PARAMETERS
 runlog <- read.csv ('results/clade_results_5/runlog.csv',
                     stringsAsFactors=FALSE)
+runlog <- runlog[1:900,]
+which (runlog$eps < -0.85 & runlog$sig > 0.85)
+treeid <- 401
 treeids <- 1:26
 pdf ('clade_results.pdf')
 for (treeid in treeids) {
@@ -31,6 +34,13 @@ for (treeid in treeids) {
 }
 dev.off()
 
+p.pan <- p
+p.de <- p
+
+pdf ('example_clade_plots.pdf')
+print (p.pan + ggtitle ('Pan'))
+print (p.de + ggtitle ('DE'))
+dev.off()
 
 # using CM and CG
 source (file.path ('tools', 'compare_tools.R'))

@@ -9,7 +9,7 @@ cat (paste0 ('\nclade_run.R started at [', Sys.time (), ']'))
 library (plyr)
 
 ## Load parameters
-analysis.names <- c ('pan', 'de')  # vector of analysis names to run from
+analysis.names <- c ('pan', 'de', 'hydra')  # vector of analysis names to run from
 runtime <- 2  # how much longer than the original tree
 sample.rate <- 0.01  # sample rate
 ncpus <- 8
