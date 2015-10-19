@@ -1,8 +1,13 @@
 # Evolutionary Distinctness Biased Markov Model (EDBMM)
 
 An R pipeline for exploring how an evolutionary distinctness bias in a
-tree-growth Markov model affects tree shape and clade dynamics in order to test
+tree-growth Markov model affects tree shape in order to test
 the reality of the living fossil.
+
+The pipeline uses a Markov-Model to grow trees with extinction and speciation
+rates determined by a tip's evolutionary distinctness.
+
+![EDBMM](https://raw.githubusercontent.com/DomBennett/Project-EDBMM/master/other/EDBMM.png "Evolutionary Distinctness Biased Markov Model")
 
 Data and results files are not provided in this repository, only the code is.
 The final set of files and folders used for publication can be found [here]().
@@ -27,6 +32,8 @@ Run the `install_deps.R` script to install all dependent packages automatically.
   + `doMC` (1.3.3, not for Windows)
   + `foreach` (1.4.2)
   + `test_that` (0.9.1, optional)
+  
+Please note, [MoreTreeTools](https://github.com/DomBennett/MoreTreeTools) is in development and can only be installed via GitHub.
 
 **Directory structure**
 
@@ -52,7 +59,7 @@ Run the `install_deps.R` script to install all dependent packages automatically.
 
 **Pipeline**
 
-The pipeline works by calling the pipeline scripts `setup.R`, `run.R` and `clade.R`. These scripts call
+The pipeline works by calling the pipeline scripts `setup.R` and `run.R`. These scripts call
 stage scripts which can be found in [`/stages`](https://github.com/DomBennett/Project-EDBMM/tree/master/stages).
 The stages scripts depend on custom functions found in the [`/tools`](https://github.com/DomBennett/Project-EDBMM/tree/master/tools) folder.
 
@@ -75,14 +82,6 @@ This phase models trees for determining how model parameters affect tree shape:
 1. Read in parameters from [`parameters/`](https://github.com/DomBennett/Project-EDBMM/tree/master/parameters)
 2. Model trees according to parameters in `run.R`
 3. Calculate tree shape statistics
-
-**clade.R**
-
-This phase takes results from `run.R` and continues the simulation of trees
-with the same parameters while recording trees at set time points in order to
-generate clade sizes through time.
-
-1. Simulate clades
 
 **Analysis**
 
