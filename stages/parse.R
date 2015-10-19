@@ -27,7 +27,7 @@ if (!exists ('tree.dist')) {
   tree.dist <- 1 # how many trees in a dichotomous distribution?
   rate.smooth <- 'chronopl' # none, pathD8, chronoMPL or chronopl
   overwrite <- TRUE
-  subsample <- 10
+  subsample <- FALSE
   ncpus <- 2
 }
 registerDoMC (ncpus)
@@ -135,9 +135,10 @@ counter <- foreach (i=1:length (tree.files)) %dopar% {
                  '] [', i, '/', length (tree.files),']'))
     # if not ultrametric make it (if I can)
     if (rate.smooth != 'none' && bl.bool && !ultra.bool) {
-      tree <- runRateSmoother (tree, i=i, rsmoother=rate.smooth)
-      if (is.ultrametric (tree)) {
-        class (tree) <- 'phylo'
+      rs.tree <- runRateSmoother (tree, i=i, rsmoother=rate.smooth)
+      if ('phylo' %in% class (rs.tree) && is.ultrametric (rs.tree)) {
+        class (rs.tree) <- 'phylo'
+        tree <- rs.tree
         tempinfo['rate.smooth'] <- rate.smooth
       }
     }
