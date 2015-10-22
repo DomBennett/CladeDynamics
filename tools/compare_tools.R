@@ -62,6 +62,34 @@ readIn <- function (analysis.name) {
   return (stats)
 }
 
+readInMultiple <- function (filenames) {
+  # read in multiple real stats from a list of tree stat files
+  #  generated with different rate.smoothing methods
+  getRateSmooth <- function (uniq.vals) {
+    as.character (uniq.vals[uniq.vals != FALSE])
+  }
+  bindStats <- function (filename, combined=NULL) {
+    # read in and bind stats to already existing stats
+    load (filename)
+    rs.method <- getRateSmooth (unique (real.stats$rate.smooth))
+    new.names <- paste0 (change.names, '.', rs.method)
+    new.name.is <- match (change.names, colnames (real.stats))
+    colnames (real.stats)[new.name.is] <- new.names
+    if (is.null (combined)) {
+      combined <- real.stats
+    } else {
+      combined <- cbind (combined, real.stats[ ,new.name.is])
+    }
+    combined
+  }
+  change.names <- c ("ultra", "psv", "gamma", "age", "pd")
+  combined <- bindStats (filenames[1])
+  for (filename in filenames[2:length (filenames)]) {
+    combined <- bindStats (filename, combined)
+  }
+  combined[ ,colnames (combined) != 'rate.smooth']
+}
+
 pca2 <- function (stats, real.stats, stat.names, filename,
                  ignore.chronos=TRUE) {
   addDistances <- function (pc.sim) {
@@ -173,74 +201,90 @@ pca2 <- function (stats, real.stats, stat.names, filename,
   return (res)
 }
 
-pca <- function (stats, real.stats, stat.names, filename,
-                 ignore.chronos=TRUE) {
-  pdf (file.path (res.dir, filename), width=9, height=7)
-  # remove any that aren't ultrametric or rate.smooted
-  if (ignore.chronos) {
-    real.stats <- real.stats[real.stats$ultra, ]
-  } else {
-    real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
+pca <- function (stats, real.stats, stat.names) {
+  # init input
+  col.names <- c ('scenario', stat.names)
+  input <- stats[ ,col.names]
+  input$shape <- 'Sim.'
+  # find all rate smooth methods from real.stats
+  methods <- colnames (real.stats)[grepl ('psv', colnames (real.stats))]
+  methods <- unlist (strsplit (methods, 'psv\\.'))
+  methods <- methods[methods != '']
+  for (method in methods) {
+    pull.cols <- c (match (stat.names, colnames (real.stats)),
+                    match (paste0 (stat.names, '.', method),
+                           colnames (real.stats)))
+    pull.cols <- pull.cols[!is.na (pull.cols)]
+    part <- real.stats[ ,pull.cols]
+    colnames (part) <- stat.names
+    # remove any NAs
+    drop.bool <- rep (FALSE, nrow (part))
+    for (stat.name in stat.names) {
+      drop.bool <- drop.bool | is.na (part[ , stat.name])
+    }
+    part <- part[!drop.bool, ]
+    # add additional scenario column
+    part$scenario <- 'Emp.'
+    part$shape <- method
+    input <- rbind (input, part)
   }
-  real.stats <- real.stats[!is.na (real.stats$gamma), ]
-  real.stats <- real.stats[!is.na (real.stats$psv), ]
-  real.stats <- real.stats[!is.na (real.stats$sackin), ]
-  real.stats <- real.stats[!is.na (real.stats$colless), ]
-  print (nrow (real.stats))
-  real.stats$sig <- NA
-  real.stats$eps <- NA
-  cols <- c ('sig', 'eps', stat.names)
-  input <- rbind (stats[ ,cols], real.stats[, cols])
-  pca.res <- prcomp (input[,cols[-c(1,2)]],
-                     scale. = TRUE, center = TRUE)
-  pca.x <- as.data.frame(pca.res$x[!is.na (input$eps), ])
-  pca.x$Scenario <- stats$scenario
-  pca.x.real <- as.data.frame(pca.res$x[is.na (input$eps), ])
+  # run PCA
+  pca.res <- prcomp (input[ ,stat.names], scale.=TRUE, center=TRUE)
+  xvals <- data.frame (pca.res$x)
+  xvals$Scenario <- input$scenario
+  xvals$shape <- input$shape
   pca.rot <- as.data.frame (pca.res$rotation)
   prop.var <- round (sapply (pca.res$sdev^2,
                              function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
   names (prop.var) <- colnames (pca.rot)
+  res <- list ('x'=xvals, 'p.var'=prop.var)
+  res
+}
+
+plotPCA <- function (pca.res, filename) {
+  # set theme defaults
+  themedfs <- theme_bw () + theme (legend.title=element_blank(),
+                                   text=element_text(size=15))
+  # open filehandle
+  pdf (filename, width=9, height=7)
+  # unpack pca.res
+  res <- pca.res$x
+  prop.var <- pca.res$p.var
   # plot means
-  res <- data.frame (pca.res$x)
-  res$Scenario <- c (stats$scenario, rep ('Emprical', nrow (real.stats)))
-  res <- ddply (res, .variables=.(Scenario),
+  res <- ddply (res, .variables=.(Scenario, shape),
                 .fun=summarize, PC1.mean = mean (PC1, na.rm = TRUE),
                 PC1.se = sd (PC1, na.rm = TRUE) / sqrt (length (PC1)),
                 PC2.mean = mean (PC2, na.rm = TRUE),
                 PC2.se = sd (PC2, na.rm = TRUE) / sqrt (length (PC2)))
   limitsx <- aes (colour = Scenario, xmax = PC1.mean + PC1.se,
-                 xmin = PC1.mean - PC1.se)
+                  xmin = PC1.mean - PC1.se)
   limitsy <- aes (colour = Scenario, ymax = PC2.mean + PC2.se,
                   ymin = PC2.mean - PC2.se)
   p <- ggplot (res, aes (x=PC1.mean, y=PC2.mean))
-  p <- p + geom_point (aes (colour=Scenario)) +
-    geom_errorbar(limitsy, width=0.2) +
-    geom_errorbarh(limitsx, width=0.2) +
+  p <- p + geom_point (aes (colour=Scenario, shape=shape), size=3) +
+    geom_errorbar(limitsy, width=0) +
+    geom_errorbarh(limitsx, height=0) +
     xlab (paste0 ('Imbalance - PC1', " (", prop.var['PC1']*100, "%)")) +
     ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
-    theme_bw ()
+    themedfs
   print (p)
-  combined <- pca.x.real
-  combined$Scenario <- 'Empirical'
-  combined <- rbind (pca.x, combined)
   # plot all points
   comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
   for (comp in comparisons) {
     # points + errorbars
-    p <- ggplot (pca.x, aes_string (x = comp[1], y = comp[2])) +
-      geom_point (aes (colour=Scenario)) +
-      geom_point (data = pca.x.real, colour = 'black', shape = 3) +
+    p <- ggplot (pca.res$x, aes_string (x = comp[1], y = comp[2])) +
+      geom_point (aes (colour=Scenario, shape=shape)) +
       xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
       ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
       theme_bw ()
     print (p)
     rm (p)
-    plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
-         ylab = comp[2], cex = 0.5, pch = 19)
-    text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
-          rownames (pca.rot[comp[1]]), adj = 1)
+    #plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
+    #     ylab = comp[2], cex = 0.5, pch = 19)
+    #text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
+    #      rownames (pca.rot[comp[1]]), adj = 1)
     # densities
-    p <- ggplot (combined, aes_string (x = comp[1], y = comp[2])) +
+    p <- ggplot (pca.res$x, aes_string (x = comp[1], y = comp[2])) +
       geom_density2d(aes (colour=Scenario), stat_bin=1) + theme_bw()
     print (p)
   }
@@ -298,6 +342,8 @@ getScenarios <- function (stats) {
       stats$scenario[i] <- 'PF'
     } else if (stats$eps[i] > 0 & stats$sig[i] < 0) {
       stats$scenario[i] <- 'DE'
+    } else if (stats$eps[i] == 0 & stats$sig[i] < 0) {
+      stats$scenario[i] <- 'Hyd'
     } else {
       stats$scenario[i] <- 'Pan'
     }

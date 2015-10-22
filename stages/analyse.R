@@ -5,7 +5,6 @@
 # LIBS
 source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'misc_tools.R'))
-source (file.path ('tools', 'clade_tools.R'))
 library (outliers)
 
 # DIRS
@@ -13,16 +12,18 @@ data.dir <- file.path ('data', 'treestats')
 
 # PARAMETERS
 analysis.name <- 'analysis_5'
-res.dir <- file.path ('results', analysis.name)
+res.dir <- file.path ('results', 'figures')
 data.dir <- file.path ('data', 'treestats')
-empirical.file <- 'min50_max500.Rd'
+empirical.filenames <- c ('min50_max500_rspathD8.Rd',
+                          'min50_max500_rschronopl.Rd',
+                          'min50_max500_rschronoMPL.Rd')
 
 # INPUT
 stats <- readIn (analysis.name)
 extreme <- rbind (readIn ('Pan'), readIn ('Eph'),
-                  readIn ('DE'), readIn ('PF'))
-# load pre-calculated empirical tree stats -- real.stats and real.ed.values
-load (file.path (data.dir, empirical.file))
+                  readIn ('DE'), readIn ('PF'), readIn ('Hydra'))
+# load pre-calculated empirical tree stats -- real.stats
+real.stats <- readInMultiple (file.path (data.dir, empirical.filenames))
 # add taxoinfo to real.stats
 taxoinfo <- read.csv (file.path (data.dir, 'taxoinfo.csv'),
                       stringsAsFactors=FALSE)
@@ -35,8 +36,6 @@ real.stats$order[match.is] <- taxoinfo$order
 real.stats$phylum[is.na (real.stats$phylum)] <- 'Unknown'
 real.stats$class[is.na (real.stats$class)] <- 'Unknown'
 real.stats$order[is.na (real.stats$order)] <- 'Unknown'
-# read in clades
-clade.stats <- readInCladeStats (stats, analysis.name)
 
 # QUICK STATS
 # how many tips?
@@ -73,21 +72,31 @@ real.stats$gamma[!(real.stats$ul | real.stats$chronos)] <- NA
 sum (!is.na (real.stats$gamma))  # should be about 469
 
 # PARSE
-# remove branch results where psv is greater than 1 -- this is impossible!
-pull <- real.stats$psv > 1
-sum (pull)  # 34 lost
-real.stats$psv[pull] <- NA
-real.stats$gamma[pull] <- NA
-# Extremely conservative removal of outliers
 cat ('\nDropping outliers ....')
+# remove branch results where psv is greater than 1 -- this is impossible!
+psvs <- which (grepl ('psv', colnames (real.stats)))
+for (i in psvs) {
+  pull <- real.stats[ ,i] > 1 & !is.na (real.stats[ ,i])
+  cat (paste0 (colnames (real.stats)[i], " -- ", sum (pull), '\n'))
+  real.stats[pull, i] <- NA
+}
+# Extremely conservative removal of outliers
 real.stats <- dropOutliers (real.stats, 'sackin', signif=0.1^3)  # 11
 hist (real.stats$sackin, main='Sackin')
 real.stats <- dropOutliers (real.stats, 'colless', signif=0.1^3)  # 11
 hist (real.stats$sackin, main='Colless')
-real.stats <- dropOutliers (real.stats, 'gamma', signif=0.1^3)  # 0
-hist (real.stats$gamma, main='Gamma')
-real.stats <- dropOutliers (real.stats, 'psv', signif=0.1^3)  # 0
-hist (real.stats$psv, main='PSV')
+# for each gravity stat
+psvs <- which (grepl ('psv', colnames (real.stats)))
+for (i in psvs) {
+  real.stats <- dropOutliers (real.stats, colnames (real.stats)[i],
+                              signif=0.1^3)
+}
+gammas <- which (grepl ('gamma', colnames (real.stats)))
+for (i in gammas) {
+  real.stats <- dropOutliers (real.stats, colnames (real.stats)[i],
+                              signif=0.1^3)
+}
+
 
 # TABLES
 # S2
@@ -162,28 +171,6 @@ var(psv.order, na.rm=TRUE)
 var (sackin.order)*100/var (sackin.phylum)  # 232% increase in Sackin
 var (psv.order, na.rm=TRUE)*100/var (psv.phylum, na.rm=TRUE)  # 127% increase in Sackin
 
-# Table S3 -- Clade analysis
-mean (clade.stats$cm, na.rm=TRUE)
-sd (clade.stats$cm, na.rm=TRUE)
-mean (clade.stats$cg, na.rm=TRUE)
-sd (clade.stats$cg, na.rm=TRUE)
-round (tapply (clade.stats$cm, clade.stats$scenario, mean, na.rm=TRUE), 4)
-round (tapply (clade.stats$cm, clade.stats$scenario, sd, na.rm=TRUE), 4)
-round (tapply (clade.stats$cg, clade.stats$scenario, mean, na.rm=TRUE), 4)
-round (tapply (clade.stats$cg, clade.stats$scenario, sd, na.rm=TRUE), 4)
-round (tapply (clade.stats$max.size, clade.stats$scenario, mean, na.rm=TRUE), 1)
-round (tapply (clade.stats$max.size, clade.stats$scenario, sd, na.rm=TRUE), 1)
-round (tapply (clade.stats$time.span, clade.stats$scenario, mean, na.rm=TRUE), 1)
-round (tapply (clade.stats$time.span, clade.stats$scenario, sd, na.rm=TRUE), 1)
-table (clade.stats$scenario)
-# correlations
-cor.test (clade.stats$tot.size, clade.stats$cm)
-cor.test (clade.stats$tot.size, clade.stats$cg)
-cor.test (clade.stats$cm, clade.stats$sig)
-cor.test (clade.stats$cg, clade.stats$sig)
-cor.test (clade.stats$cm, clade.stats$eps)
-cor.test (clade.stats$cg, clade.stats$eps)
-
 # FIGURES
 # taxonomic
 pdf (file.path (res.dir, 'taxonomic.pdf'), 14, 14)
@@ -255,7 +242,7 @@ print (p)
 distances <- abs (stats$gamma - mean (real.stats$gamma, na.rm=TRUE))
 p <- tilePlot (stats, distances, legend.title='Gamma, Z-score')
 print (p)
-distances <- abs (stats$psv - mean (real.stats$psv, na.rm=TRUE))
+distances <- abs (stats$psv - mean (real.stats$psv.chronopl, na.rm=TRUE))
 p <- tilePlot (stats, distances, legend.title='PSV, Z-score')
 print (p)
 dev.off ()
@@ -338,21 +325,5 @@ dev.off()
 
 # Looking at PCA of extreme scenarios only
 stat.names <- c ("colless", "sackin", "psv")
-pca (extreme, real.stats, stat.names, 'pca_extreme.pdf',
-     ignore.chronos=FALSE)
-
-# clade analysis
-pdf (file.path (res.dir, 'clade_analysis.pdf'))
-pull <- !is.na (clade.stats$cm)
-p <- tilePlot (clade.stats[pull,], clade.stats$cm[pull], legend.title='CM, Z-score')
-print (p)
-pull <- !is.na (clade.stats$cg)
-p <- tilePlot (clade.stats[pull,], clade.stats$cg[pull], legend.title='CG, Z-score')
-print (p)
-
-dev.off()
-table (clade.stats$scenario)
-tapply (clade.stats$max.size, clade.stats$scenario, mean)
-tapply (clade.stats$max.size, clade.stats$scenario, sd)
-tapply (clade.stats$time.span, clade.stats$scenario, mean)
-tapply (clade.stats$time.span, clade.stats$scenario, sd)
+pca.res <- pca (extreme, real.stats, stat.names)
+plotPCA (pca.res, file.path (res.dir, 'pca_extreme.pdf'))
