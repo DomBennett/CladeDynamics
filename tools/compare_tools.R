@@ -201,8 +201,9 @@ pca2 <- function (stats, real.stats, stat.names, filename,
   return (res)
 }
 
-pca <- function (stats, real.stats, stat.names) {
+pca <- function (stats, real.stats, stat.names, with.gamma=TRUE) {
   # init input
+  if (with.gamma) stat.names <- c (stat.names, 'gamma')
   col.names <- c ('scenario', stat.names)
   input <- stats[ ,col.names]
   input$shape <- 'Sim.'
@@ -229,6 +230,7 @@ pca <- function (stats, real.stats, stat.names) {
     input <- rbind (input, part)
   }
   # run PCA
+  if (with.gamma) stat.names <- stat.names[-length (stat.names)]
   pca.res <- prcomp (input[ ,stat.names], scale.=TRUE, center=TRUE)
   xvals <- data.frame (pca.res$x)
   xvals$Scenario <- input$scenario
@@ -237,6 +239,7 @@ pca <- function (stats, real.stats, stat.names) {
   prop.var <- round (sapply (pca.res$sdev^2,
                              function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
   names (prop.var) <- colnames (pca.rot)
+  if (with.gamma) xvals$gamma <- input$gamma
   res <- list ('x'=xvals, 'p.var'=prop.var)
   res
 }

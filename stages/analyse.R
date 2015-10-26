@@ -97,6 +97,14 @@ for (i in gammas) {
                               signif=0.1^3)
 }
 
+# CHECK PSV AND GAMMA BETWEEN METHODS
+t.test (real.stats$psv.pathD8, real.stats$psv.chronopl)
+t.test (real.stats$psv.pathD8, real.stats$psv.chronoMPL)
+t.test (real.stats$gamma.pathD8, real.stats$gamma.chronopl)
+t.test (real.stats$gamma.pathD8, real.stats$gamma.chronoMPL)
+sd (real.stats$gamma.pathD8, na.rm=TRUE)
+sd (real.stats$gamma.chronopl, na.rm=TRUE)
+sd (real.stats$gamma.chronoMPL, na.rm=TRUE)
 
 # TABLES
 # S2
@@ -122,14 +130,10 @@ t.test (x=stats$gamma[stats$scenario=='DE'],
         alternative='less')
 round (res, 2)
 round (tapply (stats$gamma, stats$scenario, sd, na.rm=TRUE), 2)
-tapply (real.stats$gamma, real.stats$ul | real.stats$chronos,
-        mean, na.rm=TRUE)
-tapply (real.stats$gamma, real.stats$ul | real.stats$chronos,
-        sd, na.rm=TRUE)
-real.res <- mean (real.stats$gamma, na.rm=TRUE)
+real.res <- mean (real.stats$gamma.pathD8, na.rm=TRUE)
 (res[1]*100/real.res)-100  # % lower DE gamma
 t.test (x=stats$gamma[stats$scenario=='DE'],
-        y=real.stats$gamma,
+        y=real.stats$gamma.pathD8,
         alternative='less')
 round (tapply (extreme$gamma, extreme$scenario, mean, na.rm=TRUE), 2)
 round (tapply (extreme$gamma, extreme$scenario, sd, na.rm=TRUE) , 2)
@@ -326,4 +330,9 @@ dev.off()
 # Looking at PCA of extreme scenarios only
 stat.names <- c ("colless", "sackin", "psv")
 pca.res <- pca (extreme, real.stats, stat.names)
-plotPCA (pca.res, file.path (res.dir, 'pca_extreme.pdf'))
+plotPCA (pca.res, file.path (res.dir, 'pca_extreme_1.pdf'))
+# gamma partitioned (pathD8 results only)
+pca.res$x <- pca.res$x[pca.res$x$shape %in% c ('pathD8', 'Sim.'), ]
+emp.gamma <- pca.res$x$gamma > 0 & pca.res$x$shape == 'pathD8'
+pca.res$x$shape <- ifelse (emp.gamma, 'High', 'Low')
+plotPCA (pca.res, file.path (res.dir, 'pca_extreme_2.pdf'))
