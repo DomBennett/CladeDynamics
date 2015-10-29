@@ -71,6 +71,10 @@ readInMultiple <- function (filenames) {
   bindStats <- function (filename, combined=NULL) {
     # read in and bind stats to already existing stats
     load (filename)
+    # drop gravity stats that shouldn't have been calculated
+    real.stats$gamma[real.stats$rate.smooth == FALSE] <- NA
+    real.stats$psv[real.stats$rate.smooth == FALSE] <- NA
+    # rename colnames for binding
     rs.method <- getRateSmooth (unique (real.stats$rate.smooth))
     new.names <- paste0 (change.names, '.', rs.method)
     new.name.is <- match (change.names, colnames (real.stats))
@@ -82,7 +86,7 @@ readInMultiple <- function (filenames) {
     }
     combined
   }
-  change.names <- c ("ultra", "psv", "gamma", "age", "pd")
+  change.names <- c ("psv", "gamma", "age", "pd")
   combined <- bindStats (filenames[1])
   for (filename in filenames[2:length (filenames)]) {
     combined <- bindStats (filename, combined)

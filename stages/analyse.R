@@ -37,48 +37,19 @@ real.stats$phylum[is.na (real.stats$phylum)] <- 'Unknown'
 real.stats$class[is.na (real.stats$class)] <- 'Unknown'
 real.stats$order[is.na (real.stats$order)] <- 'Unknown'
 
-# QUICK STATS
-# how many tips?
-mean (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
-sd (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
-# how many polys?
-sum (real.stats$poly)
-sum (real.stats$poly) *100 /nrow(real.stats)
-# how many with bls?
-sum (real.stats$bl)
-sum (real.stats$bl) *100 /nrow(real.stats)
-# when were they published?
-mean (real.stats$date)
-sd (real.stats$date)
-# how many are ultrametric?
-sum (real.stats$ul)
-sum (real.stats$ul) * 100 / nrow (real.stats)
-# how many were made ultrametric?
-sum (real.stats$chronos)
-sum (real.stats$chronos) * 100 / nrow (real.stats)
-# how many suitable for gamma stats?
-sum (real.stats$ul) + sum (real.stats$chronos)
-# how many ..taxonomic..?
-length (unique (real.stats$phylum)) - 1
-length (unique (real.stats$class)) - 1
-length (unique (real.stats$order)) - 1
-sum (real.stats$phylum == 'Unknown' & real.stats$class == 'Unknown' &
-       real.stats$order == 'Unknown')
-unknowns <- which (real.stats$phylum == 'Unknown' & real.stats$class == 'Unknown' &
-         real.stats$order == 'Unknown')
-real.stats[unknowns, 'title']
-# remove all values where gravity metrics shouldn't have been calclated
-real.stats$gamma[!(real.stats$ul | real.stats$chronos)] <- NA
-sum (!is.na (real.stats$gamma))  # should be about 469
-
 # PARSE
 cat ('\nDropping outliers ....')
 # remove branch results where psv is greater than 1 -- this is impossible!
+# also drop the gamma for the same tree
 psvs <- which (grepl ('psv', colnames (real.stats)))
-for (i in psvs) {
-  pull <- real.stats[ ,i] > 1 & !is.na (real.stats[ ,i])
-  cat (paste0 (colnames (real.stats)[i], " -- ", sum (pull), '\n'))
-  real.stats[pull, i] <- NA
+gammas <- which (grepl ('gamma', colnames (real.stats)))
+for (i in 1:length (psvs)) {
+  psv.i <- psvs[i]
+  gamma.i <- gammas[i]
+  pull <- real.stats[ ,psv.i] > 1 & !is.na (real.stats[ ,psv.i])
+  cat (paste0 (colnames (real.stats)[psv.i], " -- ", sum (pull), '\n'))
+  real.stats[pull, psv.i] <- NA
+  real.stats[pull, gamma.i] <- NA
 }
 # Extremely conservative removal of outliers
 real.stats <- dropOutliers (real.stats, 'sackin', signif=0.1^3)  # 11
@@ -97,17 +68,78 @@ for (i in gammas) {
                               signif=0.1^3)
 }
 
-# CHECK PSV AND GAMMA BETWEEN METHODS
-t.test (real.stats$psv.pathD8, real.stats$psv.chronopl)
-t.test (real.stats$psv.pathD8, real.stats$psv.chronoMPL)
+# QUICK STATS
+# how many tips?
+mean (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+sd (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+# how many polys?
+sum (real.stats$poly)
+sum (real.stats$poly) *100 /nrow(real.stats)
+# how many with bls?
+sum (real.stats$bl)
+sum (real.stats$bl) *100 /nrow(real.stats)
+# when were they published?
+mean (real.stats$date)
+sd (real.stats$date)
+# how many were ultrametric?
+sum (real.stats$ultra)
+sum (real.stats$ultra) * 100 / nrow (real.stats)
+# how were successfully made ultrametric?
+psvs <- which (grepl ('psv', colnames (real.stats)))
+for (i in psvs) {
+  res <-  sum (!is.na (real.stats[ ,i]))
+  res.p <- signif (res * 100 / nrow (real.stats), 2)
+  name <- colnames (real.stats)[i]
+  cat ('For [', name,']: ', res, ' (', res.p, '%)', ']\n', sep='')
+}
+# how many ..taxonomic..?
+length (unique (real.stats$phylum)) - 1
+length (unique (real.stats$class)) - 1
+length (unique (real.stats$order)) - 1
+sum (real.stats$phylum == 'Unknown' & real.stats$class == 'Unknown' &
+     real.stats$order == 'Unknown')
+# TODO -- check why these numbers have changed
+unknowns <- which (real.stats$phylum == 'Unknown' & real.stats$class == 'Unknown' &
+         real.stats$order == 'Unknown')
+real.stats[unknowns, 'title']
+
+# EMPIRICAL
+# colless
+round (mean (real.stats$colless, na.rm=TRUE), 2)
+round (sd (real.stats$colless, na.rm=TRUE), 2)
+# sackin
+round (mean (real.stats$sackin, na.rm=TRUE), 2)
+round (sd (real.stats$sackin, na.rm=TRUE), 2)
+# gamma
 t.test (real.stats$gamma.pathD8, real.stats$gamma.chronopl)
 t.test (real.stats$gamma.pathD8, real.stats$gamma.chronoMPL)
+mean (real.stats$gamma.pathD8, na.rm=TRUE)
 sd (real.stats$gamma.pathD8, na.rm=TRUE)
+mean (real.stats$gamma.chronopl, na.rm=TRUE)
 sd (real.stats$gamma.chronopl, na.rm=TRUE)
+mean (real.stats$gamma.chronoMPL, na.rm=TRUE)
 sd (real.stats$gamma.chronoMPL, na.rm=TRUE)
+# PSV
+t.test (real.stats$psv.pathD8, real.stats$psv.chronopl)
+t.test (real.stats$psv.pathD8, real.stats$psv.chronoMPL)
+mean (real.stats$psv.pathD8, na.rm=TRUE)
+sd (real.stats$psv.pathD8, na.rm=TRUE)
+mean (real.stats$psv.chronopl, na.rm=TRUE)
+sd (real.stats$psv.chronopl, na.rm=TRUE)
+mean (real.stats$psv.chronoMPL, na.rm=TRUE)
+sd (real.stats$psv.chronoMPL, na.rm=TRUE)
+# age
+res <- tapply (stats$age, stats$scenario, mean, na.rm=TRUE)
+(res[1]*100/mean (res[2:4]))-100  # % lower DE age
+t.test (x=stats$age[stats$scenario=='DE'],
+        y=stats$age[stats$scenario!='DE'],
+        alternative='less')
+round (tapply (extreme$age, extreme$scenario, mean, na.rm=TRUE), 2)
+round (tapply (extreme$age, extreme$scenario, sd, na.rm=TRUE) , 2)
+round (res, 2)
+round (tapply (stats$age, stats$scenario, sd, na.rm=TRUE), 2)
 
-# TABLES
-# S2
+# SIMULATED
 # colless
 round (tapply (stats$colless, stats$scenario, mean, na.rm=TRUE), 2)
 round (tapply (stats$colless, stats$scenario, sd, na.rm=TRUE) , 2)
@@ -123,6 +155,11 @@ round (tapply (extreme$sackin, extreme$scenario, sd, na.rm=TRUE) , 2)
 round (mean (real.stats$sackin, na.rm=TRUE), 2)
 round (sd (real.stats$sackin, na.rm=TRUE), 2)
 # gamma
+t.test (real.stats$gamma.pathD8, real.stats$gamma.chronopl)
+t.test (real.stats$gamma.pathD8, real.stats$gamma.chronoMPL)
+sd (real.stats$gamma.pathD8, na.rm=TRUE)
+sd (real.stats$gamma.chronopl, na.rm=TRUE)
+sd (real.stats$gamma.chronoMPL, na.rm=TRUE)
 res <- tapply (stats$gamma, stats$scenario, mean, na.rm=TRUE)
 (res[1]*100/mean (res[2:4]))-100  # % lower DE gamma
 t.test (x=stats$gamma[stats$scenario=='DE'],
@@ -140,6 +177,8 @@ round (tapply (extreme$gamma, extreme$scenario, sd, na.rm=TRUE) , 2)
 round (real.res, 2)
 round (sd (real.stats$gamma, na.rm=TRUE), 2)
 # PSV
+t.test (real.stats$psv.pathD8, real.stats$psv.chronopl)
+t.test (real.stats$psv.pathD8, real.stats$psv.chronoMPL)
 round (tapply (stats$psv, stats$scenario, mean, na.rm=TRUE), 2)
 round (tapply (stats$psv, stats$scenario, sd, na.rm=TRUE), 2)
 round (tapply (extreme$psv, extreme$scenario, mean, na.rm=TRUE), 2)
@@ -156,6 +195,7 @@ round (tapply (extreme$age, extreme$scenario, mean, na.rm=TRUE), 2)
 round (tapply (extreme$age, extreme$scenario, sd, na.rm=TRUE) , 2)
 round (res, 2)
 round (tapply (stats$age, stats$scenario, sd, na.rm=TRUE), 2)
+
 
 # Compare taxonomic groups
 # increasing variance between taxonomic groups the lower the taxonomic rank
