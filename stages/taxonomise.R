@@ -63,7 +63,7 @@ getMostCommon <- function (line.rank) {
 pfolders <- list.files ('data')
 pfolders <- pfolders[sapply (pfolders, grepl,
                      pattern='^parsed_trees_.*')]
-input.dir <- sample (pfolders, 1)
+input.dir <- file.path ('data', sample (pfolders, 1))
 output.dir <- file.path ('data', 'treestats')
 
 # INPUT
@@ -118,5 +118,5 @@ taxoinfo <- taxoinfo[-1, ]
 cat ('\nDone.')
 
 # OUTPUT
-write.csv (taxoinfo, file=file.path (output.dir, 'taxoinfo.csv'),
+write.csv (taxoinfo, file=file.path (output.dir, 'taxoinfo-2.csv'),
            row.names=FALSE)
