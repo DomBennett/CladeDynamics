@@ -5,6 +5,7 @@
 # LIBS
 source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'misc_tools.R'))
+library (gridExtra)
 library (outliers)
 
 # DIRS
@@ -128,16 +129,6 @@ mean (real.stats$psv.chronopl, na.rm=TRUE)
 sd (real.stats$psv.chronopl, na.rm=TRUE)
 mean (real.stats$psv.chronoMPL, na.rm=TRUE)
 sd (real.stats$psv.chronoMPL, na.rm=TRUE)
-# age
-res <- tapply (stats$age, stats$scenario, mean, na.rm=TRUE)
-(res[1]*100/mean (res[2:4]))-100  # % lower DE age
-t.test (x=stats$age[stats$scenario=='DE'],
-        y=stats$age[stats$scenario!='DE'],
-        alternative='less')
-round (tapply (extreme$age, extreme$scenario, mean, na.rm=TRUE), 2)
-round (tapply (extreme$age, extreme$scenario, sd, na.rm=TRUE) , 2)
-round (res, 2)
-round (tapply (stats$age, stats$scenario, sd, na.rm=TRUE), 2)
 
 # SIMULATED
 # colless
@@ -145,21 +136,12 @@ round (tapply (stats$colless, stats$scenario, mean, na.rm=TRUE), 2)
 round (tapply (stats$colless, stats$scenario, sd, na.rm=TRUE) , 2)
 round (tapply (extreme$colless, extreme$scenario, mean, na.rm=TRUE), 2)
 round (tapply (extreme$colless, extreme$scenario, sd, na.rm=TRUE) , 2)
-round (mean (real.stats$colless, na.rm=TRUE), 2)
-round (sd (real.stats$colless, na.rm=TRUE), 2)
 # sackin
 round (tapply (stats$sackin, stats$scenario, mean, na.rm=TRUE), 2)
 round (tapply (stats$sackin, stats$scenario, sd, na.rm=TRUE), 2)
 round (tapply (extreme$sackin, extreme$scenario, mean, na.rm=TRUE), 2)
 round (tapply (extreme$sackin, extreme$scenario, sd, na.rm=TRUE) , 2)
-round (mean (real.stats$sackin, na.rm=TRUE), 2)
-round (sd (real.stats$sackin, na.rm=TRUE), 2)
 # gamma
-t.test (real.stats$gamma.pathD8, real.stats$gamma.chronopl)
-t.test (real.stats$gamma.pathD8, real.stats$gamma.chronoMPL)
-sd (real.stats$gamma.pathD8, na.rm=TRUE)
-sd (real.stats$gamma.chronopl, na.rm=TRUE)
-sd (real.stats$gamma.chronoMPL, na.rm=TRUE)
 res <- tapply (stats$gamma, stats$scenario, mean, na.rm=TRUE)
 (res[1]*100/mean (res[2:4]))-100  # % lower DE gamma
 t.test (x=stats$gamma[stats$scenario=='DE'],
@@ -198,20 +180,58 @@ round (tapply (stats$age, stats$scenario, sd, na.rm=TRUE), 2)
 
 
 # Compare taxonomic groups
-# increasing variance between taxonomic groups the lower the taxonomic rank
-sackin.phylum <- tapply (real.stats$sackin, factor (real.stats$phylum), mean, na.rm=TRUE)
-var (sackin.phylum)
-sackin.class <- tapply (real.stats$sackin, factor (real.stats$class), mean, na.rm=TRUE)
-var (sackin.class)
-sackin.order <- tapply (real.stats$sackin, factor (real.stats$order), mean, na.rm=TRUE)
-var (sackin.order)
-psv.phylum <- tapply (real.stats$psv, factor (real.stats$phylum), mean, na.rm=TRUE)
-var(psv.phylum, na.rm=TRUE)
-psv.class <- tapply (real.stats$psv, factor (real.stats$class), mean, na.rm=TRUE)
-var(psv.class, na.rm=TRUE)
-psv.order <- tapply (real.stats$psv, factor (real.stats$order), mean, na.rm=TRUE)
-var(psv.order, na.rm=TRUE)
-# increase for both balance and gravity
+# test for increasing variance between taxonomic groups the lower the taxonomic rank
+# first remove unknowns, also only use groups with more than min.sample
+# TODO: develop null test to compare whether there has been an increase
+# in variance at lower taxonomic levels
+taxo.stats <- removeUnknown (real.stats)
+nrow (taxo.stats)
+# sackin, phylum
+sackin.phylum <- tapply (taxo.stats$sackin, factor (taxo.stats$phylum), mean, na.rm=TRUE)
+obs <- var (sackin.phylum)
+null.values <- genTaxNull (taxo.stats$sackin, taxo.stats$phylum)
+p.sackin.phylum <- sum (obs <= null.values, na.rm=TRUE)/1000
+# sackin, class
+sackin.class <- tapply (taxo.stats$sackin, factor (taxo.stats$class), mean, na.rm=TRUE)
+obs <- var (sackin.class)
+null.values <- genTaxNull (taxo.stats$sackin, taxo.stats$class)
+p.sackin.class <- sum (obs <= null.values, na.rm=TRUE)/1000  # 0.441
+# sackin, order
+sackin.order <- tapply (taxo.stats$sackin, factor (taxo.stats$order), mean, na.rm=TRUE)
+obs <- var (sackin.order)
+null.values <- genTaxNull (taxo.stats$sackin, taxo.stats$order)
+p.sackin.order <- sum (obs <= null.values, na.rm=TRUE)/1000
+# psv, phylum
+psv.phylum <- tapply (taxo.stats$psv.pathD8, factor (taxo.stats$phylum), mean, na.rm=TRUE)
+obs <- var (psv.phylum, na.rm=TRUE)
+null.values <- genTaxNull (taxo.stats$psv.pathD8, taxo.stats$phylum)
+p.psv.phylum <- sum (obs <= null.values, na.rm=TRUE)/1000
+# psv, class
+psv.class <- tapply (taxo.stats$psv.pathD8, factor (taxo.stats$class), mean, na.rm=TRUE)
+obs <- var(psv.class, na.rm=TRUE)
+null.values <- genTaxNull (taxo.stats$psv.pathD8, taxo.stats$class)
+p.psv.class <- sum (obs <= null.values, na.rm=TRUE)/1000
+# psv, order
+psv.order <- tapply (taxo.stats$psv.pathD8, factor (taxo.stats$order), mean, na.rm=TRUE)
+obs <- var(psv.order, na.rm=TRUE)
+null.values <- genTaxNull (taxo.stats$psv.pathD8, taxo.stats$order)
+p.psv.order <- sum (obs <= null.values, na.rm=TRUE)/1000
+# gamma, phylum
+gamma.phylum <- tapply (taxo.stats$gamma.pathD8, factor (taxo.stats$phylum), mean, na.rm=TRUE)
+obs <- var (gamma.phylum, na.rm=TRUE)
+null.values <- genTaxNull (taxo.stats$gamma.pathD8, taxo.stats$phylum)
+p.gamma.phylum <- sum (obs <= null.values, na.rm=TRUE)/1000
+# gamma, class
+gamma.class <- tapply (taxo.stats$gamma.pathD8, factor (taxo.stats$class), mean, na.rm=TRUE)
+obs <- var(gamma.class, na.rm=TRUE)
+null.values <- genTaxNull (taxo.stats$gamma.pathD8, taxo.stats$class)
+p.gamma.class <- sum (obs <= null.values, na.rm=TRUE)/1000
+# gamma, order
+gamma.order <- tapply (taxo.stats$gamma.pathD8, factor (taxo.stats$order), mean, na.rm=TRUE)
+obs <- var(gamma.order, na.rm=TRUE)
+null.values <- genTaxNull (taxo.stats$gamma.pathD8, taxo.stats$order)
+p.gamma.order <- sum (obs <= null.values, na.rm=TRUE)/1000
+# increase for both balance and gravity, but not significant
 var (sackin.order)*100/var (sackin.phylum)  # 232% increase in Sackin
 var (psv.order, na.rm=TRUE)*100/var (psv.phylum, na.rm=TRUE)  # 127% increase in Sackin
 
@@ -227,26 +247,31 @@ p <- ggplot (real.stats, aes (factor (real.stats$phylum))) +
   geom_bar() + coord_flip() + xlab ('Phylum') + ylab ('N. trees') +
   theme_bw () + theme (text=element_text(size=25))
 print (p)
-ggBoxplot (real.stats, 'phylum', 'sackin', 'Sackin')
-# t.test (x=real.stats$sackin[real.stats$phylum == 'Streptophyta'],
+dev.off()
+pdf (file.path (res.dir, 'taxonomic_boxplots.pdf'), 20, 14)
+p1 <- ggBoxplot (taxo.stats, 'phylum', 'sackin', 'Sackin')
+#t.test (x=real.stats$sackin[real.stats$phylum == 'Streptophyta'],
 #         y=real.stats$sackin[real.stats$phylum == 'Ascomycota'])
-ggBoxplot (real.stats, 'phylum', 'colless', 'Colless')
-ggBoxplot (real.stats, 'phylum', 'gamma', expression(gamma))
-ggBoxplot (real.stats, 'phylum', 'psv', 'PSV')
+p2 <- ggBoxplot (taxo.stats, 'phylum', 'colless', 'Colless')
+p3 <- ggBoxplot (taxo.stats, 'phylum', 'gamma.pathD8', expression(gamma))
+p4 <- ggBoxplot (taxo.stats, 'phylum', 'psv.pathD8', 'PSV')
+grid.arrange (p1, p2, p3, p4, ncol=2)
 # class
-instances <- table (real.stats$class)
+instances <- table (taxo.stats$class)
 instances <- sort (instances, TRUE)
-ggBoxplot (real.stats, 'class', 'sackin', 'Sackin', 20)
-ggBoxplot (real.stats, 'class', 'colless', 'Colless', 20)
-ggBoxplot (real.stats, 'class', 'psv', 'PSV', 20)
-ggBoxplot (real.stats, 'class', 'gamma', expression(gamma), 20)
+p1 <- ggBoxplot (taxo.stats, 'class', 'sackin', 'Sackin', 20)
+p2 <- ggBoxplot (taxo.stats, 'class', 'colless', 'Colless', 20)
+p3 <- ggBoxplot (taxo.stats, 'class', 'psv.pathD8', 'PSV', 20)
+p4 <- ggBoxplot (taxo.stats, 'class', 'gamma.pathD8', expression(gamma), 20)
+grid.arrange (p1, p2, p3, p4, ncol=2)
 # orders
-ggBoxplot (real.stats, 'order', 'sackin', 'Sackin', 20)
-ggBoxplot (real.stats, 'order', 'colless', 'Colless', 20)
-ggBoxplot (real.stats, 'order', 'psv', 'PSV', 20)
-ggBoxplot (real.stats, 'order', 'gamma', expression(gamma), 20)
-# t.test (x=real.stats$gamma[real.stats$class == 'Actinopterygii'],
-#         y=real.stats$gamma[real.stats$class == 'Aves'])
+p1 <- ggBoxplot (taxo.stats, 'order', 'sackin', 'Sackin', 20)
+p2 <- ggBoxplot (taxo.stats, 'order', 'colless', 'Colless', 20)
+p3 <- ggBoxplot (taxo.stats, 'order', 'psv.pathD8', 'PSV', 20)
+p4 <- ggBoxplot (taxo.stats, 'order', 'gamma.pathD8', expression(gamma), 20)
+grid.arrange (p1, p2, p3, p4, ncol=2)
+#t.test (x=real.stats$gamma.pathD8[real.stats$class == 'Actinopterygii'],
+#         y=real.stats$gamma.pathD8[real.stats$class == 'Aves'])
 # ggBoxplot (real.stats[real.stats$phylum=='Streptophyta', ], 'class', 'psv', 'PSV', 5)
 dev.off()
 #real.stats[sample (1:nrow(real.stats), 10),c('title', 'phylum')]
@@ -262,33 +287,26 @@ for (stat.name in stat.names) {
 dev.off ()
 
 # Z-scores for simulated trees
-pdf (file.path (res.dir, 'tp.pdf'), width=8)
-p <- tilePlot (stats, stats$colless, legend.title='Colless, Z-score')
-print (p)
-p <- tilePlot (stats, stats$sackin, legend.title='Sackin, Z-score')
-print (p)
-p <- tilePlot (stats, stats$gamma, legend.title='Gamma, Z-score')
-print (p)
-p <- tilePlot (stats, stats$psv, legend.title='PSV, Z-score')
-print (p)
-p <- tilePlot (stats, stats$age, legend.title='Age, Z-score')
-print (p)
+pdf (file.path (res.dir, 'tp.pdf'), width=20, height=21.875)
+p1 <- tilePlot (stats, stats$colless, legend.title='Colless, Z-score')
+p2 <- tilePlot (stats, stats$sackin, legend.title='Sackin, Z-score')
+p3 <- tilePlot (stats, stats$gamma, legend.title='Gamma, Z-score')
+p4 <- tilePlot (stats, stats$psv, legend.title='PSV, Z-score')
+p5 <- tilePlot (stats, stats$age, legend.title='Age, Z-score')
+grid.arrange (p1, p2, p3, p4, p5, ncol=2)
 dev.off ()
 
 # distances to real trees
-pdf (file.path (res.dir, 'tp_dist_to_real.pdf'), width=8)
+pdf (file.path (res.dir, 'tp_dist_to_real.pdf'), width=20, height=17.5)
 distances <- abs (stats$colless - mean (real.stats$colless, na.rm=TRUE))
-p <- tilePlot (stats, distances, legend.title='Colless, Z-score')
-print (p)
+p1 <- tilePlot (stats, distances, legend.title='Colless, Z-score')
 distances <- abs (stats$sackin - mean (real.stats$sackin, na.rm=TRUE))
-p <- tilePlot (stats, distances, legend.title='Sackin, Z-score')
-print (p)
-distances <- abs (stats$gamma - mean (real.stats$gamma, na.rm=TRUE))
-p <- tilePlot (stats, distances, legend.title='Gamma, Z-score')
-print (p)
-distances <- abs (stats$psv - mean (real.stats$psv.chronopl, na.rm=TRUE))
-p <- tilePlot (stats, distances, legend.title='PSV, Z-score')
-print (p)
+p2 <- tilePlot (stats, distances, legend.title='Sackin, Z-score')
+distances <- abs (stats$gamma - mean (real.stats$gamma.pathD8, na.rm=TRUE))
+p3 <- tilePlot (stats, distances, legend.title='Gamma, Z-score')
+distances <- abs (stats$psv - mean (real.stats$psv.pathD8, na.rm=TRUE))
+p4 <- tilePlot (stats, distances, legend.title='PSV, Z-score')
+grid.arrange (p1, p2, p3, p4, ncol=2)
 dev.off ()
 
 # correlation between sig and imbalance
@@ -309,8 +327,8 @@ dev.off ()
 
 # Correlation between gravity and balance?
 # probably due to part of the sample space missing -- low gravity + high imbalance
-pull <- !is.na(real.stats$psv) & !is.na (real.stats$colless)
-cor.test (real.stats$colless[pull], real.stats$psv[pull])
+pull <- !is.na(real.stats$psv.pathD8) & !is.na (real.stats$colless)
+cor.test (real.stats$colless[pull], real.stats$psv.pathD8[pull])
 # plot (real.stats$colless~real.stats$psv)
 # plot (stats$colless~stats$psv)
 # real.stats[which (real.stats$psv > 0.95), ]

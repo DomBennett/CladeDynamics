@@ -31,6 +31,32 @@ dropOutliers <- function (stats, stat.name, signif=0.1^10) {
   return(stats)
 }
 
+removeUnknown <- function (real.stats, groups=c('phylum', 'class', 'order'),
+                           min.sample=5) {
+  # Go through real stats removing all stats where taxonomic group is unknwon
+  # or not sufficiently sampled
+  for (group in groups) {
+    gcounts <- table (real.stats[ ,group])
+    gnames <- names (gcounts)
+    gnames <- gnames[gcounts > min.sample & gnames != 'Unknown' &
+                       gnames != 'Not assigned']
+    real.stats <- real.stats[real.stats[ ,group] %in% gnames, ]
+  }
+  real.stats
+}
+
+genTaxNull <- function (values, groups, iterations=1000) {
+  # Random sample to generate values to test
+  # whether taxonomic groups are more or less varied than expected
+  null.values <- rep (NA, iterations)
+  groups <- groups[!is.na (values)]
+  values <- values[!is.na (values)]
+  for (i in 1:iterations) {
+    null.values[i] <- var (tapply (sample (values), factor (groups), mean, na.rm=TRUE))
+  }
+  null.values
+}
+
 ggBoxplot <- function (plot.data, group, dist.metric, ylab, min.trees=20) {
   instances <- table (plot.data[ ,group])
   common.names <- names (instances[instances > min.trees])
@@ -40,7 +66,7 @@ ggBoxplot <- function (plot.data, group, dist.metric, ylab, min.trees=20) {
     ylab (ylab) + theme_bw () +
     theme (axis.text.x = element_blank(), axis.title.x = element_blank(),
            text=element_text(size=25), legend.title=element_blank())
-  print (p)
+  p
 }
 
 readIn <- function (analysis.name) {
