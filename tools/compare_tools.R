@@ -35,26 +35,72 @@ removeUnknown <- function (real.stats, groups=c('phylum', 'class', 'order'),
                            min.sample=5) {
   # Go through real stats removing all stats where taxonomic group is unknwon
   # or not sufficiently sampled
+  taxo.stats <- data.frame (real.stats, stringsAsFactors=FALSE)
   for (group in groups) {
-    gcounts <- table (real.stats[ ,group])
+    gcounts <- table (taxo.stats[ ,group])
     gnames <- names (gcounts)
     gnames <- gnames[gcounts > min.sample & gnames != 'Unknown' &
                        gnames != 'Not assigned']
-    real.stats <- real.stats[real.stats[ ,group] %in% gnames, ]
+    taxo.stats <- taxo.stats[taxo.stats[ ,group] %in% gnames, ]
   }
-  real.stats
+  taxo.stats
 }
 
-genTaxNull <- function (values, groups, iterations=1000) {
-  # Random sample to generate values to test
-  # whether taxonomic groups are more or less varied than expected
+getVar <- function (values, groups) {
+  # get mean variance for shape stats at taxonomic level
+  var (tapply (values, factor (groups), mean, na.rm=TRUE), na.rm=TRUE)
+}
+
+getStar <- function (p.value) {
+  # save thinking by working out stars for p value
+  if (p.value < 0.001) {
+    star <- '***'
+  } else if (p.value < 0.01) {
+    star <- '**'
+  } else if (p.value < 0.05) {
+    star <- '*'
+  } else {
+    star <- ''
+  }
+  star
+}
+
+
+withinPermTest <- function (values, groups, iterations=999, greater=TRUE) {
+  # Are taxonomic groups shape statistics more or less varied than expected?
   null.values <- rep (NA, iterations)
   groups <- groups[!is.na (values)]
   values <- values[!is.na (values)]
+  obs <- getVar (values, groups)
   for (i in 1:iterations) {
-    null.values[i] <- var (tapply (sample (values), factor (groups), mean, na.rm=TRUE))
+    null.values[i] <- getVar (sample (values), groups)
   }
-  null.values
+  if (greater) {
+    p.value <- sum (obs <= null.values, na.rm=TRUE)/iterations
+  } else {
+    p.value <- sum (obs >= null.values, na.rm=TRUE)/iterations
+  }
+  list ('obs'=obs, 'p'=p.value, 'star'=getStar (p.value))
+}
+
+acrossPermTest <- function (values, groups.1, groups.2, iterations=999) {
+  # Is there a change in variance of shape stats at different taxonomic scales?
+  # Does group 1 have significantly higher variance than group 2?
+  groups.1 <- groups.1[!is.na (values)]
+  groups.2 <- groups.2[!is.na (values)]
+  values <- values[!is.na (values)]
+  var.1 <- getVar (values, groups.1)
+  var.2 <- getVar (values, groups.2)
+  obs <- var.1 / var.2
+  null.values <- rep (NA, iterations)
+  for (i in 1:iterations) {
+    var.1 <- getVar (sample (values), groups.1)
+    var.2 <- getVar (sample (values), groups.2)
+    null.values[i] <- var.1 / var.2
+  }
+  p.value <- sum (obs <= null.values, na.rm=TRUE)/iterations
+  list ('var.1'=var.1, 'var.2'=var.2, 'obs'=obs, 'p.value'=p.value,
+        'star'=getStar (p.value))
 }
 
 ggBoxplot <- function (plot.data, group, dist.metric, ylab, min.trees=20) {
