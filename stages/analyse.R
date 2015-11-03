@@ -182,58 +182,47 @@ round (tapply (stats$age, stats$scenario, sd, na.rm=TRUE), 2)
 # Compare taxonomic groups
 # test for increasing variance between taxonomic groups the lower the taxonomic rank
 # first remove unknowns, also only use groups with more than min.sample
-# TODO: develop null test to compare whether there has been an increase
 # in variance at lower taxonomic levels
-taxo.stats <- removeUnknown (real.stats)
+taxo.stats <- removeUnknown (real.stats, min.sample=10)
+taxo.stats <- removeUnknown (taxo.stats, min.sample=10)  # run twice, taxonomic error
 nrow (taxo.stats)
-# sackin, phylum
-sackin.phylum <- tapply (taxo.stats$sackin, factor (taxo.stats$phylum), mean, na.rm=TRUE)
-obs <- var (sackin.phylum)
-null.values <- genTaxNull (taxo.stats$sackin, taxo.stats$phylum)
-p.sackin.phylum <- sum (obs <= null.values, na.rm=TRUE)/1000
-# sackin, class
-sackin.class <- tapply (taxo.stats$sackin, factor (taxo.stats$class), mean, na.rm=TRUE)
-obs <- var (sackin.class)
-null.values <- genTaxNull (taxo.stats$sackin, taxo.stats$class)
-p.sackin.class <- sum (obs <= null.values, na.rm=TRUE)/1000  # 0.441
-# sackin, order
-sackin.order <- tapply (taxo.stats$sackin, factor (taxo.stats$order), mean, na.rm=TRUE)
-obs <- var (sackin.order)
-null.values <- genTaxNull (taxo.stats$sackin, taxo.stats$order)
-p.sackin.order <- sum (obs <= null.values, na.rm=TRUE)/1000
-# psv, phylum
-psv.phylum <- tapply (taxo.stats$psv.pathD8, factor (taxo.stats$phylum), mean, na.rm=TRUE)
-obs <- var (psv.phylum, na.rm=TRUE)
-null.values <- genTaxNull (taxo.stats$psv.pathD8, taxo.stats$phylum)
-p.psv.phylum <- sum (obs <= null.values, na.rm=TRUE)/1000
-# psv, class
-psv.class <- tapply (taxo.stats$psv.pathD8, factor (taxo.stats$class), mean, na.rm=TRUE)
-obs <- var(psv.class, na.rm=TRUE)
-null.values <- genTaxNull (taxo.stats$psv.pathD8, taxo.stats$class)
-p.psv.class <- sum (obs <= null.values, na.rm=TRUE)/1000
-# psv, order
-psv.order <- tapply (taxo.stats$psv.pathD8, factor (taxo.stats$order), mean, na.rm=TRUE)
-obs <- var(psv.order, na.rm=TRUE)
-null.values <- genTaxNull (taxo.stats$psv.pathD8, taxo.stats$order)
-p.psv.order <- sum (obs <= null.values, na.rm=TRUE)/1000
-# gamma, phylum
-gamma.phylum <- tapply (taxo.stats$gamma.pathD8, factor (taxo.stats$phylum), mean, na.rm=TRUE)
-obs <- var (gamma.phylum, na.rm=TRUE)
-null.values <- genTaxNull (taxo.stats$gamma.pathD8, taxo.stats$phylum)
-p.gamma.phylum <- sum (obs <= null.values, na.rm=TRUE)/1000
-# gamma, class
-gamma.class <- tapply (taxo.stats$gamma.pathD8, factor (taxo.stats$class), mean, na.rm=TRUE)
-obs <- var(gamma.class, na.rm=TRUE)
-null.values <- genTaxNull (taxo.stats$gamma.pathD8, taxo.stats$class)
-p.gamma.class <- sum (obs <= null.values, na.rm=TRUE)/1000
-# gamma, order
-gamma.order <- tapply (taxo.stats$gamma.pathD8, factor (taxo.stats$order), mean, na.rm=TRUE)
-obs <- var(gamma.order, na.rm=TRUE)
-null.values <- genTaxNull (taxo.stats$gamma.pathD8, taxo.stats$order)
-p.gamma.order <- sum (obs <= null.values, na.rm=TRUE)/1000
-# increase for both balance and gravity, but not significant
-var (sackin.order)*100/var (sackin.phylum)  # 232% increase in Sackin
-var (psv.order, na.rm=TRUE)*100/var (psv.phylum, na.rm=TRUE)  # 127% increase in Sackin
+table (taxo.stats$phylum)
+table (taxo.stats$class)
+table (taxo.stats$order)
+# first check the accuracy of the taxonomise script
+taxo.stats[sample (1:nrow(taxo.stats), 1), c ('phylum', 'class', 'order')]
+# sackin
+sackin.phylum <- withinPermTest (taxo.stats$sackin, taxo.stats$phylum)
+sackin.class <- withinPermTest (taxo.stats$sackin, taxo.stats$class)
+sackin.order <- withinPermTest (taxo.stats$sackin, taxo.stats$order)
+sackin.phylum.class <- acrossPermTest (taxo.stats$sackin, taxo.stats$class,
+                                       taxo.stats$phylum)
+sackin.phylum.order <- acrossPermTest (taxo.stats$sackin, taxo.stats$order,
+                                       taxo.stats$phylum)
+# colless
+colless.phylum <- withinPermTest (taxo.stats$colless, taxo.stats$phylum)
+colless.class <- withinPermTest (taxo.stats$colless, taxo.stats$class)
+colless.order <- withinPermTest (taxo.stats$colless, taxo.stats$order)
+colless.phylum.class <- acrossPermTest (taxo.stats$colless, taxo.stats$class,
+                                       taxo.stats$phylum)
+colless.phylum.order <- acrossPermTest (taxo.stats$colless, taxo.stats$order,
+                                       taxo.stats$phylum)
+# psv
+psv.pathD8.phylum <- withinPermTest (taxo.stats$psv.pathD8, taxo.stats$phylum)
+psv.pathD8.class <- withinPermTest (taxo.stats$psv.pathD8, taxo.stats$class)
+psv.pathD8.order <- withinPermTest (taxo.stats$psv.pathD8, taxo.stats$order)
+psv.pathD8.phylum.class <- acrossPermTest (taxo.stats$psv.pathD8, taxo.stats$class,
+                                        taxo.stats$phylum)
+psv.pathD8.phylum.order <- acrossPermTest (taxo.stats$psv.pathD8, taxo.stats$order,
+                                        taxo.stats$phylum)
+# gamma
+gamma.pathD8.phylum <- withinPermTest (taxo.stats$gamma.pathD8, taxo.stats$phylum)
+gamma.pathD8.class <- withinPermTest (taxo.stats$gamma.pathD8, taxo.stats$class)
+gamma.pathD8.order <- withinPermTest (taxo.stats$gamma.pathD8, taxo.stats$order)
+gamma.pathD8.phylum.class <- acrossPermTest (taxo.stats$gamma.pathD8, taxo.stats$class,
+                                           taxo.stats$phylum)
+gamma.pathD8.phylum.order <- acrossPermTest (taxo.stats$gamma.pathD8, taxo.stats$order,
+                                           taxo.stats$phylum)
 
 # FIGURES
 # taxonomic
@@ -265,10 +254,12 @@ p3 <- ggBoxplot (taxo.stats, 'class', 'psv.pathD8', 'PSV', 20)
 p4 <- ggBoxplot (taxo.stats, 'class', 'gamma.pathD8', expression(gamma), 20)
 grid.arrange (p1, p2, p3, p4, ncol=2)
 # orders
-p1 <- ggBoxplot (taxo.stats, 'order', 'sackin', 'Sackin', 20)
-p2 <- ggBoxplot (taxo.stats, 'order', 'colless', 'Colless', 20)
-p3 <- ggBoxplot (taxo.stats, 'order', 'psv.pathD8', 'PSV', 20)
-p4 <- ggBoxplot (taxo.stats, 'order', 'gamma.pathD8', expression(gamma), 20)
+# only use top twenty sampled orders
+pull <- taxo.stats$order %in% names (sort (table (taxo.stats$order), TRUE))[1:20]
+p1 <- ggBoxplot (taxo.stats[pull, ], 'order', 'sackin', 'Sackin', 20)
+p2 <- ggBoxplot (taxo.stats[pull, ], 'order', 'colless', 'Colless', 20)
+p3 <- ggBoxplot (taxo.stats[pull, ], 'order', 'psv.pathD8', 'PSV', 20)
+p4 <- ggBoxplot (taxo.stats[pull, ], 'order', 'gamma.pathD8', expression(gamma), 20)
 grid.arrange (p1, p2, p3, p4, ncol=2)
 #t.test (x=real.stats$gamma.pathD8[real.stats$class == 'Actinopterygii'],
 #         y=real.stats$gamma.pathD8[real.stats$class == 'Aves'])
@@ -360,6 +351,7 @@ print (p)
 dev.off ()
 
 # PCA
+# TODO -- get this working again
 stat.names <- c ("colless", "sackin", "psv")
 filtered <- filter (stats, grain=0.1)
 pca (stats, real.stats, stat.names, 'pca.pdf',
