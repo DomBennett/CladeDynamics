@@ -120,6 +120,13 @@ mean (real.stats$gamma.chronopl, na.rm=TRUE)
 sd (real.stats$gamma.chronopl, na.rm=TRUE)
 mean (real.stats$gamma.chronoMPL, na.rm=TRUE)
 sd (real.stats$gamma.chronoMPL, na.rm=TRUE)
+# still +ve for sourced ultra trees
+mean (real.stats$gamma.pathD8[real.stats$ultra], na.rm=TRUE)
+mean (real.stats$gamma.chronoMPL[real.stats$ultra], na.rm=TRUE)
+mean (real.stats$gamma.chronopl[real.stats$ultra], na.rm=TRUE)
+mean (real.stats$psv.pathD8[real.stats$ultra], na.rm=TRUE)
+mean (real.stats$psv.chronoMPL[real.stats$ultra], na.rm=TRUE)
+mean (real.stats$psv.chronopl[real.stats$ultra], na.rm=TRUE)
 # PSV
 t.test (real.stats$psv.pathD8, real.stats$psv.chronopl)
 t.test (real.stats$psv.pathD8, real.stats$psv.chronoMPL)
@@ -131,6 +138,7 @@ mean (real.stats$psv.chronoMPL, na.rm=TRUE)
 sd (real.stats$psv.chronoMPL, na.rm=TRUE)
 
 # SIMULATED
+table (stats$scenario)
 # colless
 round (tapply (stats$colless, stats$scenario, mean, na.rm=TRUE), 2)
 round (tapply (stats$colless, stats$scenario, sd, na.rm=TRUE) , 2)
@@ -164,6 +172,7 @@ t.test (real.stats$psv.pathD8, real.stats$psv.chronoMPL)
 round (tapply (stats$psv, stats$scenario, mean, na.rm=TRUE), 2)
 round (tapply (stats$psv, stats$scenario, sd, na.rm=TRUE), 2)
 round (tapply (extreme$psv, extreme$scenario, mean, na.rm=TRUE), 2)
+round (tapply (extreme$psv, extreme$scenario, median, na.rm=TRUE), 2)
 round (tapply (extreme$psv, extreme$scenario, sd, na.rm=TRUE) , 2)
 round (mean (real.stats$psv, na.rm=TRUE), 2)
 round (sd (real.stats$psv, na.rm=TRUE), 2)
@@ -351,18 +360,19 @@ print (p)
 dev.off ()
 
 # PCA
-# TODO -- get this working again
-stat.names <- c ("colless", "sackin", "psv")
-filtered <- filter (stats, grain=0.1)
-pca (stats, real.stats, stat.names, 'pca.pdf',
-     ignore.chronos=FALSE)
-pca (filtered, real.stats, stat.names, 'pca_filtered.pdf',
-     ignore.chronos=FALSE)
-grains <- pca2 (stats, real.stats, stat.names, 'pca_grains.pdf',
-                ignore.chronos=FALSE)
+# 
+# filtered <- filter (stats, grain=0.1)
+# pca (stats, real.stats, stat.names, 'pca.pdf',
+#      ignore.chronos=FALSE)
+# pca (filtered, real.stats, stat.names, 'pca_filtered.pdf',
+#      ignore.chronos=FALSE)
+
 
 # Tiles of pca res
-pdf (file.path (res.dir, 'tp_pca.pdf'))
+stat.names <- c ("colless", "sackin", "psv")
+grains <- pca2 (stats, real.stats, stat.names, 'pca_grains.pdf',
+                ignore.chronos=FALSE)
+pdf (file.path (res.dir, 'tp_pca.pdf'), width=9)
 real <- grains[nrow (grains), ]
 sim <- grains[-nrow (grains), ]
 d1 <- abs (real$pc1.mean - sim$pc1.mean)
@@ -383,6 +393,10 @@ pca.res <- pca (extreme, real.stats, stat.names)
 plotPCA (pca.res, file.path (res.dir, 'pca_extreme_1.pdf'))
 # gamma partitioned (pathD8 results only)
 pca.res$x <- pca.res$x[pca.res$x$shape %in% c ('pathD8', 'Sim.'), ]
-emp.gamma <- pca.res$x$gamma > 0 & pca.res$x$shape == 'pathD8'
-pca.res$x$shape <- ifelse (emp.gamma, 'High', 'Low')
+scenario <- pca.res$x$Scenario
+pull <- pca.res$x$gamma > 0 & scenario == 'Emp.'
+pca.res$x$Scenario[pull] <- 'Emp. (>0)'
+pull <- pca.res$x$gamma < 0 & scenario == 'Emp.'
+pca.res$x$Scenario[pull] <- 'Emp. (<0)'
+pca.res$x$shape <- NA
 plotPCA (pca.res, file.path (res.dir, 'pca_extreme_2.pdf'))

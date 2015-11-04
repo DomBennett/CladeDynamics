@@ -217,12 +217,9 @@ pca2 <- function (stats, real.stats, stat.names, filename,
   }
   pdf (file.path (res.dir, filename), width=9, height=7)
   # remove any that aren't ultrametric or rate.smooted
-  if (ignore.chronos) {
-    real.stats <- real.stats[real.stats$ultra, ]
-  } else {
-    real.stats <- real.stats[real.stats$ultra | real.stats$chronos, ]
-  }
   # do PCA
+  real.stats$gamma <- real.stats$gamma.pathD8
+  real.stats$psv <- real.stats$psv.pathD8
   real.stats <- real.stats[!is.na (real.stats$gamma), ]
   real.stats <- real.stats[!is.na (real.stats$psv), ]
   real.stats <- real.stats[!is.na (real.stats$sackin), ]
