@@ -65,4 +65,4 @@ cat ('Max Hyd rED: [', max (hyd.rEDs$rED, na.rm=TRUE), ']\n', sep='')
 cat ('Max DE rED: [', max (de.rEDs$rED, na.rm=TRUE), ']\n', sep='')
 
 # Save
-save (file.path ('results', 'rEDs.Rd'))
+save (rEDs, file=file.path ('results', 'rEDs.Rd'))
