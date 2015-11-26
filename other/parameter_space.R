@@ -15,9 +15,9 @@ sig <- c (-0.5, -0.5, 0.5, 0.5)
 eps <- c (-0.5, 0.5, -0.5, 0.5)
 labels <- c ('Pan', 'PF', 'DE', 'Eph')
 text (sig, eps, labels=labels, cex=2)
-sig <- c (-1, -1, 1, 1)
-eps <- c (-1, 1, -1, 1)
-points (sig, eps, pch='X', cex = 2)
+sig <- c (-1, -1, 1, 1, -1)
+eps <- c (-1, 1, -1, 1, 0)
+points (eps, sig, pch='X', cex = 2)
 
 # DECSEXTANTS
 # empty plot

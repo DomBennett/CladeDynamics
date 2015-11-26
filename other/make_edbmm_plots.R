@@ -14,9 +14,10 @@ p3<-chromatophylo (edbmm.trees[['Hyd']][['tree']],
                edge.cols=edbmm.trees[['Hyd']][['edge.diversity']],
                legend.title='Diversity', reduce.overlap=FALSE)
 # title settings
-tt_theme <- theme(plot.title = element_text(face="bold", hjust=0))
+tt_theme <- theme(plot.title = element_text(face="bold", hjust=0, vjust=1),
+                  text = element_text (size=25))
 jpeg (filename="/Users/djb208/Desktop/PRLF_manuscript_paleo/Figure_3.jpg",
-     width=720, height=1440, units="px", pointsize = 12,
+     width=1440, height=2880, units="px", pointsize=12,
      quality=100)
 grid.arrange(p1 + ggtitle ('A') + tt_theme,
              p2 + ggtitle ('B') + tt_theme,

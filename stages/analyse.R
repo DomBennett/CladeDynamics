@@ -99,7 +99,6 @@ length (unique (real.stats$class)) - 1
 length (unique (real.stats$order)) - 1
 sum (real.stats$phylum == 'Unknown' & real.stats$class == 'Unknown' &
      real.stats$order == 'Unknown')
-# TODO -- check why these numbers have changed
 unknowns <- which (real.stats$phylum == 'Unknown' & real.stats$class == 'Unknown' &
          real.stats$order == 'Unknown')
 real.stats[unknowns, 'title']
