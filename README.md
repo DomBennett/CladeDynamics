@@ -32,6 +32,8 @@ Run the `install_deps.R` script to install all dependent packages automatically.
   + `doMC` (1.3.3, not for Windows)
   + `foreach` (1.4.2)
   + `test_that` (0.9.1, optional)
+* External
+  + [PATHd8](http://www2.math.su.se/PATHd8/)
   
 Please note, [MoreTreeTools](https://github.com/DomBennett/MoreTreeTools) is in development and can only be installed via GitHub.
 
@@ -55,6 +57,8 @@ Please note, [MoreTreeTools](https://github.com/DomBennett/MoreTreeTools) is in 
 ----- [all folders named by analysis as specified in run.R]
 -- other/
 -- sanity_checks/
+-- PATHd8
+----- [excutable if parsing trees]
 ```
 
 **Pipeline**

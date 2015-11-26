@@ -30,6 +30,7 @@ Models trees according to parameters specified in `run.R`.
 *parse.R*:
 Parses trees found in `data/raw_trees/treebase` and
 `data/raw_trees/literature`. Parsed trees are written to `data/parsed_trees`.
+(If using PATHd8, executable required in workign directory.)
 
 *precalculate.R*:
 Calculates tree shape statistics of trees in parsed trees for analysis at the
