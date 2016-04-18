@@ -92,6 +92,10 @@ This phase models trees for determining how model parameters affect tree shape:
 The final stage script is user interactive. All plots and analysis presented in the publication
 are generated with this script.
 
+**Clade analysis**
+
+In addition to setup and run, there are additional clade analysis stages: `clade.R` and `analyse_clades.R`.
+
 **Testing**
 
 Run `test.R` to make sure core functions are working.

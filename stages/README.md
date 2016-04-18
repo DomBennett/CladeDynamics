@@ -39,3 +39,6 @@ compare stage.
 *taxonomise.R*:
 Searches and identifies taxonomic identities of trees in `data/parsed_trees`.
 (Run independently of `run.R` and `setup.R`.)
+
+*analyse_clades.R*
+Calculates clade shape statistics and produces clade shape plots.
