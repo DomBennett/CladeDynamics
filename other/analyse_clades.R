@@ -4,6 +4,10 @@
 
 ## Libraries
 source (file.path ('tools', 'analysis_tools.R'))
+library(MoreTreeTools)
+
+# DIRS
+res_dir <- 
 
 ## Input
 trees <- read.tree (file.path (res.dir, treefilename))

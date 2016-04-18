@@ -86,6 +86,8 @@ save (rEDs, file=file.path ('results', 'rEDs.Rd'))
 # load
 load (file.path ('results', 'rEDs.Rd'))
 
+names(rEDs)
+
 # Tree size matters
 # rEDs$ID <- paste0(rEDs$Scenario, rEDs$treefile, sep='-')
 # ntips <- table (rEDs$ID)

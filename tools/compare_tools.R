@@ -144,8 +144,10 @@ readInMultiple <- function (filenames) {
     # read in and bind stats to already existing stats
     load (filename)
     # drop gravity stats that shouldn't have been calculated
-    real.stats$gamma[real.stats$rate.smooth == FALSE] <- NA
-    real.stats$psv[real.stats$rate.smooth == FALSE] <- NA
+    real.stats$gamma[real.stats$rate.smooth == FALSE &
+                       real.stats$ultra == FALSE] <- NA
+    real.stats$psv[real.stats$rate.smooth == FALSE &
+                     real.stats$ultra == FALSE] <- NA
     # rename colnames for binding
     rs.method <- getRateSmooth (unique (real.stats$rate.smooth))
     new.names <- paste0 (change.names, '.', rs.method)
@@ -154,7 +156,8 @@ readInMultiple <- function (filenames) {
     if (is.null (combined)) {
       combined <- real.stats
     } else {
-      combined <- cbind (combined, real.stats[ ,new.name.is])
+      mtchs <- match(combined$Tree.id, real.stats$Tree.id)
+      combined <- cbind (combined, real.stats[mtchs, new.name.is])
     }
     combined
   }
@@ -274,12 +277,15 @@ pca2 <- function (stats, real.stats, stat.names, filename,
   return (res)
 }
 
-pca <- function (stats, real.stats, stat.names, with.gamma=TRUE) {
+pca <- function (stats, real.stats, stat.names, other=NULL, with.gamma=TRUE) {
   # init input
   if (with.gamma) stat.names <- c (stat.names, 'gamma')
   col.names <- c ('scenario', stat.names)
   input <- stats[ ,col.names]
   input$shape <- 'Sim.'
+  if(!is.null(other)) {
+    input[other] <- NA
+  }
   # find all rate smooth methods from real.stats
   methods <- colnames (real.stats)[grepl ('psv', colnames (real.stats))]
   methods <- unlist (strsplit (methods, 'psv\\.'))
@@ -288,9 +294,16 @@ pca <- function (stats, real.stats, stat.names, with.gamma=TRUE) {
     pull.cols <- c (match (stat.names, colnames (real.stats)),
                     match (paste0 (stat.names, '.', method),
                            colnames (real.stats)))
+    if(!is.null(other)) {
+      pull.cols <- c(pull.cols, match(other, colnames(real.stats)))
+    }
     pull.cols <- pull.cols[!is.na (pull.cols)]
     part <- real.stats[ ,pull.cols]
-    colnames (part) <- stat.names
+    if(!is.null(other)) {
+      colnames (part) <- c(stat.names, other)
+    } else {
+      colnames (part) <- stat.names
+    }
     # remove any NAs
     drop.bool <- rep (FALSE, nrow (part))
     for (stat.name in stat.names) {
@@ -308,6 +321,9 @@ pca <- function (stats, real.stats, stat.names, with.gamma=TRUE) {
   xvals <- data.frame (pca.res$x)
   xvals$Scenario <- input$scenario
   xvals$shape <- input$shape
+  if(!is.null(other)) {
+    xvals[other] <- input[other]
+  }
   pca.rot <- as.data.frame (pca.res$rotation)
   prop.var <- round (sapply (pca.res$sdev^2,
                              function (x) Reduce('+', x)/sum (pca.res$sdev^2)), 3)
@@ -340,7 +356,7 @@ plotPCA <- function (pca.res, filename) {
   p <- p + geom_point (aes (colour=Scenario, shape=shape), size=3) +
     geom_errorbar(limitsy, width=0) +
     geom_errorbarh(limitsx, height=0) +
-    xlab (paste0 ('Imbalance - PC1', " (", prop.var['PC1']*100, "%)")) +
+    xlab (paste0 ('Balance - PC1', " (", prop.var['PC1']*100, "%)")) +
     ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
     themedfs
   print (p)
@@ -361,7 +377,7 @@ plotPCA <- function (pca.res, filename) {
     #      rownames (pca.rot[comp[1]]), adj = 1)
     # densities
     p <- ggplot (pca.res$x, aes_string (x = comp[1], y = comp[2])) +
-      geom_density2d(aes (colour=Scenario), stat_bin=1) + theme_bw()
+      geom_density2d(aes (colour=Scenario)) + theme_bw()
     print (p)
   }
   closeDevices ()
@@ -519,10 +535,9 @@ calcTreeStats <- function (trees) {
       # get pd
       pd <- getSize (tree, 'pd')
     }
-    data.frame (colless = colless.stat, sackin = sackin.stat,
-                gamma = gamma.stat, psv = psv.stat, age, pd)
+    data.frame (gamma = gamma.stat, psv = psv.stat, age, pd)
   }
-  mdply (.data = data.frame (i = 1:length (trees)), .fun = engine)[, -1]
+  res <- mdply (.data = data.frame (i = 1:length (trees)), .fun = engine)[, -1]
 }
 
 drawCorresPoints <- function (model, distribution) {

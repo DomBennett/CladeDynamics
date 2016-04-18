@@ -38,6 +38,8 @@ real.stats$phylum[is.na (real.stats$phylum)] <- 'Unknown'
 real.stats$class[is.na (real.stats$class)] <- 'Unknown'
 real.stats$order[is.na (real.stats$order)] <- 'Unknown'
 
+names(extreme)
+
 # PARSE
 cat ('\nDropping outliers ....')
 # remove branch results where psv is greater than 1 -- this is impossible!
@@ -388,7 +390,7 @@ dev.off()
 
 # Looking at PCA of extreme scenarios only
 stat.names <- c ("colless", "sackin", "psv")
-pca.res <- pca (extreme, real.stats, stat.names)
+pca.res <- pca (extreme, real.stats, stat.names, other="quality")
 plotPCA (pca.res, file.path (res.dir, 'pca_extreme_1.pdf'))
 # gamma partitioned (pathD8 results only)
 pca.res$x <- pca.res$x[pca.res$x$shape %in% c ('pathD8', 'Sim.'), ]
@@ -399,3 +401,11 @@ pull <- pca.res$x$gamma < 0 & scenario == 'Emp.'
 pca.res$x$Scenario[pull] <- 'Emp. (<0)'
 pca.res$x$shape <- NA
 plotPCA (pca.res, file.path (res.dir, 'pca_extreme_2.pdf'))
+# literature/TB partitioned
+pull <- scenario == 'Emp.'
+pca.res$x$Scenario[pull] <- paste0('Emp. (', pca.res$x$quality[pull], ')')
+# only use empirical trees that are well sampled
+cnts <- table(pca.res$x$Scenario)
+pull <- pca.res$x$Scenario %in% names(cnts)[cnts > 5]
+pca.res$x <- pca.res$x[pull, ]
+plotPCA (pca.res, file.path (res.dir, 'pca_extreme_3.pdf'))
