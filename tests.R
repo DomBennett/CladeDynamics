@@ -10,6 +10,7 @@ source (file.path ('tools', 'download_tools.R'))
 source (file.path ('tools', 'compare_tools.R'))
 source (file.path ('tools', 'parse_tools.R'))
 source (file.path ('tools', 'precalculate_tools.R'))
+source (file.path ('tools', 'simulation_tools.R'))
 
 ## Tests
 cat ('\n\nRunning tests ...\n')
@@ -34,8 +35,8 @@ test_that ('calcTreeStats([basic]) works ...', {
   balanced.res <- calcTreeStats (list (balanced.tree))
   unbalanced.res <- calcTreeStats (list (unbalanced.tree))
   # colless should be lower for balanced tree
-  expect_less_than (balanced.res[['colless']],
-                    unbalanced.res[['colless']])
+  expect_that (balanced.res[['colless']],
+                    is_less_than(unbalanced.res[['colless']]))
 })
 context ('Testing parse tools ...')
 test_that ('convertToDist([basic]) works ...', {
@@ -73,5 +74,32 @@ test_that ('pack([basic]) works ...', {
   class (trees) <- 'multiPhylo'
   res3 <- pack (trees, 11, 9)
   expect_that (length (res3), equals (5))
+})
+context ('Testing EDBMM model')
+test_that ('.seedTree([basic]) works ...', {
+  tree <- .seedTree (10, 10)
+  # should have ten tips
+  expect_that (length (tree$tip.label), equals (10))
+  # should be 10 time units old
+  expect_that (getAge (tree, node=length (tree$tip.label) + 1)$age,
+               equals (10))
+})
+test_that ('runEDBMM([basic]) works ...', {
+  # grow a tree by 10 tips
+  tree <- runEDBMM (birth=2, death=1, stop.at=10, fossils=TRUE)
+  # it should have 12 tips (because a default seed of two starts it)
+  expect_that (getSize (drop.extinct(tree)), equals (12))
+  # it should have extinct tips
+  cat (paste0 ('NOTE! There is a 0.017 probability of \'runEDBMM([basic])\' test failing.
+               Try running again if it does fail.'))
+  expect_that (is.ultrametric (tree), is_false ())
+})
+test_that ('runEDBMM(record=TRUE) works ...', {
+  # grow a tree by 20 tips, record tree growth every 10 tips added
+  tree <- runEDBMM (birth=1, death=0.5, stop.at=20, sample.at=10,
+                    record=TRUE)
+  expect_that (getSize (tree[[1]]), equals (2))
+  expect_that (getSize (tree[[2]]), equals (12))
+  expect_that (getSize (tree[[3]]), equals (22))
 })
 cat ('\n\nTests passed.\n')

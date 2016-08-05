@@ -4,6 +4,7 @@
 
 ## Libraries
 library (MoreTreeTools)
+source (file.path ('tools', 'simulation_tools.R'))
 
 ## Parameters
 if (!exists ('pars')) {
