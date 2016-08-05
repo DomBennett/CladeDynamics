@@ -10,8 +10,11 @@ rates determined by a tip's evolutionary distinctness.
 ![EDBMM](https://raw.githubusercontent.com/DomBennett/Project-EDBMM/master/other/EDBMM.png "Evolutionary Distinctness Biased Markov Model")
 
 Data and results files are not provided in this repository, only the code is.
-The final set of files and folders used for publication can be found [here]().
- (*Publication pending*)
+All results and starting datasets can be found in the author's [FigShare](https://figshare.com/articles/Data_and_Results/3532568).
+
+
+*Publication pending*
+
 
 **System requirements**
 
@@ -36,6 +39,12 @@ Run the `install_deps.R` script to install all dependent packages automatically.
   + [PATHd8](http://www2.math.su.se/PATHd8/)
   
 Please note, [MoreTreeTools](https://github.com/DomBennett/MoreTreeTools) is in development and can only be installed via GitHub.
+It is best to install using the EDBMM branch:
+
+```{R}
+library(devtools)
+install_github('DomBennett/MoreTreeTools', ref='edbmm')  # install edbmm branch
+```
 
 **Directory structure**
 

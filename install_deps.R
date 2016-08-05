@@ -20,7 +20,7 @@ if (!'devtools' %in% packages) {
 }
 if (!'MoreTreeTools' %in% packages) {
   library (devtools)
-  install_github ('https://github.com/DomBennett/MoreTreeTools.git')
+  install_github ('DomBennett/MoreTreeTools', ref='edbmm')  # install edbmm branch
   counter <- counter + 1
 }
 if (!'ape' %in% packages) {
