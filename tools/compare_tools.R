@@ -8,7 +8,9 @@ library (ape)
 library (apTreeshape)
 library (caper)
 library (geiger)
+library (picante)
 library (ggplot2)
+library (plyr)
 
 dropOutliers <- function (stats, stat.name, signif=0.1^10) {
   # Use Grubb's test to identify outlier and remove them
@@ -358,7 +360,7 @@ plotPCA <- function (pca.res, filename) {
     geom_errorbarh(limitsx, height=0) +
     xlab (paste0 ('Balance - PC1', " (", prop.var['PC1']*100, "%)")) +
     ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
-    themedfs
+    xlim (-1.5, 2.25) + ylim (-1.5, 2.25) + themedfs
   print (p)
   # plot all points
   comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
@@ -368,7 +370,7 @@ plotPCA <- function (pca.res, filename) {
       geom_point (aes (colour=Scenario, shape=shape)) +
       xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
       ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
-      theme_bw ()
+      coord_fixed(ratio = 1) + theme_bw ()
     print (p)
     rm (p)
     #plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
@@ -377,7 +379,8 @@ plotPCA <- function (pca.res, filename) {
     #      rownames (pca.rot[comp[1]]), adj = 1)
     # densities
     p <- ggplot (pca.res$x, aes_string (x = comp[1], y = comp[2])) +
-      geom_density2d(aes (colour=Scenario)) + theme_bw()
+      geom_density2d(aes (colour=Scenario)) + coord_fixed(ratio = 1) +
+      theme_bw()
     print (p)
   }
   closeDevices ()
@@ -535,7 +538,8 @@ calcTreeStats <- function (trees) {
       # get pd
       pd <- getSize (tree, 'pd')
     }
-    data.frame (gamma = gamma.stat, psv = psv.stat, age, pd)
+    data.frame (colless = colless.stat, sackin = sackin.stat,
+                gamma = gamma.stat, psv = psv.stat, age, pd)
   }
   res <- mdply (.data = data.frame (i = 1:length (trees)), .fun = engine)[, -1]
 }

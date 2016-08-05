@@ -73,8 +73,17 @@ for (i in gammas) {
 
 # QUICK STATS
 # how many tips?
-mean (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
-sd (real.stats$ntaxa[real.stats$ntaxa <= 500], na.rm= TRUE)
+ntrees <- data.frame(n=real.stats$ntaxa[real.stats$ntaxa <= 500 &
+                                          !is.na(real.stats$ntaxa)])
+mean (ntrees$n)
+sd (ntrees$n)
+quantile(ntrees$n)
+p <- ggplot(ntrees, aes(n)) + geom_histogram() +
+  xlab("N. tips") + ylab("N. trees") + theme_bw() +
+  theme(text=element_text(size=25))
+pdf (file.path (res.dir, 'ntips_histogram.pdf'), 14, 14)
+print(p)
+dev.off()
 # how many polys?
 sum (real.stats$poly)
 sum (real.stats$poly) *100 /nrow(real.stats)
