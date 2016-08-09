@@ -103,6 +103,7 @@ plotTreeWEds <- function() {
   tiplabels(signif(ed_vals[,1], digits=2), adj = -.25, frame="none", cex=1.5)
 }
 
+library(MoreTreeTools)
 # plot parameters
 n <- 12
 par(mfrow = c (2, 3), mar=c(1, 1, 1, 1))

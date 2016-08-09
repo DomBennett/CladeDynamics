@@ -13,9 +13,9 @@ res <- data.frame(p=res, ed=rep(ed_vals, length(sigs)),
                   sig=rep(sigs, each=length(ed_vals)))
 p <- ggplot(res, aes(x=ed, y=p, group=sig, colour=sig)) +
   geom_line(size= 2) + theme_bw() +
-  scale_colour_gradient(low="blue", high="red", guide=guide_legend(title=expression(sigma))) +
+  scale_colour_gradient(expression(sigma), low='#ff9999', high="#e60000") +
   xlab("Tip Evolutionary Distinctness") + ylab("P(S)") +
-  theme(text=element_text(size=25))
+  theme(text=element_text(size=20))
 print(p)
 
 

@@ -400,7 +400,7 @@ dev.off()
 # Looking at PCA of extreme scenarios only
 stat.names <- c ("colless", "sackin", "psv")
 pca.res <- pca (extreme, real.stats, stat.names, other="quality")
-plotPCA (pca.res, file.path (res.dir, 'pca_extreme_1.pdf'))
+plotPCANoColour (pca.res, file.path (res.dir, 'pca_extreme_1.pdf'))
 # gamma partitioned (pathD8 results only)
 pca.res$x <- pca.res$x[pca.res$x$shape %in% c ('pathD8', 'Sim.'), ]
 scenario <- pca.res$x$Scenario
