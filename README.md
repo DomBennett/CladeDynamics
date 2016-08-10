@@ -10,8 +10,15 @@ rates determined by a tip's evolutionary distinctness.
 ![EDBMM](https://raw.githubusercontent.com/DomBennett/Project-EDBMM/master/other/EDBMM.png "Evolutionary Distinctness Biased Markov Model")
 
 Data and results files are not provided in this repository, only the code is.
-All results and starting datasets can be found in the author's [FigShare](https://figshare.com/articles/Data_and_Results/3532568).
+All results and starting datasets can be found in the [Dryad repository](https://datadryad.org/resource/doi:10.5061/dryad.hm55b). The repository
+holds a large (5GB) compressed file in five parts. These parts must all be downloaded,
+combined and then uncompressed to produce the folders.
 
+```{bash}
+# recombine and uncompress (UNIX)
+cat xaa xab xac xad xae > data_results.tar.gz
+tar zxvf data_results.tar.gz
+```
 
 *Publication pending*
 
