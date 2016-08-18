@@ -382,7 +382,6 @@ dev.off ()
 stat.names <- c ("colless", "sackin", "psv")
 grains <- pca2 (stats, real.stats, stat.names, 'pca_grains.pdf',
                 ignore.chronos=FALSE)
-pdf (file.path (res.dir, 'tp_pca.pdf'), width=9)
 real <- grains[nrow (grains), ]
 sim <- grains[-nrow (grains), ]
 d1 <- abs (real$pc1.mean - sim$pc1.mean)
@@ -391,16 +390,39 @@ d2 <- abs (real$pc2.mean - sim$pc2.mean)
 d2 <- d2/max (d2)
 sim$d <- d1 + d2
 p <- ggplot (sim, aes (x=eps, y=sig)) + geom_tile (aes (fill=d)) +
-  scale_fill_gradient2(low='red', mid='red', high='white', name='PC distance') +
+  scale_fill_gradient2(low='darkred', mid="red", high="white", name='PC distance') +
   labs (x=expression (epsilon), y=expression (sigma)) +
-  theme_bw() + theme (axis.title=element_text(size=25))
+  theme_bw() + theme(axis.title=element_text(size=8), axis.text=element_text(size=6),
+                     legend.text=element_text(size=4), legend.position="left",
+                     legend.title=element_text(size=5), legend.key.size=unit(0.25, "cm"),
+                     legend.margin=unit(0, "cm"))
+# final figure resolution
+tiff("~/Desktop/figure.tiff", width=9, height=7, units="cm",
+     res=1200)
 print (p)
 dev.off()
 
 # Looking at PCA of extreme scenarios only
 stat.names <- c ("colless", "sackin", "psv")
 pca.res <- pca (extreme, real.stats, stat.names, other="quality")
-plotPCANoColour (pca.res, file.path (res.dir, 'pca_extreme_1.pdf'))
+# final figure
+p <- PCANoColour (pca.res, file.path (res.dir, 'pca_extreme_1.pdf'))
+p <- p + geom_text(hjust = 0, nudge_x = 0.05, vjust=1, nudge_y=-0.05, size=2)
+p <- p + theme_bw() + theme(text=element_text(size=4),
+                            axis.title=element_text(size=8),
+                            axis.text=element_text(size=6),
+                            legend.text=element_text(size=6),
+                            legend.position="top",
+                            legend.text=element_text(size=6),
+                            legend.title=element_blank(),
+                            legend.key=element_blank(),
+                            legend.margin=unit(0, "cm"),
+                            legend.key.size=unit(0.25, "cm"))
+tiff("~/Desktop/figure.tiff", width=9, height=9, units="cm",
+     res=1200)
+print(p)
+dev.off()
+
 # gamma partitioned (pathD8 results only)
 pca.res$x <- pca.res$x[pca.res$x$shape %in% c ('pathD8', 'Sim.'), ]
 scenario <- pca.res$x$Scenario

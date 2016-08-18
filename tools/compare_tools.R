@@ -267,8 +267,8 @@ pca2 <- function (stats, real.stats, stat.names, filename,
   for (e in c ('Pan.dist', 'Eph.dist', 'PF.dist', 'DE.dist')) {
     p <- ggplot (res, aes_string (x='pc1.mean', y='pc2.mean', colour=e))
     p <- p + geom_point () +
-      geom_errorbar(limitsy, width=0) +
-      geom_errorbarh(limitsx, width=0) +
+      geom_errorbar(limitsy) +
+      geom_errorbarh(limitsx) +
       scale_colour_gradient2 (mid='red', high='blue', na.value='black') +
       xlab (paste0 ('Imbalance - PC1', " (", prop.var['PC1']*100, "%)")) +
       ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
@@ -386,12 +386,7 @@ plotPCA <- function (pca.res, filename) {
   closeDevices ()
 }
 
-plotPCANoColour <- function (pca.res, filename) {
-  # set theme defaults
-  themedfs <- theme_bw () + theme (legend.title=element_blank(),
-                                   text=element_text(size=15))
-  # open filehandle
-  pdf (filename, width=9, height=7)
+PCANoColour <- function (pca.res, filename) {
   # unpack pca.res
   res <- pca.res$x
   prop.var <- pca.res$p.var
@@ -407,35 +402,13 @@ plotPCANoColour <- function (pca.res, filename) {
                   ymin = PC2.mean - PC2.se)
   res$Scenario[res$Scenario == "Emp."] <- ""
   p <- ggplot (res, aes (x=PC1.mean, y=PC2.mean, label=Scenario))
-  p <- p + geom_point (aes (shape=shape), size=3) +
+  p <- p + geom_point (aes (shape=shape), size=1) +
     geom_errorbar(limitsy, width=0) +
     geom_errorbarh(limitsx, height=0) +
     xlab (paste0 ('Balance - PC1', " (", prop.var['PC1']*100, "%)")) +
     ylab (paste0 ('Gravity - PC2', " (", prop.var['PC2']*100, "%)")) +
-    xlim (-1.5, 2.25) + ylim (-1.5, 2.25) + themedfs
-  print (p + geom_text(hjust = 0, nudge_x = 0.05, vjust=1, nudge_y=-0.05))
-  # plot all points
-  comparisons <- list (c ("PC1", "PC2"), c ("PC2", "PC3"), c ("PC1", "PC3"))
-  for (comp in comparisons) {
-    # points + errorbars
-    p <- ggplot (pca.res$x, aes_string (x = comp[1], y = comp[2])) +
-      geom_point (aes (colour=Scenario, shape=shape)) +
-      xlab (paste0 (comp[1], " (", prop.var[comp[1]], ")")) +
-      ylab (paste0 (comp[2], " (", prop.var[comp[2]], ")")) +
-      coord_fixed(ratio = 1) + theme_bw ()
-    print (p)
-    rm (p)
-    #plot(x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]], xlab = comp[1],
-    #     ylab = comp[2], cex = 0.5, pch = 19)
-    #text (x = pca.rot[ ,comp[1]], y =  pca.rot[ ,comp[2]],
-    #      rownames (pca.rot[comp[1]]), adj = 1)
-    # densities
-    p <- ggplot (pca.res$x, aes_string (x = comp[1], y = comp[2])) +
-      geom_density2d(aes (colour=Scenario)) + coord_fixed(ratio = 1) +
-      theme_bw()
-    print (p)
-  }
-  closeDevices ()
+    xlim (-1.5, 2.25) + ylim (-1.5, 2.25)
+  p
 }
 
 readTrees <- function (metadata, res.dir, runlog) {

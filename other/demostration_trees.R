@@ -99,13 +99,16 @@ balancedTree <- function() {
 plotTreeWEds <- function() {
   ed_vals <- calcED(tree)
   tree$tip.label <- paste('t00000', 1:length(tree$tip.label))
-  plot(tree, show.tip.label=TRUE, edge.width=2, tip.color = "white")
-  tiplabels(signif(ed_vals[,1], digits=2), adj = -.25, frame="none", cex=1.5)
+  plot(tree, show.tip.label=TRUE, tip.color = "white")
+  tiplabels(signif(ed_vals[,1], digits=2), adj = -.25, frame="none")
 }
 
 library(MoreTreeTools)
 # plot parameters
 n <- 12
+
+tiff("~/Desktop/figure.tiff", width=9, height=9, units="cm",
+     res=1200)
 par(mfrow = c (2, 3), mar=c(1, 1, 1, 1))
 
 # PF (balanced, slightly high gravity)
@@ -141,3 +144,4 @@ for(i in 1:3) {
   tree <- reGravitise(tree, .1)
 }
 plotTreeWEds()
+dev.off()
