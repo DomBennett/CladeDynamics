@@ -1,11 +1,8 @@
 # Evolutionary Distinctness Biased Markov Model (EDBMM)
 
-An R pipeline for exploring how an evolutionary distinctness bias in a
-tree-growth Markov model affects tree shape in order to test
-the reality of the living fossil.
+An R pipeline for exploring how an evolutionary distinctness bias in a tree-growth Markov model affects tree shape in order to test the reality of the living fossil, see the published article ['Evolutionarily distinct “living fossils” require both lower speciation and lower extinction rates'](https://doi.org/10.1017/pab.2016.36).
 
-The pipeline uses a Markov-Model to grow trees with extinction and speciation
-rates determined by a tip's evolutionary distinctness.
+The pipeline uses a Markov-Model to grow trees with extinction and speciation rates determined by a tip's evolutionary distinctness.
 
 ![EDBMM](https://raw.githubusercontent.com/DomBennett/Project-EDBMM/master/other/EDBMM.png "Evolutionary Distinctness Biased Markov Model")
 
@@ -19,8 +16,6 @@ combined and then uncompressed to produce the folders.
 cat xaa xab xac xad xae > data_results.tar.gz
 tar zxvf data_results.tar.gz
 ```
-
-*Publication pending*
 
 
 **System requirements**
