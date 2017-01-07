@@ -111,6 +111,10 @@ In addition to setup and run, there are additional clade analysis stages: `clade
 
 Run `test.R` to make sure core functions are working.
 
+**Reference**
+
+Bennett, D.J., Sutton, M.D. & Turvey, S.T., 2016. Evolutionarily distinct “living fossils” require both lower speciation and lower extinction rates. Paleobiology, pp.1–15. Available at: http://www.journals.cambridge.org/abstract_S0094837316000361.
+
 **Author**
 
 Dom Bennett
